@@ -108,6 +108,7 @@ export const COPY = {
       button: 'Wsparcie',
     },
     donation: {
+      badge: 'Dobrowolne wsparcie',
       eyebrow: 'Twój kalendarz już się generuje. Jeśli oszczędzi Ci trochę czasu, możesz później dorzucić się do rozwoju projektu.',
       title: 'Podoba Ci się to co robimy?',
       lead: 'Jak to mówią? Czas to pieniądz 💸. Jeśli nasza praca pozwoli Ci zaoszczędzić trochę czasu, to chętnie napijemy się kawy w Twoim imieniu!',
@@ -223,6 +224,7 @@ export const COPY = {
       button: 'Support',
     },
     donation: {
+      badge: 'Optional support',
       eyebrow: 'Your calendar is already being generated. If it saves you some time, you can support the project later.',
       title: 'Like what we do?',
       lead: 'You know what they say: time is money 💸. If our work saves you a little time, we’ll happily have a coffee on your behalf!',

@@ -7,6 +7,7 @@ import {
   CalendarRange,
   ChevronLeft,
   ChevronRight,
+  Coffee,
   Download,
   FileText,
   Moon,
@@ -504,16 +505,20 @@ export default function Home() {
       <Dialog onOpenChange={setDonationOpen} open={donationOpen}>
         <DialogContent className="donation-dialog" showCloseButton={false}>
           <DialogClose aria-label={copy.donation.closeLabel} className="donation-x"><X aria-hidden="true" /></DialogClose>
+          <div className="donation-signal">
+            <Coffee aria-hidden="true" />
+            <span>{copy.donation.badge}</span>
+          </div>
           <DialogHeader>
             <p className="donation-eyebrow">{copy.donation.eyebrow}</p>
             <div className="donation-copy">
               <DialogTitle>{copy.donation.title}</DialogTitle>
+              <DialogFooter className="donation-actions">
+                <Button disabled><Coffee aria-hidden="true" data-icon="inline-start" />{copy.donation.button}</Button>
+              </DialogFooter>
               <DialogDescription>{copy.donation.lead}</DialogDescription>
             </div>
           </DialogHeader>
-          <DialogFooter className="donation-actions">
-            <Button disabled>{copy.donation.button}</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </main>
