@@ -9,9 +9,11 @@ import {
   ChevronRight,
   Download,
   FileText,
+  Moon,
   MoveHorizontal,
   Ruler,
   Sparkles,
+  Sun,
   X,
 } from 'lucide-react';
 
@@ -67,6 +69,10 @@ type CalendarToolInput = {
   language?: SiteLanguage;
 };
 
+type Theme = 'light' | 'dark';
+
+const THEME_STORAGE_KEY = 'awesome-calendar-theme';
+
 function validToolInput(input: unknown): input is CalendarToolInput {
   if (!input || typeof input !== 'object') return false;
   const value = input as Record<string, unknown>;
@@ -83,6 +89,7 @@ export default function Home() {
   const initialStart = useMemo(() => currentDateValue(), []);
   const initialEnd = useMemo(() => defaultEndDateValue(initialStart), [initialStart]);
   const [language, setLanguage] = useState<SiteLanguage>('pl');
+  const [theme, setTheme] = useState<Theme>('light');
   const [start, setStart] = useState(initialStart);
   const [end, setEnd] = useState(initialEnd);
   const [style, setStyle] = useState<CalendarStyle>('rice');
@@ -110,6 +117,36 @@ export default function Home() {
       else if (savedLanguage === 'en' || savedLanguage === 'pl') setLanguage(savedLanguage);
     }, 0);
     return () => window.clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const syncTheme = () => {
+      if (window.localStorage.getItem(THEME_STORAGE_KEY)) return;
+      const nextTheme: Theme = media.matches ? 'dark' : 'light';
+      root.classList.toggle('dark', nextTheme === 'dark');
+      root.style.colorScheme = nextTheme;
+      setTheme(nextTheme);
+    };
+
+    const timeout = window.setTimeout(() => {
+      setTheme(root.classList.contains('dark') ? 'dark' : 'light');
+    }, 0);
+    media.addEventListener('change', syncTheme);
+    return () => {
+      window.clearTimeout(timeout);
+      media.removeEventListener('change', syncTheme);
+    };
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    const root = document.documentElement;
+    const nextTheme: Theme = root.classList.contains('dark') ? 'light' : 'dark';
+    root.classList.toggle('dark', nextTheme === 'dark');
+    root.style.colorScheme = nextTheme;
+    window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    setTheme(nextTheme);
   }, []);
 
   useEffect(() => {
@@ -263,6 +300,15 @@ export default function Home() {
             <a href="#warianty">{copy.nav.variants}</a>
             <a className="nav-support" href="#wsparcie">{copy.nav.support}</a>
           </nav>
+          <button
+            aria-label={theme === 'dark' ? copy.theme.light : copy.theme.dark}
+            className="theme-toggle"
+            onClick={toggleTheme}
+            title={theme === 'dark' ? copy.theme.light : copy.theme.dark}
+            type="button"
+          >
+            {theme === 'dark' ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
+          </button>
           <fieldset className="language-switch">
             <legend className="language-legend">{copy.languageLabel}</legend>
             <button aria-pressed={language === 'pl'} onClick={() => selectLanguage('pl')} type="button">PL</button>

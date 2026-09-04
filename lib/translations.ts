@@ -3,6 +3,7 @@ import type { SiteLanguage } from '@/lib/calendar';
 export const COPY = {
   pl: {
     languageLabel: 'Język strony',
+    theme: { dark: 'Włącz tryb ciemny', light: 'Włącz tryb jasny' },
     homeLabel: 'The Awesome Calendar — strona główna',
     navLabel: 'Główna nawigacja',
     nav: { how: 'Jak to działa', variants: 'Warianty', support: 'Wesprzyj później' },
@@ -118,6 +119,7 @@ export const COPY = {
   },
   en: {
     languageLabel: 'Site language',
+    theme: { dark: 'Switch to dark mode', light: 'Switch to light mode' },
     homeLabel: 'The Awesome Calendar — home',
     navLabel: 'Main navigation',
     nav: { how: 'How it works', variants: 'Styles', support: 'Support later' },
