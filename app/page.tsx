@@ -86,7 +86,7 @@ function validToolInput(input: unknown): input is CalendarToolInput {
 }
 
 export default function Home() {
-  const initialStart = useMemo(() => currentDateValue(), []);
+  const [initialStart, setInitialStart] = useState(() => new Date().toISOString().slice(0, 10));
   const initialEnd = useMemo(() => defaultEndDateValue(initialStart), [initialStart]);
   const [language, setLanguage] = useState<SiteLanguage>('pl');
   const [theme, setTheme] = useState<Theme>('light');
@@ -118,6 +118,18 @@ export default function Home() {
     }, 0);
     return () => window.clearTimeout(timeout);
   }, []);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      const localStart = currentDateValue();
+      if (localStart === initialStart) return;
+      setInitialStart(localStart);
+      setStart(localStart);
+      setEnd(defaultEndDateValue(localStart));
+      setPreviewPage(0);
+    }, 0);
+    return () => window.clearTimeout(timeout);
+  }, [initialStart]);
 
   useEffect(() => {
     const root = document.documentElement;
