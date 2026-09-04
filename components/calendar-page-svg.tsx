@@ -23,13 +23,14 @@ const DRAW_COPY = {
   en: { glue: 'GLUE HERE' },
 } as const;
 
-function DayColumn({ day, index, stripY, style }: {
+function DayColumn({ day, dayOffset, index, stripY, style }: {
   day: CalendarStripLayout['days'][number];
+  dayOffset: number;
   index: number;
   stripY: number;
   style: CalendarStyle;
 }) {
-  const x = CALENDAR_GEOMETRY.margin + index * DAY_WIDTH;
+  const x = CALENDAR_GEOMETRY.margin + dayOffset + index * DAY_WIDTH;
   const center = x + DAY_WIDTH / 2;
   const lineBottom = stripY + CALENDAR_GEOMETRY.dayAreaHeight - 2 * DAY_WIDTH;
   const pillHeight = CALENDAR_GEOMETRY.dayAreaHeight / 16 * (day.startsMonth ? 1.16 : 1);
@@ -134,12 +135,13 @@ function DayColumn({ day, index, stripY, style }: {
 function MonthLabels({ strip, stripY }: { strip: CalendarStripLayout; stripY: number }) {
   const bandY = stripY + CALENDAR_GEOMETRY.dayAreaHeight;
   const labelGap = 2;
-  const leftEdge = CALENDAR_GEOMETRY.margin + 0.8;
+  const leftEdge = CALENDAR_GEOMETRY.margin + strip.dayOffset + 0.8;
   const drawableWidth = strip.hasGlueTab ? strip.contentWidth : CALENDAR_GEOMETRY.workWidth;
   const rightEdge = CALENDAR_GEOMETRY.margin + drawableWidth - 0.8;
   const requestedLabels = strip.days.flatMap((day, index) => {
     if (!day.startsMonth) return [];
-    const startX = CALENDAR_GEOMETRY.margin + index * DAY_WIDTH;
+    const startX =
+      CALENDAR_GEOMETRY.margin + strip.dayOffset + index * DAY_WIDTH;
     const estimatedWidth = Math.min(31, Math.max(11, day.monthLabel.length * 1.7));
     const latestX = rightEdge - estimatedWidth;
     const requestedX = Math.max(leftEdge, Math.min(startX + 0.8, latestX));
@@ -312,7 +314,16 @@ function CalendarStrip({ strip, row, patternId, style, language, isLastRow }: {
   const stripY = CALENDAR_GEOMETRY.margin + row * CALENDAR_GEOMETRY.stripHeight;
   return (
     <g>
-      {strip.days.map((day, index) => <DayColumn day={day} index={index} key={day.iso} stripY={stripY} style={style} />)}
+      {strip.days.map((day, index) => (
+        <DayColumn
+          day={day}
+          dayOffset={strip.dayOffset}
+          index={index}
+          key={day.iso}
+          stripY={stripY}
+          style={style}
+        />
+      ))}
       <MonthLabels strip={strip} stripY={stripY} />
       <GlueTab language={language} patternId={patternId} strip={strip} stripY={stripY} />
       <YearMarkers strip={strip} stripY={stripY} />

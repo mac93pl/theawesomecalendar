@@ -13,6 +13,7 @@ export const CALENDAR_GEOMETRY = {
   glueTabWidth: 10,
   regularDaysPerStrip: 61,
   finalDaysPerStrip: 63,
+  leadingMarginDays: 2,
   yearMarkerDays: 5,
   yearMarkerHeight: 9.5,
   yearMarkerPadding: 1,
@@ -36,6 +37,7 @@ export type CalendarYearMarkerLayout = {
 export type CalendarStripLayout = {
   index: number;
   days: CalendarDay[];
+  dayOffset: number;
   hasGlueTab: boolean;
   contentWidth: number;
   glueWidth: number;
@@ -54,6 +56,8 @@ export type CalendarLayout = {
   loosePaperLength: number;
   assembledPaperLength: number;
   dayAxisLength: number;
+  leadingMargin: number;
+  trailingMargin: number;
 };
 
 function packDays(days: CalendarDay[]) {
@@ -61,15 +65,29 @@ function packDays(days: CalendarDay[]) {
   let cursor = 0;
 
   while (cursor < days.length) {
+    const isFirstStrip = strips.length === 0;
+    const marginDaySlots = isFirstStrip
+      ? CALENDAR_GEOMETRY.leadingMarginDays
+      : 0;
+    const dayOffset = marginDaySlots * DAY_WIDTH;
     const remaining = days.length - cursor;
-    const hasGlueTab = remaining > CALENDAR_GEOMETRY.finalDaysPerStrip;
-    const take = hasGlueTab ? CALENDAR_GEOMETRY.regularDaysPerStrip : remaining;
+    const finalCapacity =
+      CALENDAR_GEOMETRY.finalDaysPerStrip - marginDaySlots;
+    const hasGlueTab = remaining > finalCapacity;
+    const stripCapacity =
+      (hasGlueTab
+        ? CALENDAR_GEOMETRY.regularDaysPerStrip
+        : CALENDAR_GEOMETRY.finalDaysPerStrip) - marginDaySlots;
+    const take = Math.min(remaining, stripCapacity);
     const stripDays = days.slice(cursor, cursor + take);
-    const contentWidth = stripDays.length * DAY_WIDTH;
+    const contentWidth = hasGlueTab
+      ? REGULAR_CONTENT_WIDTH
+      : dayOffset + stripDays.length * DAY_WIDTH;
 
     strips.push({
       index: strips.length,
       days: stripDays,
+      dayOffset,
       hasGlueTab,
       contentWidth,
       glueWidth: hasGlueTab ? CALENDAR_GEOMETRY.glueTabWidth : 0,
@@ -104,14 +122,19 @@ function packDays(days: CalendarDay[]) {
     ))[0]?.[0] ?? originStripIndex;
     const targetStrip = strips[targetStripIndex];
     const targetStart = stripStarts[targetStripIndex];
-    const requestedX = targetStripIndex === originStripIndex
-      ? (globalIndex - targetStart) * DAY_WIDTH
-      : 0;
+    const requestedX = targetStrip.dayOffset + (
+      targetStripIndex === originStripIndex
+        ? (globalIndex - targetStart) * DAY_WIDTH
+        : 0
+    );
     const drawableWidth = targetStrip.hasGlueTab ? targetStrip.contentWidth : CALENDAR_GEOMETRY.workWidth;
     return [{
       marker: {
         year: day.year,
-        x: Math.max(0, Math.min(requestedX, drawableWidth - YEAR_MARKER_WIDTH)),
+        x: Math.max(
+          targetStrip.dayOffset,
+          Math.min(requestedX, drawableWidth - YEAR_MARKER_WIDTH),
+        ),
         rangeDayCount: daysByYear.get(day.year) ?? 0,
         placementDayCount: placementCounts.get(targetStripIndex) ?? 0,
       },
@@ -151,6 +174,14 @@ export function createCalendarLayout(start: string, end: string, language: SiteL
   }));
   const loosePaperLength = strips.length * CALENDAR_GEOMETRY.workWidth;
   const overlap = strips.reduce((sum, strip) => sum + strip.glueWidth, 0);
+  const firstStrip = strips[0];
+  const lastStrip = strips.at(-1);
+  const leadingMargin = firstStrip?.dayOffset ?? 0;
+  const trailingMargin = lastStrip
+    ? CALENDAR_GEOMETRY.workWidth -
+      lastStrip.dayOffset -
+      lastStrip.days.length * DAY_WIDTH
+    : 0;
   return {
     days,
     strips,
@@ -158,5 +189,7 @@ export function createCalendarLayout(start: string, end: string, language: SiteL
     loosePaperLength,
     assembledPaperLength: loosePaperLength - overlap,
     dayAxisLength: days.length * DAY_WIDTH,
+    leadingMargin,
+    trailingMargin,
   };
 }
