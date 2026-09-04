@@ -1,4 +1,5 @@
 export type CalendarStyle = 'rice' | 'block';
+export type SiteLanguage = 'pl' | 'en';
 
 export type CalendarMonth = {
   year: number;
@@ -8,26 +9,26 @@ export type CalendarMonth = {
   days: number;
 };
 
-export const MONTHS = [
-  'STYCZEŃ', 'LUTY', 'MARZEC', 'KWIECIEŃ', 'MAJ', 'CZERWIEC',
-  'LIPIEC', 'SIERPIEŃ', 'WRZESIEŃ', 'PAŹDZIERNIK', 'LISTOPAD', 'GRUDZIEŃ',
-] as const;
+const MONTHS: Record<SiteLanguage, readonly string[]> = {
+  pl: ['STYCZEŃ', 'LUTY', 'MARZEC', 'KWIECIEŃ', 'MAJ', 'CZERWIEC', 'LIPIEC', 'SIERPIEŃ', 'WRZESIEŃ', 'PAŹDZIERNIK', 'LISTOPAD', 'GRUDZIEŃ'],
+  en: ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'],
+};
 
-export const SHORT_MONTHS = [
-  'STY', 'LUT', 'MAR', 'KWI', 'MAJ', 'CZE',
-  'LIP', 'SIE', 'WRZ', 'PAŹ', 'LIS', 'GRU',
-] as const;
+const SHORT_MONTHS: Record<SiteLanguage, readonly string[]> = {
+  pl: ['STY', 'LUT', 'MAR', 'KWI', 'MAJ', 'CZE', 'LIP', 'SIE', 'WRZ', 'PAŹ', 'LIS', 'GRU'],
+  en: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+};
 
 export function parseMonth(value: string) {
   const parts = value.split('-');
   if (parts.length !== 2 || parts[0].length !== 4 || parts[1].length !== 2) {
-    throw new Error('Nieprawidłowy format miesiąca.');
+    throw new Error('Invalid month format.');
   }
 
   const year = Number(parts[0]);
   const month = Number(parts[1]) - 1;
   if (!Number.isInteger(year) || !Number.isInteger(month) || month < 0 || month > 11) {
-    throw new Error('Nieprawidłowy miesiąc.');
+    throw new Error('Invalid month.');
   }
   return { year, month };
 }
@@ -53,10 +54,10 @@ export function currentMonthValue() {
   return String(now.getFullYear()) + '-' + String(now.getMonth() + 1).padStart(2, '0');
 }
 
-export function createMonths(start: string, end: string): CalendarMonth[] {
+export function createMonths(start: string, end: string, language: SiteLanguage = 'pl'): CalendarMonth[] {
   const count = monthCount(start, end);
   if (count < 1 || count > 24) {
-    throw new Error('Zakres kalendarza musi obejmować od 1 do 24 miesięcy.');
+    throw new Error(language === 'pl' ? 'Zakres kalendarza musi obejmować od 1 do 24 miesięcy.' : 'The calendar range must cover 1 to 24 months.');
   }
 
   const from = parseMonth(start);
@@ -67,18 +68,20 @@ export function createMonths(start: string, end: string): CalendarMonth[] {
     return {
       year,
       month,
-      label: MONTHS[month],
-      shortLabel: SHORT_MONTHS[month],
+      label: MONTHS[language][month],
+      shortLabel: SHORT_MONTHS[language][month],
       days: new Date(Date.UTC(year, month + 1, 0)).getUTCDate(),
     };
   });
 }
 
-export function calendarFileName(start: string, end: string, style: CalendarStyle) {
-  return 'the-awesome-calendar_' + start + '_' + end + '_' + (style === 'rice' ? 'ryz' : 'blok') + '.pdf';
+export function calendarFileName(start: string, end: string, style: CalendarStyle, language: SiteLanguage) {
+  const styleName = style === 'rice' ? (language === 'pl' ? 'ryz' : 'grain') : 'block';
+  return 'the-awesome-calendar_' + language + '_' + start + '_' + end + '_' + styleName + '.pdf';
 }
 
-export function pageWord(count: number) {
+export function pageWord(count: number, language: SiteLanguage) {
+  if (language === 'en') return count === 1 ? 'page' : 'pages';
   if (count === 1) return 'kartka';
   if (count > 1 && count < 5) return 'kartki';
   return 'kartek';
