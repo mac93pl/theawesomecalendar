@@ -13,6 +13,10 @@ const LIGHT_GRAY = '#d8d8d3';
 const BODY_WEEKEND = '#e9e9e5';
 const DATE_CELL = '#d7d7d2';
 const WEEKDAY_CELL = '#bdbdb8';
+const RICE_INK = '#000000';
+const RICE_LINE_WIDTH = 0.16;
+const RICE_MONTH_LINE_WIDTH = 0.24;
+const RICE_WEEK_LABEL_OFFSET = 0.44;
 
 const DRAW_COPY = {
   pl: { glue: 'TU NAKLEJ' },
@@ -28,16 +32,17 @@ function DayColumn({ day, index, stripY, style }: {
   const x = CALENDAR_GEOMETRY.margin + index * DAY_WIDTH;
   const center = x + DAY_WIDTH / 2;
   const lineBottom = stripY + CALENDAR_GEOMETRY.dayAreaHeight - 2 * DAY_WIDTH;
-  const pillHeight = CALENDAR_GEOMETRY.dayAreaHeight / 16;
+  const pillHeight = CALENDAR_GEOMETRY.dayAreaHeight / 16 * (day.startsMonth ? 1.16 : 1);
   const pillWidth = DAY_WIDTH * 0.29;
+  const lineWidth = day.startsMonth ? RICE_MONTH_LINE_WIDTH : RICE_LINE_WIDTH;
   const weekNumber = day.weekday === 1 ? (
     <text
       fill={MID_GRAY}
       fontFamily="Inter, Arial, sans-serif"
-      fontSize={1.65}
+      fontSize={style === 'rice' ? 1.5 : 1.65}
       fontWeight={700}
-      textAnchor="middle"
-      x={center}
+      textAnchor={style === 'rice' ? 'start' : 'middle'}
+      x={style === 'rice' ? center + RICE_WEEK_LABEL_OFFSET : center}
       y={stripY + 3}
     >{day.isoWeek}</text>
   ) : null;
@@ -84,8 +89,8 @@ function DayColumn({ day, index, stripY, style }: {
   return (
     <g>
       <line
-        stroke={MID_GRAY}
-        strokeWidth={0.32}
+        stroke={RICE_INK}
+        strokeWidth={lineWidth}
         x1={center}
         x2={center}
         y1={stripY}
@@ -95,18 +100,16 @@ function DayColumn({ day, index, stripY, style }: {
         fill={day.isWeekend ? INK : '#ffffff'}
         height={pillHeight}
         rx={pillWidth / 2}
-        stroke={INK}
-        strokeWidth={0.32}
+        stroke={RICE_INK}
+        strokeWidth={lineWidth}
         width={pillWidth}
         x={center - pillWidth / 2}
         y={lineBottom - pillHeight}
       />
       {weekNumber}
-      <rect fill="none" height={DAY_WIDTH} stroke={MID_GRAY} strokeWidth={0.18} width={DAY_WIDTH} x={x} y={lineBottom} />
-      <rect fill="none" height={DAY_WIDTH} stroke={MID_GRAY} strokeWidth={0.18} width={DAY_WIDTH} x={x} y={lineBottom + DAY_WIDTH} />
       <text
         dominantBaseline="middle"
-        fill={INK}
+        fill={RICE_INK}
         fontFamily="Inter, Arial, sans-serif"
         fontSize={1.7}
         fontWeight={700}
@@ -116,7 +119,7 @@ function DayColumn({ day, index, stripY, style }: {
       >{day.weekdayLabel}</text>
       <text
         dominantBaseline="middle"
-        fill={INK}
+        fill={RICE_INK}
         fontFamily="Inter, Arial, sans-serif"
         fontSize={1.65}
         fontWeight={700}
@@ -327,6 +330,10 @@ export function CalendarPageSvg({ page, style, language, title, logoHref = '/bra
 }) {
   const patternId = `glue-stripes-${page.index}`;
   const titleId = `calendar-page-${page.index}-title`;
+  const finalCutLineY =
+    CALENDAR_GEOMETRY.margin +
+    page.strips.length * CALENDAR_GEOMETRY.stripHeight +
+    CALENDAR_GEOMETRY.cutLineOffset;
   return (
     <svg
       aria-labelledby={titleId}
@@ -362,8 +369,8 @@ export function CalendarPageSvg({ page, style, language, title, logoHref = '/bra
         href={logoHref}
         preserveAspectRatio="xMinYMid meet"
         width={27.17}
-        x={CALENDAR_GEOMETRY.margin}
-        y={203.5}
+        x={CALENDAR_GEOMETRY.margin - CALENDAR_GEOMETRY.cutLineOffset}
+        y={finalCutLineY + 0.8}
       />
     </svg>
   );
