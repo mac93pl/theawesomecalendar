@@ -109,9 +109,9 @@
   --success: #7fd08e;
   --shadow: #000000;
   --dialog-overlay: rgba(0, 0, 0, 0.78);
-  --donation-background: #e0ad00;
-  --donation-foreground: #0b0b0a;
-  --donation-quiet: #3f350d;
+  --donation-background: #11110f;
+  --donation-foreground: #f4f1e9;
+  --donation-quiet: #b9b6aa;
 }
 
 * { box-sizing: border-box; }
@@ -201,10 +201,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
   gap: clamp(28px, 4vw, 52px);
   justify-content: center;
   min-height: calc(100svh - 76px);
-  padding: clamp(52px, 7vw, 100px) clamp(16px, 4vw, 64px) clamp(58px, 8vw, 112px);
+  padding: clamp(84px, 10vw, 150px) clamp(16px, 4vw, 64px) clamp(96px, 12vw, 180px);
   text-align: center;
   color: var(--on-yellow);
 }
+.dark .promo-hero { background: var(--solid); color: var(--foreground); }
+.dark .promo-hero .eyebrow::before { background: var(--yellow); }
 .hero-copy { align-items: center; display: flex; flex-direction: column; }
 .promo-hero .eyebrow::before { background: var(--on-yellow); }
 .promo-hero h1 { margin-inline: auto; }
@@ -218,6 +220,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .year-download-button {
   cursor: pointer;
 }
+.dark .year-download-card,
+.dark .block-download-card { background: var(--surface); }
 
 .generator-hero {
   background:
@@ -229,7 +233,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   display: grid;
   gap: clamp(28px, 5vw, 72px);
   grid-template-columns: minmax(280px, 0.65fr) minmax(520px, 1.35fr);
-  padding: clamp(70px, 8vw, 124px) clamp(20px, 4vw, 64px);
+  padding: clamp(104px, 12vw, 184px) clamp(20px, 4vw, 64px);
 }
 .generator-intro { align-self: start; position: sticky; top: 120px; }
 .generator-intro h2 { font-size: clamp(3.6rem, 6.8vw, 8rem); }
@@ -408,6 +412,11 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 .cut-line { fill: none; stroke: #777; stroke-dasharray: 10 8; stroke-width: 1.2; }
 .safe-line { fill: none; stroke: #d6d6d2; stroke-width: 1; }
 .strip-label, .strip-number { fill: #0b0b0a; font-family: 'Inter Local', Arial, sans-serif; font-size: 8px; font-weight: 800; letter-spacing: 1px; }
+.dark .sheet-stage { background: var(--surface); color: var(--foreground); }
+.dark .calendar-sheet,
+.dark .year-download-card img,
+.dark .variant-image img,
+.dark .step-card img { filter: invert(1) hue-rotate(180deg); }
 
 .facts-rail {
   background: var(--solid);
@@ -425,13 +434,14 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 .how-section, .variants-section, .faq-section {
   margin: 0 auto;
   max-width: 1500px;
-  padding: clamp(76px, 9vw, 140px) clamp(20px, 4vw, 64px);
+  padding: clamp(104px, 12vw, 184px) clamp(20px, 4vw, 64px);
 }
 .how-section > h2, .variants-section h2, .faq-section h2 { font-size: clamp(3.1rem, 6.8vw, 7.5rem); }
 .steps { display: grid; gap: 0; grid-template-columns: repeat(3, 1fr); margin-top: 52px; }
 .step-card { border: 2px solid var(--ink); min-height: 480px; padding: clamp(22px, 3vw, 40px); position: relative; }
 .step-card + .step-card { border-left: 0; }
 .step-card:nth-child(2) { background: var(--yellow); color: var(--on-yellow); }
+.dark .step-card:nth-child(2) { background: var(--surface); color: var(--foreground); }
 .step-number { font-family: 'Anton Local', sans-serif; font-size: 1rem; font-weight: 700; }
 .step-card img { display: block; height: 210px; margin: 0 auto 14px; object-fit: contain; width: min(100%, 240px); }
 .step-card h3 { font-size: clamp(2.2rem, 4vw, 4rem); }
@@ -448,6 +458,10 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 .variant-copy { background: var(--paper); border-top: 2px solid var(--ink); padding: clamp(24px, 3vw, 42px); }
 .rice-variant .variant-copy { background: var(--yellow); color: var(--on-yellow); }
 .rice-variant .variant-copy button { border-color: var(--solid); }
+.dark .variant-image,
+.dark .block-variant .variant-image,
+.dark .rice-variant .variant-copy { background: var(--surface); color: var(--foreground); }
+.dark .rice-variant .variant-copy button { border-color: var(--ink); }
 .variant-copy > span { font-size: 0.68rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
 .variant-copy h3 { font-size: clamp(2.3rem, 4vw, 4.4rem); margin-top: 10px; }
 .variant-copy p { line-height: 1.52; margin: 16px 0 24px; max-width: 490px; }
@@ -459,13 +473,16 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   display: grid;
   gap: 34px;
   grid-template-columns: auto minmax(0, 1fr) minmax(220px, 0.36fr);
-  padding: clamp(58px, 8vw, 112px) clamp(20px, 6vw, 92px);
+  padding: clamp(96px, 11vw, 168px) clamp(20px, 6vw, 92px);
   color: var(--on-yellow);
 }
 .manifesto-mark { align-items: center; background: var(--solid); color: var(--yellow); display: flex; height: 82px; justify-content: center; transform: rotate(-5deg); width: 82px; }
 .manifesto-mark svg { height: 38px; width: 38px; }
 .manifesto-section blockquote { font-family: 'Anton Local', sans-serif; font-size: clamp(2.5rem, 5vw, 6rem); font-weight: 700; line-height: 0.98; margin: 0; }
 .manifesto-section > p { border-left: 2px solid var(--on-yellow); font-size: 0.94rem; line-height: 1.58; margin: 0; padding-left: 26px; }
+.dark .manifesto-section { background: var(--solid); color: var(--foreground); }
+.dark .manifesto-mark { background: var(--yellow); color: var(--on-yellow); }
+.dark .manifesto-section > p { border-color: var(--line); }
 
 .faq-section { display: grid; gap: clamp(40px, 7vw, 100px); grid-template-columns: minmax(280px, 0.8fr) minmax(360px, 1.2fr); }
 .faq-list { border-top: 2px solid var(--ink); }
@@ -477,7 +494,7 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   background: var(--solid);
   color: var(--solid-foreground);
   overflow: hidden;
-  padding: clamp(72px, 10vw, 150px) clamp(20px, 9vw, 140px);
+  padding: clamp(104px, 12vw, 190px) clamp(20px, 9vw, 140px);
   position: relative;
 }
 .support-section::after {
@@ -554,7 +571,13 @@ footer a { font-weight: 900; justify-self: end; letter-spacing: 0.08em; text-tra
   .site-header .nav-support { display: none; }
   .header-actions { gap: 10px; }
   .nav-support { box-shadow: 3px 3px 0 var(--shadow); font-size: 0.62rem; padding: 8px 9px; }
-  .promo-hero { padding-bottom: 64px; }
+  .promo-hero { padding-block: clamp(76px, 16vw, 112px); }
+  .generator-hero,
+  .how-section,
+  .variants-section,
+  .manifesto-section,
+  .faq-section,
+  .support-section { padding-block: clamp(84px, 18vw, 120px); }
   .date-grid, .style-picker, .variant-grid { grid-template-columns: 1fr; }
   .year-download-card img { height: clamp(130px, 28vw, 190px); }
   .generator-result { align-items: stretch; gap: 16px; }
