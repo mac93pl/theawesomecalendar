@@ -1,34 +1,78 @@
 # The Awesome Calendar
 
-Jednostronicowa strona z generatorem liniowego kalendarza do druku. Użytkownik wybiera zakres od 1 do 24 miesięcy i jeden z dwóch stylów, ogląda podgląd pierwszej strony, a następnie pobiera wielostronicowy PDF A4.
+Jednostronicowy generator liniowego kalendarza do wydruku. Pozwala wybrać
+dowolny zakres dat z dokładnością do dnia, język polski lub angielski oraz jeden
+z dwóch stylów: **Ryż** albo **Boksy**. Gotowy kalendarz jest generowany jako
+wielostronicowy PDF A4 do wycięcia i sklejenia.
 
-## Uruchomienie
+Cała logika generatora oraz eksport PDF działają w przeglądarce. Projekt nie
+wymaga backendu, bazy danych ani zewnętrznej usługi do generowania plików.
 
-Wymagany jest Node.js 22.13 lub nowszy.
+## Stack
 
-    npm install
-    npm run dev
+- React 19, TypeScript i Vinext/Vite,
+- `date-fns` do obliczeń kalendarzowych,
+- SVG jako wspólny format podglądu i wydruku,
+- `jsPDF` oraz `svg2pdf.js` do eksportu PDF,
+- lokalne fonty i grafiki z katalogu `public/`.
 
-Strona będzie dostępna pod adresem http://localhost:3000.
+## Uruchomienie lokalne
 
-## Kontrola jakości
+Wymagany jest Node.js 22.13 lub nowszy oraz npm.
 
-    npm run lint
-    npm run build
+```bash
+npm ci
+npm run dev
+```
 
-## Jak to działa
+Strona będzie dostępna pod adresem <http://localhost:3000>.
 
-- Cała aplikacja działa po stronie przeglądarki — bez backendu, bazy danych i kont użytkowników.
-- PDF generuje się lokalnie przy użyciu pdf-lib i ma format A4 w poziomie.
-- Na jednej stronie mieszczą się cztery miesiące; zakres 12 miesięcy daje trzy strony A4.
-- Fonty i grafiki są częścią projektu, więc generator nie potrzebuje zewnętrznych usług.
-- Sekcja dobrowolnego wsparcia jest celowo nieaktywna. Później można podpiąć Buy Me a Coffee, Ko-fi albo prosty link płatniczy bez przebudowy generatora.
+## Skrypty
 
-## Najważniejsze pliki
+| Polecenie | Działanie |
+| --- | --- |
+| `npm run dev` | Uruchamia lokalny serwer deweloperski. |
+| `npm run lint` | Sprawdza kod aplikacji. |
+| `npm run typecheck` | Sprawdza typy TypeScript. |
+| `npm run build` | Tworzy produkcyjny build w `dist/`. |
+| `npm run check` | Uruchamia lint, sprawdzanie typów i build. |
+| `npm run start` | Uruchamia lokalnie zbudowanego Workera. |
+| `npm run deploy` | Wdraża gotowy `dist/` przez Wrangler. |
 
-- app/page.tsx — interfejs i interakcje onepagera.
-- app/globals.css — kompletny responsywny layout.
-- lib/calendar.ts — logika zakresów i miesięcy.
-- lib/calendar-pdf.ts — skład oraz pobieranie PDF.
-- public/brand — oryginalne grafiki projektu.
-- public/fonts — lokalne fonty oraz ich licencje OFL.
+## CI/CD
+
+Workflow `.github/workflows/ci-cd.yml` uruchamia się dla pull requestów, pushy
+do `main` oraz ręcznie:
+
+1. instaluje zależności przez `npm ci`,
+2. uruchamia lint i sprawdzanie typów,
+3. buduje aplikację,
+4. zapisuje katalog `dist/` jako krótko przechowywany artefakt,
+5. opcjonalnie wdraża ten sam artefakt do Cloudflare Workers.
+
+Wdrożenie jest domyślnie wyłączone, dzięki czemu pierwszy push nie zakończy się
+błędem z powodu brakujących danych Cloudflare. Aby włączyć automatyczne CD, w
+ustawieniach repozytorium GitHub dodaj:
+
+- sekret `CLOUDFLARE_API_TOKEN` z minimalnymi uprawnieniami do wdrażania
+  Workera,
+- sekret `CLOUDFLARE_ACCOUNT_ID`,
+- zmienną repozytorium `CLOUDFLARE_DEPLOY_ENABLED` o wartości `true`.
+
+Po włączeniu CD każdy poprawny push do `main` wdroży wersję produkcyjną. Workflow
+można też uruchomić ręcznie z zakładki **Actions**. Żaden sekret nie jest
+przechowywany w kodzie ani w konfiguracji Git.
+
+## Struktura projektu
+
+- `app/page.tsx` — onepager i interakcje generatora,
+- `app/globals.css` — layout, responsywność i styl strony,
+- `components/calendar-page-svg.tsx` — render pojedynczej strony kalendarza,
+- `lib/calendar.ts` — daty, zakresy i presety,
+- `lib/calendar-layout.ts` — geometria stron, pasków i dni,
+- `lib/calendar-export.tsx` — generowanie SVG i PDF,
+- `lib/translations.ts` — teksty polskie i angielskie,
+- `public/brand` oraz `public/fonts` — lokalne zasoby.
+
+Wygenerowane katalogi `dist/`, `output/` i lokalne pliki środowiskowe są
+ignorowane przez Git.
