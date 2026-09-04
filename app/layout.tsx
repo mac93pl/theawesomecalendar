@@ -3,9 +3,9 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'The Awesome Calendar — kalendarz liniowy do druku',
+  title: 'The Awesome Calendar - kalendarz liniowy',
   description:
-    'Wygeneruj własny kalendarz liniowy, wydrukuj go na kartkach A4 i sklej w jedną czytelną oś czasu.',
+    'Wydrukuj kalendarz na kartkach A4 i sklej w jedną czytelną oś czasu.',
 };
 
 export default function RootLayout({

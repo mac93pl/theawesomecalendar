@@ -152,8 +152,8 @@ export default function Home() {
   useEffect(() => {
     document.documentElement.lang = language;
     document.title = language === 'pl'
-      ? 'The Awesome Calendar — kalendarz liniowy do druku'
-      : 'The Awesome Calendar — printable linear calendar';
+      ? 'The Awesome Calendar - kalendarz liniowy'
+      : 'The Awesome Calendar - linear calendar';
   }, [language]);
 
   const invalidRange = !rangeIsValid(start, end);
@@ -328,13 +328,13 @@ export default function Home() {
         <div className="year-download-grid">
           <article className="year-download-card rice-download-card">
             <Image alt={copy.variants.riceAlt} height={600} priority src="/brand/ryz-preview.png" width={900} />
-            <Button disabled={downloadState === 'working'} onClick={() => void runDownload('rice', { start: initialStart, end: initialEnd })}>
+            <Button className="year-download-button" disabled={downloadState === 'working'} onClick={() => void runDownload('rice', { start: initialStart, end: initialEnd })}>
               <Download aria-hidden="true" data-icon="inline-start" />{copy.hero.riceButton}
             </Button>
           </article>
           <article className="year-download-card block-download-card">
             <Image alt={copy.variants.blockAlt} height={600} priority src="/brand/blok-preview.png" width={900} />
-            <Button disabled={downloadState === 'working'} onClick={() => void runDownload('block', { start: initialStart, end: initialEnd })}>
+            <Button className="year-download-button" disabled={downloadState === 'working'} onClick={() => void runDownload('block', { start: initialStart, end: initialEnd })}>
               <Download aria-hidden="true" data-icon="inline-start" />{copy.hero.blockButton}
             </Button>
           </article>
@@ -354,10 +354,6 @@ export default function Home() {
             <div className="generator-heading">
               <div><p className="section-kicker">{copy.generator.kicker}</p><h2>{copy.generator.heading}</h2></div>
               <CalendarRange aria-hidden="true" />
-            </div>
-            <div className="date-grid">
-              <label htmlFor="calendar-start"><span>{copy.generator.start}</span><Input aria-invalid={invalidRange} id="calendar-start" max="9999-12-31" min="1900-01-01" onChange={(event) => setStart(event.target.value)} type="date" value={start} /></label>
-              <label htmlFor="calendar-end"><span>{copy.generator.end}</span><Input aria-invalid={invalidRange} id="calendar-end" max="9999-12-31" min={start || '1900-01-01'} onChange={(event) => setEnd(event.target.value)} type="date" value={end} /></label>
             </div>
             {language === 'pl' && (
               <div className="preset-group">
@@ -382,6 +378,10 @@ export default function Home() {
                 </div>
               </div>
             )}
+            <div className="date-grid">
+              <label htmlFor="calendar-start"><span>{copy.generator.start}</span><Input aria-invalid={invalidRange} id="calendar-start" max="9999-12-31" min="1900-01-01" onChange={(event) => setStart(event.target.value)} type="date" value={start} /></label>
+              <label htmlFor="calendar-end"><span>{copy.generator.end}</span><Input aria-invalid={invalidRange} id="calendar-end" max="9999-12-31" min={start || '1900-01-01'} onChange={(event) => setEnd(event.target.value)} type="date" value={end} /></label>
+            </div>
             <RadioGroup aria-label={copy.generator.styleLabel} className="style-picker" onValueChange={(value) => setStyle(value as CalendarStyle)} value={style}>
               <label className="style-option" htmlFor="style-rice"><RadioGroupItem id="style-rice" value="rice" /><span><strong>{copy.generator.rice}</strong><small>{copy.generator.riceHint}</small></span></label>
               <label className="style-option" htmlFor="style-block"><RadioGroupItem id="style-block" value="block" /><span><strong>{copy.generator.block}</strong><small>{copy.generator.blockHint}</small></span></label>
@@ -492,13 +492,14 @@ export default function Home() {
       <Dialog onOpenChange={setDonationOpen} open={donationOpen}>
         <DialogContent className="donation-dialog" showCloseButton={false}>
           <DialogClose aria-label={copy.donation.closeLabel} className="donation-x"><X aria-hidden="true" /></DialogClose>
-          <Image alt={copy.donation.mockupAlt} className="donation-mockup" height={600} src="/brand/donation-mockup.png" width={800} />
           <DialogHeader>
-            <DialogTitle>{copy.donation.title}</DialogTitle>
-            <DialogDescription>{copy.donation.text}</DialogDescription>
+            <p className="donation-eyebrow">{copy.donation.eyebrow}</p>
+            <div className="donation-copy">
+              <DialogTitle>{copy.donation.title}</DialogTitle>
+              <DialogDescription>{copy.donation.lead}</DialogDescription>
+            </div>
           </DialogHeader>
           <DialogFooter className="donation-actions">
-            <DialogClose render={<Button className="donation-later" variant="outline" />}>{copy.donation.close}</DialogClose>
             <Button disabled>{copy.donation.button}</Button>
           </DialogFooter>
         </DialogContent>

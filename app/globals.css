@@ -83,6 +83,9 @@
   --success: #286d36;
   --shadow: #0b0b0a;
   --dialog-overlay: rgba(11, 11, 10, 0.72);
+  --donation-background: #ffc914;
+  --donation-foreground: #0b0b0a;
+  --donation-quiet: #51430c;
 }
 
 :root.dark {
@@ -106,6 +109,9 @@
   --success: #7fd08e;
   --shadow: #000000;
   --dialog-overlay: rgba(0, 0, 0, 0.78);
+  --donation-background: #e0ad00;
+  --donation-foreground: #0b0b0a;
+  --donation-quiet: #3f350d;
 }
 
 * { box-sizing: border-box; }
@@ -209,6 +215,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .year-download-card button { background: var(--solid); border: 0; border-radius: 0; color: var(--solid-foreground); font-size: 0.72rem; font-weight: 900; height: 56px; letter-spacing: 0.06em; line-height: 1.15; text-transform: uppercase; white-space: normal; }
 .year-download-card button:hover { background: var(--surface); color: var(--foreground); }
 .year-download-card button:disabled { background: var(--disabled); color: var(--solid-foreground); }
+.year-download-button {
+  cursor: pointer;
+}
 
 .generator-hero {
   background:
@@ -292,7 +301,10 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   padding: 0 12px;
 }
 .date-grid input:focus-visible { border-color: var(--ink); box-shadow: 4px 4px 0 var(--yellow); outline: none; }
-.preset-group { margin-top: 18px; }
+.preset-group {
+  margin-top: 18px;
+  margin-bottom: 18px;
+}
 .preset-group > span {
   display: block;
   font-size: 0.68rem;
@@ -485,28 +497,33 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 .support-section button { background: transparent; border: 2px solid #777; border-radius: 0; color: #aaa; font-size: 0.74rem; font-weight: 900; height: 50px; letter-spacing: 0.08em; padding: 0 22px; position: relative; text-transform: uppercase; z-index: 1; }
 
 .donation-dialog {
-  background: var(--paper);
-  border: 2px solid var(--ink);
+  aspect-ratio: 16 / 9;
+  background: var(--donation-background);
+  border: 2px solid var(--donation-foreground);
   border-radius: 0;
-  box-shadow: 12px 12px 0 var(--yellow);
+  box-shadow: none;
+  color: var(--donation-foreground);
+  display: flex;
+  flex-direction: column;
   gap: 0;
-  max-height: min(860px, calc(100svh - 32px));
-  max-width: min(760px, calc(100vw - 32px));
+  max-height: calc(100svh - 32px);
+  max-width: none;
   overflow: auto;
   padding: 0;
   outline: none;
+  width: min(920px, calc(100vw - 32px), calc((100svh - 32px) * 1.7778));
 }
 [data-slot='dialog-overlay'] { background: var(--dialog-overlay); backdrop-filter: blur(4px); }
-.donation-x { align-items: center; background: var(--yellow); border: 2px solid var(--ink); color: var(--on-yellow); cursor: pointer; display: flex; height: 42px; justify-content: center; padding: 0; position: absolute; right: 12px; top: 12px; width: 42px; z-index: 2; }
+.donation-x { align-items: center; background: transparent; border: 2px solid var(--donation-foreground); color: var(--donation-foreground); cursor: pointer; display: flex; height: 42px; justify-content: center; padding: 0; position: absolute; right: 16px; top: 16px; width: 42px; z-index: 2; }
+.donation-x:hover { background: var(--donation-foreground); color: var(--donation-background); }
 .donation-x svg { height: 20px; width: 20px; }
-.donation-mockup { background: var(--yellow); border-bottom: 2px solid var(--ink); display: block; height: min(42vh, 390px); object-fit: cover; width: 100%; }
-.donation-dialog [data-slot='dialog-header'] { gap: 14px; padding: clamp(24px, 4vw, 46px); }
-.donation-dialog [data-slot='dialog-title'] { font-family: 'Anton Local', 'Arial Narrow', sans-serif; font-size: clamp(3rem, 6vw, 5.8rem); font-weight: 700; line-height: 0.95; }
-.donation-dialog [data-slot='dialog-description'] { color: var(--quiet); font-size: 1rem; line-height: 1.55; max-width: 620px; }
-.donation-actions { background: var(--yellow); border-radius: 0; border-top: 2px solid var(--ink); color: var(--on-yellow); margin: 0; padding: 18px clamp(24px, 4vw, 46px); }
-.donation-actions button { border: 2px solid var(--ink); border-radius: 0; font-size: 0.72rem; font-weight: 900; height: 48px; letter-spacing: 0.06em; text-transform: uppercase; }
-.donation-actions > button:last-child { background: var(--solid); border-color: var(--solid); color: var(--solid-foreground); }
-.donation-later { background: transparent; }
+.donation-dialog [data-slot='dialog-header'] { display: grid; flex: 1; gap: clamp(24px, 4vh, 44px); grid-template-rows: auto 1fr; padding: clamp(26px, 4vw, 46px) clamp(64px, 8vw, 100px) 0; text-align: center; }
+.donation-eyebrow { color: var(--donation-quiet); font-size: clamp(0.75rem, 1.2vw, 0.88rem); font-weight: 700; line-height: 1.45; margin: 0 auto; max-width: 680px; padding-inline: 24px; }
+.donation-copy { align-self: center; display: grid; gap: clamp(18px, 2.5vh, 28px); justify-items: center; padding-block: 8px; }
+.donation-dialog [data-slot='dialog-title'] { color: var(--donation-foreground); font-family: 'Anton Local', 'Arial Narrow', sans-serif; font-size: clamp(3.1rem, 6.3vw, 6rem); font-weight: 700; line-height: 0.95; margin: 0; max-width: 760px; text-wrap: balance; }
+.donation-dialog [data-slot='dialog-description'] { color: var(--donation-quiet); font-size: clamp(0.95rem, 1.35vw, 1.08rem); line-height: 1.55; margin: 0; max-width: 680px; text-wrap: balance; }
+.donation-actions { align-items: center; background: transparent; border: 0; border-radius: 0; color: var(--donation-foreground); justify-content: center; margin: 0; padding: clamp(18px, 3vw, 32px); }
+.donation-actions button { background: var(--donation-foreground); border: 2px solid var(--donation-foreground); border-radius: 0; color: var(--donation-background); font-size: 0.75rem; font-weight: 900; height: 50px; letter-spacing: 0.06em; min-width: 210px; opacity: 1; text-transform: uppercase; }
 
 footer {
   align-items: center;
@@ -555,6 +572,17 @@ footer a { font-weight: 900; justify-self: end; letter-spacing: 0.08em; text-tra
   .manifesto-section > p { grid-column: 1; }
   .faq-section { grid-template-columns: 1fr; }
   .support-section::after { opacity: 0.25; }
+  .donation-dialog {
+    aspect-ratio: 9 / 16;
+    max-height: calc(100svh - 24px);
+    width: min(460px, calc(100vw - 24px), calc((100svh - 24px) * 0.5625));
+  }
+  .donation-dialog [data-slot='dialog-header'] { gap: 24px; padding: 62px clamp(24px, 8vw, 44px) 0; }
+  .donation-eyebrow { font-size: 0.75rem; padding-inline: 0; }
+  .donation-dialog [data-slot='dialog-title'] { font-size: clamp(2.7rem, 12vw, 4.3rem); }
+  .donation-dialog [data-slot='dialog-description'] { font-size: 0.95rem; }
+  .donation-actions { padding: 20px clamp(24px, 8vw, 44px) 28px; }
+  .donation-actions button { width: 100%; }
   footer { gap: 20px; grid-template-columns: 1fr; }
   footer p { text-align: left; }
   footer a { justify-self: start; }
@@ -573,8 +601,6 @@ footer a { font-weight: 900; justify-self: end; letter-spacing: 0.08em; text-tra
   .year-download-card { grid-template-rows: minmax(118px, 1fr) auto; }
   .year-download-card img { height: 120px; padding: 10px; }
   .year-download-card button { font-size: 0.62rem; height: 58px; min-height: 0; padding-inline: 8px; }
-  .donation-actions { flex-direction: column-reverse; }
-  .donation-actions button { width: 100%; }
   .preview-toolbar { align-items: flex-start; flex-direction: column; gap: 9px; }
   .preview-page-controls { justify-content: space-between; width: 100%; }
   .sheet-stage { padding: 12px; }
