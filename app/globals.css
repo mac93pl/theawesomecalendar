@@ -1066,7 +1066,7 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   width: 44px;
 }
 .donation-download-check svg { height: 62%; stroke-width: 3; width: 62%; }
-.donation-download-check svg path { animation: donation-check-draw 1.2s 120ms ease-out both; stroke-dasharray: 48; stroke-dashoffset: 48; }
+.donation-download-check svg path { animation: donation-check-draw 1.2s 1s ease-out both; stroke-dasharray: 48; stroke-dashoffset: 48; }
 .donation-download-message { display: grid; gap: 2px; min-width: 0; }
 .donation-download-message strong { font-size: 0.9rem; font-weight: 900; letter-spacing: 0.055em; line-height: 1.15; text-transform: uppercase; }
 .donation-download-message small { color: var(--donation-quiet); font-size: clamp(0.75rem, 1.2vw, 0.88rem); line-height: 1.45; }
