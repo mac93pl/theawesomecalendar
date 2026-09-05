@@ -198,9 +198,11 @@ export const COPY = {
       badge: 'Dobrowolne wsparcie',
       downloadTitle: 'Kalendarz gotowy!',
       downloadLead:
-        'Generowanie zakończone. Pobieranie zrobione. Jeśli oszczędzi Ci trochę czasu, możesz dorzucić się do rozwoju projektu.',
+        'Generowanie zakończone. Plik jest gotowy. Jeśli oszczędzi Ci trochę czasu, możesz dorzucić się do rozwoju projektu.',
+      mobilePreparing: 'Przygotowuję plik',
       mobileDownload: 'Pobierz i zapisz w plikach',
       title: 'Podoba Ci się to, co robimy?',
+      voluntaryLead: 'Wsparcie jest dobrowolne — możesz wybrać dowolną kwotę.',
       lead: 'Jak to mówią? Czas to pieniądz 💸. Jeśli nasza praca pozwoli Ci zaoszczędzić trochę czasu, to chętnie napijemy się kawy w Twoim imieniu!',
       amountLegend: 'Wybierz kwotę',
       amountNames: [
@@ -440,9 +442,11 @@ export const COPY = {
       badge: 'Optional support',
       downloadTitle: 'Calendar ready!',
       downloadLead:
-        'Generation complete. Download done. If it saves you some time, you can contribute to the project’s development.',
+        'Generation complete. Your file is ready. If it saves you some time, you can contribute to the project’s development.',
+      mobilePreparing: 'Preparing your file',
       mobileDownload: 'Download and save to Files',
       title: 'Like what we do?',
+      voluntaryLead: 'Support is optional — choose any amount you like.',
       lead: 'You know what they say: time is money 💸. If our work saves you a little time, we’ll happily have a coffee on your behalf!',
       amountLegend: 'Choose an amount',
       amountNames: [

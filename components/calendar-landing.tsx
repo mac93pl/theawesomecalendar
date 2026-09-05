@@ -118,12 +118,12 @@ type CalendarDownloadRequest = {
 type Theme = 'light' | 'dark';
 type SupportStatus = 'cancelled' | 'error' | 'invalid' | 'success' | null;
 type ShareStatus = 'copied' | 'error' | 'idle' | 'shared';
+type MobilePdfStatus = 'idle' | 'preparing' | 'ready';
 type PendingPdfDownload = {
   deliveryFrame: number | null;
   deliveryTimeout: number | null;
   file: File;
   filename: string;
-  manuallyDelivered: boolean;
   url: string;
 };
 
@@ -282,6 +282,8 @@ function DonationCheckout({
 }: DonationCheckoutProps) {
   const supportConfig = SUPPORT_CONFIG[language];
   const statusMessage = status ? copy.status[status] : '';
+  const [customAmountOpen, setCustomAmountOpen] = useState(false);
+  const customAmountId = `donation-custom-${source}`;
 
   return (
     <div className="donation-checkout">
@@ -314,7 +316,24 @@ function DonationCheckout({
           ))}
         </div>
       </fieldset>
-      <form action="/api/checkout" className="donation-custom" method="post">
+      {source === 'dialog' ? (
+        <button
+          aria-controls={customAmountId}
+          aria-expanded={customAmountOpen}
+          className="donation-custom-toggle"
+          onClick={() => setCustomAmountOpen((open) => !open)}
+          type="button"
+        >
+          <span>{copy.customLabel}</span>
+          <ChevronDown aria-hidden="true" />
+        </button>
+      ) : null}
+      <form
+        action="/api/checkout"
+        className={`donation-custom${source === 'dialog' ? ' is-mobile-collapsible' : ''}${customAmountOpen ? ' is-open' : ''}`}
+        id={customAmountId}
+        method="post"
+      >
         <input name="language" type="hidden" value={language} />
         <input name="source" type="hidden" value={source} />
         <label htmlFor={`support-amount-${source}`}>{copy.customLabel}</label>
@@ -404,7 +423,8 @@ export function CalendarLanding({
     total: number;
   } | null>(null);
   const [donationOpen, setDonationOpen] = useState(false);
-  const [mobilePdfReady, setMobilePdfReady] = useState(false);
+  const [mobilePdfStatus, setMobilePdfStatus] =
+    useState<MobilePdfStatus>('idle');
   const [supportStatus, setSupportStatus] = useState<SupportStatus>(null);
   const [shareStatus, setShareStatus] = useState<ShareStatus>('idle');
   const downloadAbortRef = useRef<AbortController | null>(null);
@@ -603,7 +623,7 @@ export function CalendarLanding({
       }
       const controller = new AbortController();
       downloadAbortRef.current = controller;
-      setMobilePdfReady(false);
+      setMobilePdfStatus('idle');
       setDownloadState('working');
       setDownloadProgress({ current: 0, total: targetLayout.pages.length });
 
@@ -630,25 +650,20 @@ export function CalendarLanding({
           deliveryTimeout: null,
           file,
           filename: result.filename,
-          manuallyDelivered: false,
           url: URL.createObjectURL(file),
         };
         const mobileFlow = isMobilePdfFlow();
         pendingPdfRef.current = pendingPdf;
         setDownloadState('done');
-        setMobilePdfReady(mobileFlow);
+        setMobilePdfStatus(mobileFlow ? 'preparing' : 'idle');
         setDonationOpen(true);
         pendingPdf.deliveryFrame = window.requestAnimationFrame(() => {
           pendingPdf.deliveryFrame = null;
           pendingPdf.deliveryTimeout = window.setTimeout(() => {
             pendingPdf.deliveryTimeout = null;
-            if (
-              pendingPdfRef.current !== pendingPdf ||
-              pendingPdf.manuallyDelivered
-            )
-              return;
+            if (pendingPdfRef.current !== pendingPdf) return;
             if (mobileFlow) {
-              openPdfInNewTab(pendingPdf.url);
+              setMobilePdfStatus('ready');
               return;
             }
             triggerPdfDownload(pendingPdf.url, pendingPdf.filename);
@@ -708,7 +723,6 @@ export function CalendarLanding({
     const pending = pendingPdfRef.current;
     if (!pending) return;
 
-    pending.manuallyDelivered = true;
     if (pending.deliveryFrame !== null) {
       window.cancelAnimationFrame(pending.deliveryFrame);
       pending.deliveryFrame = null;
@@ -1835,14 +1849,29 @@ export function CalendarLanding({
                 </span>
               </output>
               <div className="donation-share">
-                {mobilePdfReady ? (
+                {mobilePdfStatus !== 'idle' ? (
                   <Button
                     className="donation-mobile-download-button"
+                    data-state={mobilePdfStatus}
+                    disabled={mobilePdfStatus === 'preparing'}
                     onClick={() => void saveMobilePdf()}
                     type="button"
                   >
-                    <Download aria-hidden="true" data-icon="inline-start" />
-                    {copy.donation.mobileDownload}
+                    {mobilePdfStatus === 'preparing' ? (
+                      <>
+                        <span>{copy.donation.mobilePreparing}</span>
+                        <span aria-hidden="true" className="donation-download-dots">
+                          <i />
+                          <i />
+                          <i />
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Download aria-hidden="true" data-icon="inline-start" />
+                        {copy.donation.mobileDownload}
+                      </>
+                    )}
                   </Button>
                 ) : null}
                 <Button
@@ -1863,6 +1892,9 @@ export function CalendarLanding({
               </div>
               <div className="donation-copy">
                 <DialogTitle>{copy.donation.title}</DialogTitle>
+                <p className="donation-voluntary-copy">
+                  {copy.donation.voluntaryLead}
+                </p>
                 <DialogFooter className="donation-actions">
                   <DonationCheckout
                     copy={copy.donation}
