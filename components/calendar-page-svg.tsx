@@ -34,8 +34,8 @@ const SAMPLE_VIEW_HEIGHT = SAMPLE_VIEW_WIDTH / 1.5;
 const SAMPLE_VIEW_Y = CALENDAR_GEOMETRY.margin - 6;
 
 const DRAW_COPY = {
-  pl: { glue: 'TU NAKLEJ' },
-  en: { glue: 'GLUE HERE' },
+  pl: { cut: 'TU PRZETNIJ', glue: 'TU NAKLEJ' },
+  en: { cut: 'CUT HERE', glue: 'GLUE HERE' },
 } as const;
 
 function estimateMonthLabelWidth(label: string, visualScale: number) {
@@ -318,11 +318,12 @@ function CutGuides({ geometry, row, stripY, isLastRow }: {
   const right = geometry.margin + geometry.workWidth + offset;
   const top = stripY - (row === 0 ? offset : 0);
   const bottom = stripY + geometry.stripHeight + (isLastRow ? offset : 0);
+  const isStandardDivider = geometry.format === 'standard' && row === 0 && !isLastRow;
   const segments = [
     `M ${left} ${top} V ${bottom}`,
     `M ${right} ${top} V ${bottom}`,
     row === 0 ? `M ${left} ${top} H ${right}` : '',
-    `M ${left} ${bottom} H ${right}`,
+    isStandardDivider ? '' : `M ${left} ${bottom} H ${right}`,
   ].filter(Boolean).join(' ');
   return (
     <path
@@ -332,6 +333,64 @@ function CutGuides({ geometry, row, stripY, isLastRow }: {
       strokeDasharray="1.2 1.1"
       strokeWidth={0.18}
     />
+  );
+}
+
+function StandardPageDivider({ geometry, language, page }: {
+  geometry: CalendarGeometry;
+  language: SiteLanguage;
+  page: CalendarPageLayout;
+}) {
+  if (geometry.format !== 'standard' || page.strips.length < 2) return null;
+  const y = geometry.margin + geometry.stripHeight;
+  const labelPositions = [geometry.margin / 2, geometry.pageWidth - geometry.margin / 2];
+  const [labelTop, labelBottom] = DRAW_COPY[language].cut.split(' ');
+
+  return (
+    <g>
+      <line
+        stroke={MID_GRAY}
+        strokeDasharray="1.2 1.1"
+        strokeWidth={0.18}
+        x1={0}
+        x2={geometry.pageWidth}
+        y1={y}
+        y2={y}
+      />
+      {labelPositions.map((x) => (
+        <g key={x}>
+          <text
+            fill={INK}
+            fontFamily="Lato, sans-serif"
+            fontSize={1.35}
+            fontWeight={900}
+            letterSpacing={0.1}
+            textAnchor="middle"
+            x={x}
+            y={y - 6.2}
+          >{labelTop}</text>
+          <text
+            fill={INK}
+            fontFamily="Lato, sans-serif"
+            fontSize={1.55}
+            fontWeight={900}
+            letterSpacing={0.1}
+            textAnchor="middle"
+            x={x}
+            y={y - 4.15}
+          >{labelBottom}</text>
+          <line
+            stroke={INK}
+            strokeWidth={0.28}
+            x1={x}
+            x2={x}
+            y1={y - 3.25}
+            y2={y - 1.35}
+          />
+          <path d={`M ${x - 0.75} ${y - 2.1} L ${x} ${y - 1.35} L ${x + 0.75} ${y - 2.1}`} fill="none" stroke={INK} strokeWidth={0.28} />
+        </g>
+      ))}
+    </g>
   );
 }
 
@@ -461,6 +520,7 @@ function CalendarPageRenderer({
           style={style}
         />
       ))}
+      <StandardPageDivider geometry={geometry} language={language} page={page} />
       <image
         aria-hidden="true"
         height={5.5}

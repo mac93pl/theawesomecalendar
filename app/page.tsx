@@ -806,7 +806,7 @@ export default function Home() {
               <div className="download-panel">
                 <p className="download-spec"><span>{copy.generator.downloadIncludes}</span><strong>{downloadSpec}</strong></p>
                 <div className="download-actions">
-                  <Button className="download-button" disabled={invalidRange || downloadState === 'working'} onClick={() => void runDownload()} size="lg">
+                  <Button className="download-button generator-download-button" disabled={invalidRange || downloadState === 'working'} onClick={() => void runDownload()} size="lg">
                     <Download aria-hidden="true" data-icon="inline-start" />{downloadState === 'working' ? copy.generator.working : copy.generator.download}
                   </Button>
                   {downloadState === 'working' && (
@@ -836,12 +836,6 @@ export default function Home() {
               {layout?.pages[activePreviewPage] ? (
                 <CalendarPageSvg language={language} page={layout.pages[activePreviewPage]} style={style} title={`${copy.preview.title} ${activePreviewPage + 1}`} />
               ) : <div className="empty-preview">{copy.preview.empty}</div>}
-            </div>
-            <div className="preview-download">
-              <p className="download-spec"><span>{copy.generator.downloadIncludes}</span><strong>{downloadSpec}</strong></p>
-              <Button className="download-button preview-download-button" disabled={invalidRange || downloadState === 'working'} onClick={() => void runDownload()} size="lg">
-                <Download aria-hidden="true" data-icon="inline-start" />{downloadState === 'working' ? copy.generator.working : copy.generator.download}
-              </Button>
             </div>
           </div>
         </div>
