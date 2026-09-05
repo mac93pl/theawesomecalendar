@@ -41,6 +41,7 @@ export function createSiteMetadata(language: SiteLanguage): Metadata {
   return {
     metadataBase: new URL(SITE_ORIGIN),
     applicationName: SITE_NAME,
+    manifest: '/site.webmanifest',
     title: copy.title,
     description: copy.description,
     authors: [{ name: 'Maciej Dorotniak' }],
@@ -90,7 +91,32 @@ export function createSiteMetadata(language: SiteLanguage): Metadata {
     },
     verification: verification(),
     icons: {
-      icon: [{ url: '/brand/favicon.svg', type: 'image/svg+xml' }],
+      icon: [
+        { url: '/favicon.svg', type: 'image/svg+xml', sizes: 'any' },
+        {
+          url: '/favicon.ico',
+          type: 'image/x-icon',
+          sizes: '16x16 32x32 48x48',
+        },
+      ],
+      apple: [
+        {
+          url: '/apple-touch-icon.png',
+          type: 'image/png',
+          sizes: '180x180',
+        },
+      ],
+      other: [
+        {
+          rel: 'mask-icon',
+          url: '/safari-pinned-tab.svg',
+          color: '#0b0b0a',
+        },
+      ],
+    },
+    other: {
+      'theme-color': '#ffc914',
+      'msapplication-TileColor': '#ffc914',
     },
   };
 }

@@ -107,6 +107,7 @@ type CalendarDownloadRequest = {
 
 type Theme = 'light' | 'dark';
 type SupportStatus = 'cancelled' | 'error' | 'invalid' | 'success' | null;
+type ShareStatus = 'copied' | 'error' | 'idle' | 'shared';
 
 const THEME_STORAGE_KEY = 'awesome-calendar-theme';
 const MODULE_RECOVERY_KEY = 'awesome-calendar-module-recovery';
@@ -157,6 +158,14 @@ function BrandLogo({
         width={545}
       />
     </span>
+  );
+}
+
+function ShareActionIcon({ status }: { status: ShareStatus }) {
+  return status === 'copied' || status === 'shared' ? (
+    <Check aria-hidden="true" />
+  ) : (
+    <Share2 aria-hidden="true" />
   );
 }
 
@@ -298,9 +307,7 @@ export function CalendarLanding({
   } | null>(null);
   const [donationOpen, setDonationOpen] = useState(false);
   const [supportStatus, setSupportStatus] = useState<SupportStatus>(null);
-  const [shareStatus, setShareStatus] = useState<
-    'copied' | 'error' | 'idle' | 'shared'
-  >('idle');
+  const [shareStatus, setShareStatus] = useState<ShareStatus>('idle');
   const downloadAbortRef = useRef<AbortController | null>(null);
   const copy = COPY[language];
   const currentYear = Number(initialStart.slice(0, 4));
@@ -569,6 +576,12 @@ export function CalendarLanding({
     }
   }, [copy.share.text, copy.share.title, language]);
 
+  useEffect(() => {
+    if (shareStatus === 'idle') return;
+    const timeout = window.setTimeout(() => setShareStatus('idle'), 4000);
+    return () => window.clearTimeout(timeout);
+  }, [shareStatus]);
+
   const selectPreset = useCallback(
     (preset: CalendarRangePreset) => {
       const selectedRange =
@@ -680,6 +693,14 @@ export function CalendarLanding({
           : downloadState === 'error'
             ? copy.generator.failed
             : '';
+  const shareStatusMessage =
+    shareStatus === 'shared'
+      ? copy.share.shared
+      : shareStatus === 'copied'
+        ? copy.share.copied
+        : shareStatus === 'error'
+          ? copy.share.error
+          : '';
   const stepImages = [
     '/brand/drukarka.png',
     '/brand/ciecie.png',
@@ -698,6 +719,16 @@ export function CalendarLanding({
             <nav aria-label={copy.navLabel} className="desktop-nav">
               <a href="#gotowy">{copy.nav.ready}</a>
               <a href="#generator">{copy.nav.custom}</a>
+              <button
+                aria-label={copy.share.button}
+                className="nav-share-button"
+                data-share-status={shareStatus}
+                onClick={() => void shareCalendar()}
+                title={shareStatusMessage || copy.share.button}
+                type="button"
+              >
+                <ShareActionIcon status={shareStatus} />
+              </button>
               <a className="nav-support" href="#wsparcie">
                 {copy.nav.support}
               </a>
@@ -728,6 +759,10 @@ export function CalendarLanding({
                   render={<a aria-label={copy.nav.custom} href="#generator" />}
                 >
                   {copy.nav.custom}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => void shareCalendar()}>
+                  <ShareActionIcon status={shareStatus} />
+                  {copy.share.button}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -770,6 +805,9 @@ export function CalendarLanding({
             </fieldset>
           </div>
         </header>
+        <p aria-live="polite" className="sr-only">
+          {shareStatusMessage}
+        </p>
 
         <section aria-label={copy.process.label} className="process-strip">
           <ol>
@@ -1535,9 +1573,22 @@ export function CalendarLanding({
             <p>{copy.footer.brand}</p>
             <p className="footer-warning">{copy.footer.warning}</p>
           </div>
-          <a className="footer-top" href="#top">
-            {copy.footer.top}
-          </a>
+          <div className="footer-actions">
+            <button
+              aria-label={copy.share.button}
+              className="footer-share-button"
+              data-share-status={shareStatus}
+              onClick={() => void shareCalendar()}
+              title={shareStatusMessage || copy.share.button}
+              type="button"
+            >
+              <ShareActionIcon status={shareStatus} />
+              <span>{copy.share.button}</span>
+            </button>
+            <a className="footer-top" href="#top">
+              {copy.footer.top}
+            </a>
+          </div>
         </footer>
 
         <Dialog onOpenChange={setDonationOpen} open={donationOpen}>
@@ -1576,13 +1627,7 @@ export function CalendarLanding({
                   aria-live="polite"
                   className={`donation-share-status ${shareStatus}`}
                 >
-                  {shareStatus === 'shared'
-                    ? copy.share.shared
-                    : shareStatus === 'copied'
-                      ? copy.share.copied
-                      : shareStatus === 'error'
-                        ? copy.share.error
-                        : ''}
+                  {shareStatusMessage}
                 </p>
               </div>
               <div className="donation-copy">
