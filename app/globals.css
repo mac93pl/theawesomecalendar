@@ -286,7 +286,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   align-items: center;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   margin-inline: auto;
   max-width: 780px;
 }
@@ -636,9 +636,10 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   position: relative;
   text-align: left;
   text-transform: none !important;
+  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, color 150ms ease, transform 150ms ease;
   white-space: normal !important;
 }
-.donation-preset-option strong { font-size: 1rem; line-height: 1; }
+.donation-preset-option strong { font-size: clamp(1.25rem, 2vw, 1.45rem); line-height: 1; }
 .donation-preset-option > span { font-size: 0.7rem; font-weight: 400; line-height: 1.18; margin-top: 6px; max-width: 100%; overflow-wrap: anywhere; white-space: normal; }
 .donation-preset-option > small {
   font-size: 0.56rem;
@@ -714,8 +715,11 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 .donation-actions { background: transparent; border: 0; border-radius: 0; color: var(--donation-foreground); display: block; margin: 0; padding: 2px 0 6px; width: 100%; }
 .donation-dialog .donation-preset-buttons button,
 .donation-dialog .donation-custom-row > button { background: var(--donation-accent); border-color: var(--donation-accent); box-shadow: 5px 5px 0 var(--donation-shadow); color: var(--donation-accent-foreground); }
-.donation-dialog .donation-preset-buttons button:hover,
+.donation-dialog .donation-preset-option:hover,
+.donation-dialog .donation-preset-option:focus-visible { background: var(--donation-background); border-color: var(--donation-foreground); box-shadow: 2px 2px 0 var(--donation-shadow); color: var(--donation-foreground); transform: translate(3px, 3px); }
 .donation-dialog .donation-custom-row > button:hover { background: var(--donation-foreground); border-color: var(--donation-foreground); color: var(--donation-background); }
+.dark .donation-dialog .donation-preset-option.is-recommended:hover > small,
+.dark .donation-dialog .donation-preset-option.is-recommended:focus-visible > small { color: var(--donation-foreground); }
 .donation-dialog .donation-amount-field input { background: transparent; border-color: var(--donation-foreground); color: var(--donation-foreground); }
 .donation-dialog .donation-hint { color: var(--donation-quiet); }
 .donation-actions button svg { height: 20px; width: 20px; }
