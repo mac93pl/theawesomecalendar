@@ -39,7 +39,7 @@ function DayColumn({ day, dayOffset, index, stripY, style }: {
   const weekNumber = day.weekday === 1 ? (
     <text
       fill={MID_GRAY}
-      fontFamily="Inter, Arial, sans-serif"
+      fontFamily="Lato, sans-serif"
       fontSize={style === 'rice' ? 1.5 : 1.65}
       fontWeight={700}
       textAnchor={style === 'rice' ? 'start' : 'middle'}
@@ -66,7 +66,7 @@ function DayColumn({ day, dayOffset, index, stripY, style }: {
         <text
           dominantBaseline="middle"
           fill={INK}
-          fontFamily="Inter, Arial, sans-serif"
+          fontFamily="Lato, sans-serif"
           fontSize={1.65}
           fontWeight={700}
           textAnchor="middle"
@@ -76,7 +76,7 @@ function DayColumn({ day, dayOffset, index, stripY, style }: {
         <text
           dominantBaseline="middle"
           fill={INK}
-          fontFamily="Inter, Arial, sans-serif"
+          fontFamily="Lato, sans-serif"
           fontSize={1.7}
           fontWeight={700}
           textAnchor="middle"
@@ -111,7 +111,7 @@ function DayColumn({ day, dayOffset, index, stripY, style }: {
       <text
         dominantBaseline="middle"
         fill={RICE_INK}
-        fontFamily="Inter, Arial, sans-serif"
+        fontFamily="Lato, sans-serif"
         fontSize={1.7}
         fontWeight={700}
         textAnchor="middle"
@@ -121,7 +121,7 @@ function DayColumn({ day, dayOffset, index, stripY, style }: {
       <text
         dominantBaseline="middle"
         fill={RICE_INK}
-        fontFamily="Inter, Arial, sans-serif"
+        fontFamily="Lato, sans-serif"
         fontSize={1.65}
         fontWeight={700}
         textAnchor="middle"
@@ -197,8 +197,9 @@ function MonthLabels({ strip, stripY }: { strip: CalendarStripLayout; stripY: nu
           <text
             dominantBaseline="middle"
             fill={INK}
-            fontFamily="Anton, Arial Narrow, sans-serif"
+            fontFamily="Lato, sans-serif"
             fontSize={3.15}
+            fontWeight={900}
             letterSpacing={0.08}
             x={labelX}
             y={bandY + CALENDAR_GEOMETRY.monthBandHeight / 2 + 0.35}
@@ -223,7 +224,7 @@ function GlueTab({ strip, stripY, patternId, language }: {
       <text
         dominantBaseline="middle"
         fill="#9b9b96"
-        fontFamily="Inter, Arial, sans-serif"
+        fontFamily="Lato, sans-serif"
         fontSize={1.8}
         fontWeight={700}
         letterSpacing={0.35}
@@ -255,7 +256,7 @@ function YearMarkers({ strip, stripY }: { strip: CalendarStripLayout; stripY: nu
               dominantBaseline="middle"
               dy="0.07em"
               fill="#bdbdb8"
-              fontFamily="Lato, Arial, sans-serif"
+              fontFamily="Lato, sans-serif"
               fontSize={CALENDAR_GEOMETRY.yearMarkerFontSize}
               fontWeight={900}
               textAnchor="middle"

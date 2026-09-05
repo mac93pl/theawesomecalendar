@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type PointerEvent as ReactPointerEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowDown,
   CalendarRange,
@@ -74,7 +74,7 @@ type Theme = 'light' | 'dark';
 type SupportStatus = 'cancelled' | 'error' | 'invalid' | 'success' | null;
 
 const THEME_STORAGE_KEY = 'awesome-calendar-theme';
-const SUPPORT_AMOUNTS = [10, 20, 50] as const;
+const SUPPORT_AMOUNTS = [5, 10, 20] as const;
 
 type DonationCheckoutProps = {
   copy: (typeof COPY)[SiteLanguage]['donation'];
@@ -91,12 +91,20 @@ function DonationCheckout({ copy, language, source, status }: DonationCheckoutPr
       <fieldset className="donation-presets">
         <legend>{copy.amountLegend}</legend>
         <div className="donation-preset-buttons">
-          {SUPPORT_AMOUNTS.map((amount) => (
+          {SUPPORT_AMOUNTS.map((amount, index) => (
             <form action="/api/checkout" key={amount} method="post">
               <input name="language" type="hidden" value={language} />
               <input name="source" type="hidden" value={source} />
-              <Button name="amount" type="submit" value={amount}>
-                {language === 'pl' ? `${amount} zł` : `PLN ${amount}`}
+              <Button
+                aria-label={`${copy.presetButton}: ${language === 'pl' ? `${amount} zł` : `PLN ${amount}`} — ${copy.amountNames[index]}`}
+                className={amount === 10 ? 'donation-preset-option is-recommended' : 'donation-preset-option'}
+                name="amount"
+                type="submit"
+                value={amount}
+              >
+                <strong>{language === 'pl' ? `${amount} zł` : `PLN ${amount}`}</strong>
+                <span>{copy.amountNames[index]}</span>
+                {amount === 10 && <small>{copy.recommended}</small>}
               </Button>
             </form>
           ))}
@@ -163,6 +171,7 @@ export default function Home() {
   const [donationOpen, setDonationOpen] = useState(false);
   const [supportStatus, setSupportStatus] = useState<SupportStatus>(null);
   const downloadAbortRef = useRef<AbortController | null>(null);
+  const downloadTooltipRef = useRef<HTMLSpanElement | null>(null);
   const copy = COPY[language];
 
   const selectLanguage = useCallback((nextLanguage: SiteLanguage) => {
@@ -244,13 +253,16 @@ export default function Home() {
     () => invalidRange ? null : createCalendarLayout(start, end, language),
     [end, invalidRange, language, start],
   );
-  const units = rangeUnits(start, end);
+  const units = useMemo(() => rangeUnits(start, end), [end, start]);
   const pages = layout?.pages.length ?? 0;
   const presets = useMemo(
     () => rangePresets(initialStart, language),
     [initialStart, language],
   );
-  const rangeFeedback = rangeComment(units, language);
+  const rangeFeedback = useMemo(
+    () => rangeComment(units, language),
+    [language, units],
+  );
   const validationMessage = invalidRange ? rangeFeedback || copy.generator.error : rangeFeedback;
   const activePreviewPage = Math.min(previewPage, Math.max(0, pages - 1));
 
@@ -297,6 +309,30 @@ export default function Home() {
 
   const cancelDownload = useCallback(() => {
     downloadAbortRef.current?.abort();
+  }, []);
+
+  const moveDownloadTooltip = useCallback((event: ReactPointerEvent<HTMLButtonElement>) => {
+    const tooltip = downloadTooltipRef.current;
+    if (!tooltip || event.pointerType === 'touch' || event.currentTarget.disabled) {
+      if (tooltip) tooltip.hidden = true;
+      return;
+    }
+    tooltip.hidden = false;
+    const tooltipWidth = tooltip.offsetWidth;
+    const tooltipHeight = tooltip.offsetHeight;
+    const offset = 16;
+    const x = event.clientX + offset + tooltipWidth > window.innerWidth
+      ? event.clientX - tooltipWidth - offset
+      : event.clientX + offset;
+    const y = event.clientY + offset + tooltipHeight > window.innerHeight
+      ? event.clientY - tooltipHeight - offset
+      : event.clientY + offset;
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+  }, []);
+
+  const hideDownloadTooltip = useCallback(() => {
+    if (downloadTooltipRef.current) downloadTooltipRef.current.hidden = true;
   }, []);
 
   useEffect(() => {
@@ -412,19 +448,48 @@ export default function Home() {
         </div>
 
         <div className="year-download-grid">
-          <article className="year-download-card rice-download-card">
+          <button
+            aria-label={copy.hero.riceButton}
+            className="year-download-card rice-download-card"
+            disabled={downloadState === 'working'}
+            onClick={() => {
+              hideDownloadTooltip();
+              void runDownload('rice', { start: initialStart, end: initialEnd });
+            }}
+            onPointerEnter={moveDownloadTooltip}
+            onPointerCancel={hideDownloadTooltip}
+            onPointerLeave={hideDownloadTooltip}
+            onPointerMove={moveDownloadTooltip}
+            type="button"
+          >
             <Image alt={copy.variants.riceAlt} height={600} priority src="/brand/ryz-preview.png" width={900} />
-            <Button className="year-download-button" disabled={downloadState === 'working'} onClick={() => void runDownload('rice', { start: initialStart, end: initialEnd })}>
+            <span className="year-download-button">
               <Download aria-hidden="true" data-icon="inline-start" />{copy.hero.riceButton}
-            </Button>
-          </article>
-          <article className="year-download-card block-download-card">
+            </span>
+          </button>
+          <button
+            aria-label={copy.hero.blockButton}
+            className="year-download-card block-download-card"
+            disabled={downloadState === 'working'}
+            onClick={() => {
+              hideDownloadTooltip();
+              void runDownload('block', { start: initialStart, end: initialEnd });
+            }}
+            onPointerEnter={moveDownloadTooltip}
+            onPointerCancel={hideDownloadTooltip}
+            onPointerLeave={hideDownloadTooltip}
+            onPointerMove={moveDownloadTooltip}
+            type="button"
+          >
             <Image alt={copy.variants.blockAlt} height={600} priority src="/brand/blok-preview.png" width={900} />
-            <Button className="year-download-button" disabled={downloadState === 'working'} onClick={() => void runDownload('block', { start: initialStart, end: initialEnd })}>
+            <span className="year-download-button">
               <Download aria-hidden="true" data-icon="inline-start" />{copy.hero.blockButton}
-            </Button>
-          </article>
+            </span>
+          </button>
         </div>
+        <span aria-hidden="true" className="download-cursor-tooltip" hidden ref={downloadTooltipRef}>
+          {copy.hero.clickToDownload}
+        </span>
         <a className="scroll-cue" href="#generator">{copy.hero.cue} <ArrowDown aria-hidden="true" /></a>
       </section>
 

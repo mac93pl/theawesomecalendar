@@ -34,10 +34,10 @@ export async function generateCalendarPdf(
     import('react-dom/server'),
     import('svg2pdf.js'),
   ]);
-  const [antonBytes, latoBlackBytes, interBytes, logoBytes] = await Promise.all([
-    fetch('/fonts/anton-regular.ttf').then((response) => response.arrayBuffer()),
+  const [latoRegularBytes, latoBoldBytes, latoBlackBytes, logoBytes] = await Promise.all([
+    fetch('/fonts/lato-regular.ttf').then((response) => response.arrayBuffer()),
+    fetch('/fonts/lato-bold.ttf').then((response) => response.arrayBuffer()),
     fetch('/fonts/lato-black.ttf').then((response) => response.arrayBuffer()),
-    fetch('/fonts/inter-latin-ext.ttf').then((response) => response.arrayBuffer()),
     fetch('/brand/logo.png').then((response) => response.arrayBuffer()),
   ]);
   const logoHref = `data:image/png;base64,${asBase64(logoBytes)}`;
@@ -56,13 +56,12 @@ export async function generateCalendarPdf(
     creator: 'The Awesome Calendar',
   });
   document.setLanguage(language);
-  document.addFileToVFS('Anton-Regular.ttf', asBase64(antonBytes));
-  document.addFont('Anton-Regular.ttf', 'Anton', 'normal');
+  document.addFileToVFS('Lato-Regular.ttf', asBase64(latoRegularBytes));
+  document.addFont('Lato-Regular.ttf', 'Lato', 'normal', 400);
+  document.addFileToVFS('Lato-Bold.ttf', asBase64(latoBoldBytes));
+  document.addFont('Lato-Bold.ttf', 'Lato', 'normal', 700);
   document.addFileToVFS('Lato-Black.ttf', asBase64(latoBlackBytes));
   document.addFont('Lato-Black.ttf', 'Lato', 'normal', 900);
-  document.addFileToVFS('Inter-Regular.ttf', asBase64(interBytes));
-  document.addFont('Inter-Regular.ttf', 'Inter', 'normal');
-  document.addFont('Inter-Regular.ttf', 'Inter', 'bold');
 
   for (let index = 0; index < layout.pages.length; index += 1) {
     throwIfCancelled(options.signal);

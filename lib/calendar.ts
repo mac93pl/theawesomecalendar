@@ -119,8 +119,16 @@ export function rangeUnits(start: string, end: string) {
   return { days, months, years: Math.floor(months / 12) };
 }
 
-export function rangeComment(units: { days: number; years: number }, language: SiteLanguage) {
-  const polishByDay: Record<number, string> = {
+type RangeCommentCopy = string | readonly string[];
+
+function pickRangeComment(copy: RangeCommentCopy | undefined) {
+  if (!copy) return '';
+  if (typeof copy === 'string') return copy;
+  return copy[Math.floor(Math.random() * copy.length)] ?? '';
+}
+
+export function rangeComment(units: { days: number; months: number; years: number }, language: SiteLanguage) {
+  const polishByDay: Record<number, RangeCommentCopy> = {
     1: 'Szykują się grube plany, widzę.',
     2: 'Nie w jeden dzień Rzym zbudowano, huh?',
     3: 'Trzy zawsze perfekcyjne!',
@@ -129,8 +137,44 @@ export function rangeComment(units: { days: number; years: number }, language: S
     6: 'Szósteczka!',
     7: 'Wygląda jak co najmniej dwa dni weekendu 🙌',
     8: 'Kontynuuj...',
+    10: 'Nadal możesz odliczać na palcach.',
+    11: 'W 1752 roku Brytyjczycy wykreślili z kalendarza 11 dni.',
+    12: 'Tuzin dni!',
+    14: [
+      'Po angielsku to „fortnight”. Niby brzmi jak gra, a jest jednostką czasu.',
+      'Yeah - cztery dni weekendu!',
+    ],
+    15: 'Pół miesiąca, jeśli miesiąc zechce współpracować.',
+    16: 'Sweeeet sixteen!',
+    21: 'Podobno tyle wystarczy na nawyk. Podobno.',
+    24: 'Idealne na kalendarz adwentowy! Zmieścisz czekoladę w te okienka?',
+    25: 'Ćwierć setki. Mały jubileusz dużego planu.',
+    27: 'Księżyc zdąży mniej więcej okrążyć Ziemię.',
+    28: [
+      'Równe cztery tygodnie. Podejrzanie schludnie.',
+      'Idealny czas na luty.',
+    ],
+    29: 'Idealny czas na luty.',
+    31: 'Miesiąc w wersji XL.',
+    40: 'Od czterdziestu dni wzięła nazwę kwarantanna. Miłego planowania.',
+    41: 'Czterdzieści nie wystarczyło. Szanujemy rozmach.',
+    42: 'Czyżby ten czas miał dać Ci odpowiedź na wielkie pytanie o życie, wszechświat i całą resztę?',
+    43: 'Sens życia plus jeden dzień buforu.',
+    66: 'Route 66, tylko bez samochodu i z większą liczbą kartek.',
+    67: 'eghm.',
+    69: '😶',
+    80: 'W sam raz na podróż dookoła świata. Teoretycznie.',
+    90: 'Kwartał. Korporacja właśnie zainteresowała się Twoimi KPI.',
+    100: 'STO DNI! 🎂',
+    180: 'Pół roku po zaokrągleniu przez optymistę.',
+    182: 'Prawie pół roku. Jeszcze nie otwieraj szampana.',
+    183: 'Już ponad pół roku. Teraz możesz otworzyć.',
+    256: 'Co za piękna, okrągła liczba 💻',
+    365: 'Ziemia robi kółko. Ty robisz plan.',
+    366: 'Rok dostał dzień gratis.',
+    666: 'Drukarka może zacząć wydawać niepokojące dźwięki.',
   };
-  const englishByDay: Record<number, string> = {
+  const englishByDay: Record<number, RangeCommentCopy> = {
     1: 'Big plans ahead, I see.',
     2: 'Rome was not built in a day, huh?',
     3: 'Three is always perfect!',
@@ -139,9 +183,59 @@ export function rangeComment(units: { days: number; years: number }, language: S
     6: 'A neat six!',
     7: 'Looks like at least two weekend days 🙌',
     8: 'Keep going...',
+    10: 'You can still count them on your fingers.',
+    11: 'In 1752, the British removed 11 days from the calendar.',
+    12: 'A dozen days!',
+    14: [
+      'In English, that is a fortnight. It may sound like a game, but it is a unit of time.',
+      'Yeah - four weekend days!',
+    ],
+    15: 'Half a month, if the month decides to cooperate.',
+    16: 'Sweeeet sixteen!',
+    21: 'Apparently that is enough to form a habit. Apparently.',
+    24: 'Perfect for an Advent calendar! Can you fit chocolate into those little windows?',
+    25: 'A quarter of a hundred. A small milestone for a big plan.',
+    27: 'The Moon will just about make one orbit around Earth.',
+    28: [
+      'Exactly four weeks. Suspiciously tidy.',
+      'The perfect length for February.',
+    ],
+    29: 'The perfect length for February.',
+    31: 'A month in XL.',
+    40: 'Quarantine got its name from forty days. Happy planning.',
+    41: 'Forty was not enough. We respect the ambition.',
+    42: 'Could this be enough time to answer the great question of life, the universe and everything?',
+    43: 'The meaning of life plus one buffer day.',
+    66: 'Route 66, only without the car and with more sheets of paper.',
+    67: 'ahem.',
+    69: '😶',
+    80: 'Just enough time to travel around the world. Theoretically.',
+    90: 'A quarter. Corporate just took an interest in your KPIs.',
+    100: 'ONE HUNDRED DAYS! 🎂',
+    180: 'Half a year, rounded by an optimist.',
+    182: 'Almost half a year. Do not pop the champagne yet.',
+    183: 'More than half a year. You can open it now.',
+    256: 'What a beautiful, round number 💻',
+    365: 'Earth makes a lap. You make a plan.',
+    366: 'The year got a bonus day.',
+    666: 'The printer may start making unsettling noises.',
   };
-  if (units.days >= 1 && units.days <= 8) {
-    return language === 'pl' ? polishByDay[units.days] : englishByDay[units.days];
+
+  const dayComment = language === 'pl' ? polishByDay[units.days] : englishByDay[units.days];
+  if (dayComment) return pickRangeComment(dayComment);
+
+  if (units.months === 9) {
+    return language === 'pl'
+      ? 'Gratulacje? Jakiś baby shower w planie?'
+      : 'Congratulations? Is there a baby shower in the plan?';
+  }
+
+  if (units.years === 67) return language === 'pl' ? 'EGHM!' : 'AHEM!';
+  if (units.years === 18) return language === 'pl' ? 'Ktoś tu osiągnął pełnoletniość' : 'Someone just came of age';
+  if (units.years === 2) {
+    return language === 'pl'
+      ? 'Mars zdąży mniej więcej okrążyć Słońce. Ty też możesz coś domknąć.'
+      : 'Mars will just about orbit the Sun. You can wrap something up too.';
   }
 
   if (units.years >= 70) return language === 'pl' ? 'Masz nas. To koniec.' : 'You got us. This is the end.';
