@@ -493,6 +493,13 @@ export default function Home() {
         <a className="scroll-cue" href="#generator">{copy.hero.cue} <ArrowDown aria-hidden="true" /></a>
       </section>
 
+      <section className="project-note">
+        <div className="project-note-copy">
+          {copy.projectNote.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          <a className="project-note-cta" href="#wsparcie"><Coffee aria-hidden="true" />{copy.projectNote.cta}</a>
+        </div>
+      </section>
+
       <section className="generator-hero" id="generator">
         <div className="generator-intro">
           <p className="section-kicker">{copy.custom.kicker}</p>
