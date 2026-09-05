@@ -848,10 +848,19 @@ footer a { font-weight: 900; justify-self: end; letter-spacing: 0.08em; text-tra
   .step-card img { height: 170px; }
   .donation-preset-buttons { grid-template-columns: 1fr; }
   .donation-preset-option { align-items: center; flex-direction: row; gap: 10px; height: auto !important; justify-content: flex-start; min-height: 68px; padding-right: 12px; }
-  .donation-preset-option.is-recommended { padding-right: 116px; }
+  .donation-preset-option.is-recommended { padding-right: 106px; }
   .donation-preset-option strong { min-width: 48px; }
   .donation-preset-option > span { flex: 1; margin-top: 0; }
-  .donation-preset-option > small { top: 50%; transform: translateY(-50%); }
+  .donation-preset-option > small {
+    font-size: 0.5rem;
+    letter-spacing: 0.045em;
+    line-height: 1;
+    right: 10px;
+    text-align: right;
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
