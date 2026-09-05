@@ -145,7 +145,7 @@ function MonthLabels({ strip, stripY }: { strip: CalendarStripLayout; stripY: nu
     const estimatedWidth = Math.min(31, Math.max(11, day.monthLabel.length * 1.7));
     const latestX = rightEdge - estimatedWidth;
     const requestedX = Math.max(leftEdge, Math.min(startX + 0.8, latestX));
-    return [{ day, estimatedWidth, requestedX, startX }];
+    return [{ day, estimatedWidth, requestedX }];
   });
 
   const forwardLabels = requestedLabels.reduce<
@@ -162,7 +162,6 @@ function MonthLabels({ strip, stripY }: { strip: CalendarStripLayout; stripY: nu
         day: label.day,
         estimatedWidth: label.estimatedWidth,
         labelX: Math.max(label.requestedX, nextAvailableX),
-        startX: label.startX,
       },
     ];
   }, []);
@@ -191,9 +190,8 @@ function MonthLabels({ strip, stripY }: { strip: CalendarStripLayout; stripY: nu
 
   return (
     <g>
-      {labels.map(({ day, labelX, startX }) => (
+      {labels.map(({ day, labelX }) => (
         <g key={day.iso}>
-          <line stroke={INK} strokeWidth={0.35} x1={startX} x2={startX} y1={bandY} y2={bandY + 2.2} />
           <text
             dominantBaseline="middle"
             fill={INK}
