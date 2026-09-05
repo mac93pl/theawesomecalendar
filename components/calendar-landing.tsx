@@ -973,17 +973,19 @@ export function CalendarLanding({
                   )}
                   {theme === 'dark' ? copy.theme.light : copy.theme.dark}
                 </DropdownMenuItem>
-                <DropdownMenuLabel>{copy.languageLabel}</DropdownMenuLabel>
-                <DropdownMenuRadioGroup
-                  aria-label={copy.languageLabel}
-                  onValueChange={(value) =>
-                    selectLanguage(value as SiteLanguage)
-                  }
-                  value={language}
-                >
-                  <DropdownMenuRadioItem value="pl">PL</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="en">EN</DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>{copy.languageLabel}</DropdownMenuLabel>
+                  <DropdownMenuRadioGroup
+                    aria-label={copy.languageLabel}
+                    onValueChange={(value) =>
+                      selectLanguage(value as SiteLanguage)
+                    }
+                    value={language}
+                  >
+                    <DropdownMenuRadioItem value="pl">PL</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="en">EN</DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
             <button

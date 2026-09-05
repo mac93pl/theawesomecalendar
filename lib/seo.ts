@@ -5,7 +5,7 @@ import { SITE_NAME, SITE_ORIGIN } from '@/lib/site';
 
 const SEO_COPY = {
   pl: {
-    title: 'Darmowy kalendarz liniowy do druku | The Awesome Calendar',
+    title: 'The Awesome Calendar — darmowy kalendarz liniowy PDF',
     description:
       'Wygeneruj i pobierz darmowy kalendarz liniowy PDF. Wydrukuj go na zwykłych kartkach A4, wytnij paski i sklej cały rok w jedną czytelną oś czasu.',
     imageAlt: 'The Awesome Calendar — darmowy kalendarz liniowy do druku',
@@ -13,7 +13,7 @@ const SEO_COPY = {
     path: '/',
   },
   en: {
-    title: 'Free printable linear calendar | The Awesome Calendar',
+    title: 'The Awesome Calendar — free printable linear calendar PDF',
     description:
       'Generate and download a free linear calendar PDF. Print it on regular A4 paper, cut out the strips and join the whole year into one clear timeline.',
     imageAlt: 'The Awesome Calendar — free printable linear calendar',

@@ -18,9 +18,9 @@ export const COPY = {
     },
     hero: {
       eyebrow: 'Kalendarz liniowy',
-      line1: 'CAŁY ROK',
-      line2: 'NA PIERWSZY RZUT OKA',
-      lead: 'Pobierz projekt kalendarza liniowego i korzystaj! To gotowy plik PDF do samodzielnego wydrukowania w domu. Po wydrukowaniu wytnij paski i sklej je w jedną oś czasu. Tym samym zyskujesz jeden rok! Czyli ok. 1,5 m.',
+      line1: 'THE AWESOME CALENDAR.',
+      line2: 'KALENDARZ LINIOWY NA CAŁY ROK.',
+      lead: 'The Awesome Calendar to darmowy kalendarz liniowy do druku. Pobierz gotowy plik PDF, wydrukuj go w domu na zwykłych kartkach A4, wytnij paski i sklej je w jedną oś czasu. Tym samym zyskujesz cały rok na pierwszy rzut oka — około 1,5 m.',
       yearPreviewTitle:
         'Kalendarz liniowy {year} — cały rok od stycznia do grudnia',
       yearPreviewScrollHint: 'Przesuń, aby zobaczyć cały rok →',
@@ -167,6 +167,18 @@ export const COPY = {
       line2: 'PROSTE ODPOWIEDZI.',
       items: [
         [
+          'Co to jest kalendarz liniowy?',
+          'Kalendarz liniowy układa kolejne dni, tygodnie i miesiące na jednej osi czasu. Zamiast przewracać kartki, widzisz cały plan obok siebie — dokładnie tak działa The Awesome Calendar.',
+        ],
+        [
+          'Dlaczego kalendarz liniowy lepiej pokazuje cały rok?',
+          'Ciągła oś pokazuje odległości między terminami, długość projektów i mijający czas bez podziału na osobne strony. Dzięki temu łatwiej zauważyć, co wydarzy się za tydzień, miesiąc albo kwartał.',
+        ],
+        [
+          'Najlepszy kalendarz do planowania roku — liniowy, ścienny czy książkowy?',
+          'Do szczegółowych notatek najlepiej sprawdzi się kalendarz książkowy. Jeśli chcesz objąć wzrokiem cały rok, porównać terminy i zobaczyć je na jednej osi, praktyczniejszy będzie kalendarz liniowy. The Awesome Calendar łączy ten widok z darmowym wydrukiem PDF na kartkach A4.',
+        ],
+        [
           'Jak ustawić drukarkę?',
           'Wybierz papier A4 w poziomie, skalę 100% i wyłącz dopasowanie do strony. Linie cięcia oraz kolejność pasków są już w PDF.',
         ],
@@ -260,9 +272,9 @@ export const COPY = {
     },
     hero: {
       eyebrow: 'Linear calendar',
-      line1: 'THE WHOLE YEAR',
-      line2: 'AT A GLANCE',
-      lead: 'Download the linear calendar project and start using it! It’s a ready-made PDF to print at home. Once printed, cut out the strips and join them into one continuous timeline. Just like that, you get a whole year — about 1.5 metres of it.',
+      line1: 'THE AWESOME CALENDAR.',
+      line2: 'A LINEAR CALENDAR FOR THE WHOLE YEAR.',
+      lead: 'The Awesome Calendar is a free printable linear calendar. Download the ready-made PDF, print it at home on regular A4 sheets, cut out the strips and join them into one continuous timeline. Just like that, you can see the whole year at a glance — about 1.5 metres of it.',
       yearPreviewTitle:
         'Linear calendar {year} — the full year from January to December',
       yearPreviewScrollHint: 'Swipe to see the full year →',
@@ -410,6 +422,18 @@ export const COPY = {
       line1: 'SMALL QUESTIONS.',
       line2: 'STRAIGHT ANSWERS.',
       items: [
+        [
+          'What is a linear calendar?',
+          'A linear calendar arranges consecutive days, weeks and months on a single timeline. Instead of turning pages, you see your whole plan side by side — which is exactly how The Awesome Calendar works.',
+        ],
+        [
+          'Why does a linear calendar show the whole year more clearly?',
+          'A continuous timeline shows the distance between deadlines, the length of projects and the passage of time without splitting them across separate pages. That makes it easier to see what is happening next week, next month or next quarter.',
+        ],
+        [
+          'Which calendar is best for yearly planning: linear, wall or planner?',
+          'A planner is best for detailed notes. If you want to see the whole year, compare deadlines and keep everything on one timeline, a linear calendar is more practical. The Awesome Calendar combines that overview with a free printable PDF for regular A4 paper.',
+        ],
         [
           'How should I set up my printer?',
           'Choose A4 landscape, set scale to 100% and disable fit to page. Cutting guides and strip order are already included in the PDF.',
