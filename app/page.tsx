@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 
 import { CalendarPageSvg, CalendarSampleSvg } from '@/components/calendar-page-svg';
+import { CalendarYearTimelineSvg } from '@/components/calendar-year-timeline-svg';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import {
@@ -229,6 +230,11 @@ export default function Home() {
   const copy = COPY[language];
   const currentYear = Number(initialStart.slice(0, 4));
   const nextYear = currentYear + 1;
+  const currentYearRange = useMemo(() => calendarYearRange(currentYear), [currentYear]);
+  const currentYearLayout = useMemo(
+    () => createCalendarLayout(currentYearRange.start, currentYearRange.end, language),
+    [currentYearRange.end, currentYearRange.start, language],
+  );
   const readyYearRange = useMemo(() => calendarYearRange(readyYear), [readyYear]);
   const readyYearLayout = useMemo(
     () => createCalendarLayout(readyYearRange.start, readyYearRange.end, language),
@@ -561,6 +567,12 @@ export default function Home() {
           <p className="eyebrow">{copy.hero.eyebrow}</p>
           <h1>{copy.hero.line1}<br />{copy.hero.line2}</h1>
           <p className="hero-lead">{copy.hero.lead}</p>
+          <figure className="hero-year-preview">
+            <div className="hero-year-scroll">
+              <CalendarYearTimelineSvg days={currentYearLayout.days} title={insertYear(copy.hero.yearPreviewTitle, currentYear)} />
+            </div>
+            <p className="hero-year-scroll-hint">{copy.hero.yearPreviewScrollHint}</p>
+          </figure>
           <div className="hero-actions">
             <a className="hero-primary" href="#gotowy"><Download aria-hidden="true" />{copy.hero.primaryCta}</a>
             <a className="hero-secondary" href="#generator"><CalendarRange aria-hidden="true" />{copy.hero.secondaryCta}</a>
@@ -632,14 +644,19 @@ export default function Home() {
           </div>
 
           <div className="ready-result">
-            <div>
+            <div className="ready-result-summary">
               <span>{copy.ready.selected}</span>
               <strong>{readyYear} · {readyStyleLabel}</strong>
               <small>{copy.ready.summary}</small>
             </div>
-            <Button className="ready-download-button" disabled={downloadState === 'working'} onClick={() => void runReadyCalendarDownload(readyStyle, readyYear)} size="lg">
-              <Download aria-hidden="true" data-icon="inline-start" />{downloadState === 'working' ? copy.generator.working : readyDownloadLabel}
-            </Button>
+            <div className="ready-result-actions">
+              <Button className="ready-download-button" disabled={downloadState === 'working'} onClick={() => void runReadyCalendarDownload(readyStyle, readyYear)} size="lg">
+                <Download aria-hidden="true" data-icon="inline-start" />{downloadState === 'working' ? copy.generator.working : readyDownloadLabel}
+              </Button>
+              <a className="ready-custom-range-link" href="#generator">
+                {copy.ready.customRange}<ChevronDown aria-hidden="true" />
+              </a>
+            </div>
           </div>
         </div>
       </section>
