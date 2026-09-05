@@ -1,7 +1,15 @@
 'use client';
 
 import Image from 'next/image';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   CalendarRange,
   Check,
@@ -48,6 +56,8 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -202,6 +212,58 @@ function ShareActionIcon({ status }: { status: ShareStatus }) {
     <Check aria-hidden="true" />
   ) : (
     <Share2 aria-hidden="true" />
+  );
+}
+
+function DownloadTrust({
+  children,
+  className = '',
+  message,
+}: {
+  children: ReactNode;
+  className?: string;
+  message: string;
+}) {
+  const tooltipRef = useRef<HTMLSpanElement>(null);
+  const moveTooltip = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const tooltip = tooltipRef.current;
+      if (!tooltip) return;
+
+      const gap = 18;
+      const viewportPadding = 12;
+      const left = Math.min(
+        event.clientX + gap,
+        window.innerWidth - tooltip.offsetWidth - viewportPadding,
+      );
+      const below = event.clientY + gap;
+      const top =
+        below + tooltip.offsetHeight <= window.innerHeight - viewportPadding
+          ? below
+          : event.clientY - tooltip.offsetHeight - gap;
+
+      tooltip.style.left = `${Math.max(viewportPadding, left)}px`;
+      tooltip.style.top = `${Math.max(viewportPadding, top)}px`;
+    },
+    [],
+  );
+
+  return (
+    <div
+      className={`download-trust ${className}`.trim()}
+      onPointerEnter={moveTooltip}
+      onPointerMove={moveTooltip}
+    >
+      {children}
+      <span
+        aria-hidden="true"
+        className="download-trust-tooltip"
+        ref={tooltipRef}
+      >
+        {message}
+      </span>
+      <p className="download-trust-mobile">{message}</p>
+    </div>
   );
 }
 
@@ -854,6 +916,9 @@ export function CalendarLanding({
                 {copy.nav.support}
               </a>
             </nav>
+            <a className="mobile-nav-support nav-support" href="#wsparcie">
+              {copy.nav.support}
+            </a>
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
@@ -886,11 +951,25 @@ export function CalendarLanding({
                   {copy.share.button}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  render={<a aria-label={copy.nav.support} href="#wsparcie" />}
-                >
-                  {copy.nav.support}
+                <DropdownMenuItem onClick={toggleTheme}>
+                  {theme === 'dark' ? (
+                    <Sun aria-hidden="true" />
+                  ) : (
+                    <Moon aria-hidden="true" />
+                  )}
+                  {theme === 'dark' ? copy.theme.light : copy.theme.dark}
                 </DropdownMenuItem>
+                <DropdownMenuLabel>{copy.languageLabel}</DropdownMenuLabel>
+                <DropdownMenuRadioGroup
+                  aria-label={copy.languageLabel}
+                  onValueChange={(value) =>
+                    selectLanguage(value as SiteLanguage)
+                  }
+                  value={language}
+                >
+                  <DropdownMenuRadioItem value="pl">PL</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="en">EN</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
             <button
@@ -1113,19 +1192,24 @@ export function CalendarLanding({
                 <small>{copy.ready.summary}</small>
               </div>
               <div className="ready-result-actions">
-                <Button
-                  className="ready-download-button"
-                  disabled={downloadState === 'working'}
-                  onClick={() =>
-                    void runReadyCalendarDownload(readyStyle, readyYear)
-                  }
-                  size="lg"
+                <DownloadTrust
+                  className="ready-download-trust"
+                  message={copy.downloadTrust}
                 >
-                  <Download aria-hidden="true" data-icon="inline-start" />
-                  {downloadState === 'working'
-                    ? copy.generator.working
-                    : readyDownloadLabel}
-                </Button>
+                  <Button
+                    className="ready-download-button"
+                    disabled={downloadState === 'working'}
+                    onClick={() =>
+                      void runReadyCalendarDownload(readyStyle, readyYear)
+                    }
+                    size="lg"
+                  >
+                    <Download aria-hidden="true" data-icon="inline-start" />
+                    {downloadState === 'working'
+                      ? copy.generator.working
+                      : readyDownloadLabel}
+                  </Button>
+                </DownloadTrust>
                 <a className="ready-custom-range-link" href="#generator">
                   {copy.ready.customRange}
                   <ChevronDown aria-hidden="true" />
@@ -1421,30 +1505,38 @@ export function CalendarLanding({
                     <span>{copy.generator.downloadIncludes}</span>
                     <strong>{downloadSpec}</strong>
                   </p>
-                  <div className="download-actions">
-                    <Button
-                      className="download-button generator-download-button"
-                      disabled={invalidRange || downloadState === 'working'}
-                      onClick={() => void runDownload()}
-                      size="lg"
-                    >
-                      <Download aria-hidden="true" data-icon="inline-start" />
-                      {downloadState === 'working'
-                        ? copy.generator.working
-                        : copy.generator.download}
-                    </Button>
-                    {downloadState === 'working' && (
+                  <DownloadTrust
+                    className="generator-download-trust"
+                    message={copy.downloadTrust}
+                  >
+                    <div className="download-actions">
                       <Button
-                        aria-label={copy.generator.cancel}
-                        className="cancel-button"
-                        onClick={cancelDownload}
-                        size="icon"
-                        variant="outline"
+                        className="download-button generator-download-button"
+                        disabled={invalidRange || downloadState === 'working'}
+                        onClick={() => void runDownload()}
+                        size="lg"
                       >
-                        <X aria-hidden="true" />
+                        <Download
+                          aria-hidden="true"
+                          data-icon="inline-start"
+                        />
+                        {downloadState === 'working'
+                          ? copy.generator.working
+                          : copy.generator.download}
                       </Button>
-                    )}
-                  </div>
+                      {downloadState === 'working' && (
+                        <Button
+                          aria-label={copy.generator.cancel}
+                          className="cancel-button"
+                          onClick={cancelDownload}
+                          size="icon"
+                          variant="outline"
+                        >
+                          <X aria-hidden="true" />
+                        </Button>
+                      )}
+                    </div>
+                  </DownloadTrust>
                 </div>
               </div>
               {validationMessage && (
@@ -1642,21 +1734,29 @@ export function CalendarLanding({
                     </span>
                     <h3>{variant.name}</h3>
                   </div>
-                  <div className="quick-download-actions">
-                    {[currentYear, nextYear].map((year) => (
-                      <Button
-                        disabled={downloadState === 'working'}
-                        key={year}
-                        onClick={() =>
-                          void runReadyCalendarDownload(variant.style, year)
-                        }
-                        type="button"
-                      >
-                        <Download aria-hidden="true" data-icon="inline-start" />
-                        {insertYear(copy.variants.download, year)}
-                      </Button>
-                    ))}
-                  </div>
+                  <DownloadTrust
+                    className="quick-download-trust"
+                    message={copy.downloadTrust}
+                  >
+                    <div className="quick-download-actions">
+                      {[currentYear, nextYear].map((year) => (
+                        <Button
+                          disabled={downloadState === 'working'}
+                          key={year}
+                          onClick={() =>
+                            void runReadyCalendarDownload(variant.style, year)
+                          }
+                          type="button"
+                        >
+                          <Download
+                            aria-hidden="true"
+                            data-icon="inline-start"
+                          />
+                          {insertYear(copy.variants.download, year)}
+                        </Button>
+                      ))}
+                    </div>
+                  </DownloadTrust>
                 </div>
               </article>
             ))}

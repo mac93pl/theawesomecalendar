@@ -24,7 +24,7 @@ export const COPY = {
       yearPreviewTitle:
         'Kalendarz liniowy {year} — cały rok od stycznia do grudnia',
       yearPreviewScrollHint: 'Przesuń, aby zobaczyć cały rok →',
-      primaryCta: 'Pobierz gotowy do druku',
+      primaryCta: 'Pobierz darmowy PDF',
       secondaryCta: 'Ustaw własny zakres',
       meta: 'Darmowy PDF · zwykłe kartki A4 · około 1,5 m po sklejeniu',
     },
@@ -38,7 +38,7 @@ export const COPY = {
       nextYear: 'Następny rok',
       selected: 'Wybrany kalendarz',
       summary: 'Standard · 3 kartki A4 · około 1,5 m',
-      download: 'Pobierz kalendarz {year}',
+      download: 'Pobierz darmowy PDF',
       customRange: 'Potrzebuję innego zakresu dat',
     },
     quickDownload: {
@@ -99,7 +99,7 @@ export const COPY = {
       blockHint: 'mocny rytm tygodnia',
       monthsShort: 'mies.',
       fixRange: 'popraw zakres',
-      download: 'Pobierz PDF',
+      download: 'Pobierz darmowy PDF',
       downloadIncludes: 'Pobierzesz',
       downloadFixRange: 'Najpierw popraw zakres dat.',
       working: 'Generuję…',
@@ -149,7 +149,7 @@ export const COPY = {
       blockText:
         'Konserwatywny i praktyczny. Weekend widać od razu, nawet z samego rana w poniedziałek.',
       blockAlt: 'A tutaj klasyczny blok',
-      download: 'Pobierz {year}',
+      download: 'Pobierz darmowy PDF · {year}',
     },
     manifesto: {
       quote: 'DLA NAS CZAS TO OŚ.',
@@ -192,6 +192,8 @@ export const COPY = {
       copied: 'Link skopiowany.',
       error: 'Nie udało się udostępnić. Spróbuj ponownie.',
     },
+    downloadTrust:
+      'PDF pobierze się od razu. Nie pobieramy opłat, nie wymagamy dodatkowych danych. Projekt wspierany jest dobrowolnie przez darowizny użytkowników.',
     donation: {
       badge: 'Dobrowolne wsparcie',
       downloadTitle: 'Kalendarz gotowy!',
@@ -262,7 +264,7 @@ export const COPY = {
       yearPreviewTitle:
         'Linear calendar {year} — the full year from January to December',
       yearPreviewScrollHint: 'Swipe to see the full year →',
-      primaryCta: 'Download ready to print',
+      primaryCta: 'Download free PDF',
       secondaryCta: 'Choose a custom range',
       meta: 'Free PDF · regular A4 sheets · about 1.5 m once assembled',
     },
@@ -276,7 +278,7 @@ export const COPY = {
       nextYear: 'Next year',
       selected: 'Selected calendar',
       summary: 'Standard · 3 A4 sheets · about 1.5 m',
-      download: 'Download calendar {year}',
+      download: 'Download free PDF',
       customRange: 'I need a different date range',
     },
     quickDownload: {
@@ -339,7 +341,7 @@ export const COPY = {
       blockHint: 'a stronger weekly rhythm',
       monthsShort: 'mo.',
       fixRange: 'fix the range',
-      download: 'Download PDF',
+      download: 'Download free PDF',
       downloadIncludes: 'Your PDF',
       downloadFixRange: 'Fix the date range first.',
       working: 'Generating…',
@@ -389,7 +391,7 @@ export const COPY = {
       blockText:
         'Conservative and practical. You can spot the weekend right away, even first thing on Monday morning.',
       blockAlt: 'And this is Classic block',
-      download: 'Download {year}',
+      download: 'Download free PDF · {year}',
     },
     manifesto: {
       quote: 'FOR US, TIME IS AN AXIS.',
@@ -432,6 +434,8 @@ export const COPY = {
       copied: 'Link copied.',
       error: 'Could not share the link. Please try again.',
     },
+    downloadTrust:
+      'Your PDF will download immediately. We do not charge fees or require any additional information. The project is supported voluntarily through user donations.',
     donation: {
       badge: 'Optional support',
       downloadTitle: 'Calendar ready!',
