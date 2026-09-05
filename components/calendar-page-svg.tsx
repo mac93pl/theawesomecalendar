@@ -241,7 +241,6 @@ function YearMarkers({ strip, stripY }: { strip: CalendarStripLayout; stripY: nu
     <g>
       {strip.yearMarkers.map((marker) => {
         const x = CALENDAR_GEOMETRY.margin + marker.x;
-        const padding = CALENDAR_GEOMETRY.yearMarkerPadding;
         return (
           <g key={marker.year}>
             <rect
@@ -252,14 +251,16 @@ function YearMarkers({ strip, stripY }: { strip: CalendarStripLayout; stripY: nu
               y={stripY}
             />
             <text
+              alignmentBaseline="middle"
+              dominantBaseline="middle"
+              dy="0.07em"
               fill="#bdbdb8"
-              fontFamily="Barlow Condensed Black, Impact, sans-serif"
-              fontSize={9}
+              fontFamily="Lato, Arial, sans-serif"
+              fontSize={CALENDAR_GEOMETRY.yearMarkerHeight - 1.4}
               fontWeight={900}
-              letterSpacing={-0.1}
-              textAnchor="start"
-              x={x + padding}
-              y={stripY + 8.05}
+              textAnchor="middle"
+              x={x + YEAR_MARKER_WIDTH / 2}
+              y={stripY + CALENDAR_GEOMETRY.yearMarkerHeight / 2}
             >{marker.year}</text>
           </g>
         );

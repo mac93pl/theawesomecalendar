@@ -35,11 +35,11 @@
 }
 
 @font-face {
-  font-family: 'Barlow Condensed Black';
+  font-family: 'Lato';
   font-style: normal;
   font-weight: 900;
   font-display: swap;
-  src: url('/fonts/barlow-condensed-black.ttf') format('truetype');
+  src: url('/fonts/lato-black.ttf') format('truetype');
 }
 
 @custom-variant dark (&:is(.dark *));
