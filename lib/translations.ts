@@ -164,6 +164,8 @@ export const COPY = {
     },
     donation: {
       badge: 'Dobrowolne wsparcie',
+      downloadTitle: 'Kalendarz gotowy!',
+      downloadLead: 'Generowanie zakończone. Pobieranie zostało rozpoczęte.',
       eyebrow: 'Twój kalendarz jest już pobrany. Jeśli oszczędzi Ci trochę czasu, możesz dorzucić się do rozwoju projektu.',
       title: 'Podoba Ci się to, co robimy?',
       lead: 'Jak to mówią? Czas to pieniądz 💸. Jeśli nasza praca pozwoli Ci zaoszczędzić trochę czasu, to chętnie napijemy się kawy w Twoim imieniu!',
@@ -360,6 +362,8 @@ export const COPY = {
     },
     donation: {
       badge: 'Optional support',
+      downloadTitle: 'Calendar ready!',
+      downloadLead: 'Generation is complete. Your download has started.',
       eyebrow: 'Your calendar has been downloaded. If it saves you some time, you can support the project.',
       title: 'Like what we do?',
       lead: 'You know what they say: time is money 💸. If our work saves you a little time, we’ll happily have a coffee on your behalf!',
