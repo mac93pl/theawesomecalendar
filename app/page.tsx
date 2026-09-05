@@ -40,7 +40,7 @@ import {
   defaultEndDateValue,
   monthWord,
   pageWord,
-  polishRangePresets,
+  rangePresets,
   randomCalendarRange,
   rangeComment,
   rangeIsValid,
@@ -71,8 +71,71 @@ type CalendarToolInput = {
 };
 
 type Theme = 'light' | 'dark';
+type SupportStatus = 'cancelled' | 'error' | 'invalid' | 'success' | null;
 
 const THEME_STORAGE_KEY = 'awesome-calendar-theme';
+const SUPPORT_AMOUNTS = [10, 20, 50] as const;
+
+type DonationCheckoutProps = {
+  copy: (typeof COPY)[SiteLanguage]['donation'];
+  language: SiteLanguage;
+  source: 'dialog' | 'section';
+  status: SupportStatus;
+};
+
+function DonationCheckout({ copy, language, source, status }: DonationCheckoutProps) {
+  const statusMessage = status ? copy.status[status] : '';
+
+  return (
+    <div className="donation-checkout">
+      <fieldset className="donation-presets">
+        <legend>{copy.amountLegend}</legend>
+        <div className="donation-preset-buttons">
+          {SUPPORT_AMOUNTS.map((amount) => (
+            <form action="/api/checkout" key={amount} method="post">
+              <input name="language" type="hidden" value={language} />
+              <input name="source" type="hidden" value={source} />
+              <Button name="amount" type="submit" value={amount}>
+                {language === 'pl' ? `${amount} zł` : `PLN ${amount}`}
+              </Button>
+            </form>
+          ))}
+        </div>
+      </fieldset>
+      <form action="/api/checkout" className="donation-custom" method="post">
+        <input name="language" type="hidden" value={language} />
+        <input name="source" type="hidden" value={source} />
+        <label htmlFor={`support-amount-${source}`}>{copy.customLabel}</label>
+        <div className="donation-custom-row">
+          <div className="donation-amount-field">
+            <Input
+              aria-describedby={`support-hint-${source}`}
+              id={`support-amount-${source}`}
+              inputMode="numeric"
+              max="1000"
+              min="5"
+              name="amount"
+              placeholder={copy.customPlaceholder}
+              required
+              step="1"
+              type="number"
+            />
+            <span aria-hidden="true">PLN</span>
+          </div>
+          <Button type="submit"><Coffee aria-hidden="true" />{copy.customButton}</Button>
+        </div>
+        <p className="donation-hint" id={`support-hint-${source}`}>{copy.hint}</p>
+      </form>
+      <p
+        aria-live="polite"
+        className={status ? `donation-status ${status}` : 'donation-status'}
+        role={status === 'error' || status === 'invalid' ? 'alert' : undefined}
+      >
+        {statusMessage}
+      </p>
+    </div>
+  );
+}
 
 function validToolInput(input: unknown): input is CalendarToolInput {
   if (!input || typeof input !== 'object') return false;
@@ -98,6 +161,7 @@ export default function Home() {
   const [downloadState, setDownloadState] = useState<'idle' | 'working' | 'done' | 'cancelled' | 'error'>('idle');
   const [downloadProgress, setDownloadProgress] = useState<{ current: number; total: number } | null>(null);
   const [donationOpen, setDonationOpen] = useState(false);
+  const [supportStatus, setSupportStatus] = useState<SupportStatus>(null);
   const downloadAbortRef = useRef<AbortController | null>(null);
   const copy = COPY[language];
 
@@ -112,10 +176,15 @@ export default function Home() {
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
-      const queryLanguage = new URLSearchParams(window.location.search).get('lang');
+      const searchParams = new URLSearchParams(window.location.search);
+      const queryLanguage = searchParams.get('lang');
       const savedLanguage = window.localStorage.getItem('awesome-calendar-language');
       if (queryLanguage === 'en' || queryLanguage === 'pl') setLanguage(queryLanguage);
       else if (savedLanguage === 'en' || savedLanguage === 'pl') setLanguage(savedLanguage);
+      const queryStatus = searchParams.get('support');
+      if (queryStatus === 'success' || queryStatus === 'cancelled' || queryStatus === 'error' || queryStatus === 'invalid') {
+        setSupportStatus(queryStatus);
+      }
     }, 0);
     return () => window.clearTimeout(timeout);
   }, []);
@@ -135,8 +204,9 @@ export default function Home() {
   useEffect(() => {
     const root = document.documentElement;
     const media = window.matchMedia('(prefers-color-scheme: dark)');
+    window.localStorage.removeItem(THEME_STORAGE_KEY);
     const syncTheme = () => {
-      if (window.localStorage.getItem(THEME_STORAGE_KEY)) return;
+      if (window.sessionStorage.getItem(THEME_STORAGE_KEY)) return;
       const nextTheme: Theme = media.matches ? 'dark' : 'light';
       root.classList.toggle('dark', nextTheme === 'dark');
       root.style.colorScheme = nextTheme;
@@ -158,7 +228,7 @@ export default function Home() {
     const nextTheme: Theme = root.classList.contains('dark') ? 'light' : 'dark';
     root.classList.toggle('dark', nextTheme === 'dark');
     root.style.colorScheme = nextTheme;
-    window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    window.sessionStorage.setItem(THEME_STORAGE_KEY, nextTheme);
     setTheme(nextTheme);
   }, []);
 
@@ -176,7 +246,10 @@ export default function Home() {
   );
   const units = rangeUnits(start, end);
   const pages = layout?.pages.length ?? 0;
-  const presets = useMemo(() => polishRangePresets(initialStart), [initialStart]);
+  const presets = useMemo(
+    () => rangePresets(initialStart, language),
+    [initialStart, language],
+  );
   const rangeFeedback = rangeComment(units, language);
   const validationMessage = invalidRange ? rangeFeedback || copy.generator.error : rangeFeedback;
   const activePreviewPage = Math.min(previewPage, Math.max(0, pages - 1));
@@ -199,7 +272,6 @@ export default function Home() {
     setStyle(selectedStyle);
     setDownloadState('working');
     setDownloadProgress({ current: 0, total: targetLayout.pages.length });
-    setDonationOpen(true);
 
     try {
       const { downloadPdf, generateCalendarPdf } = await import('@/lib/calendar-export');
@@ -209,6 +281,7 @@ export default function Home() {
       });
       downloadPdf(result.bytes, result.filename);
       setDownloadState('done');
+      setDonationOpen(true);
       return { downloaded: true, filename: result.filename, days: result.days, pages: result.pages, language };
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
@@ -368,29 +441,27 @@ export default function Home() {
               <div><p className="section-kicker">{copy.generator.kicker}</p><h2>{copy.generator.heading}</h2></div>
               <CalendarRange aria-hidden="true" />
             </div>
-            {language === 'pl' && (
-              <div className="preset-group">
-                <span>Szybkie zakresy</span>
-                <div className="preset-buttons">
-                  {presets.map((preset) => (
-                    <button
-                      key={preset.label}
-                      onClick={() => {
-                        const selectedRange = 'random' in preset
-                          ? randomCalendarRange(initialStart)
-                          : preset;
-                        setStart(selectedRange.start);
-                        setEnd(selectedRange.end);
-                        setPreviewPage(0);
-                      }}
-                      type="button"
-                    >
-                      {preset.label}
-                    </button>
-                  ))}
-                </div>
+            <div className="preset-group">
+              <span>{copy.generator.presets}</span>
+              <div className="preset-buttons">
+                {presets.map((preset) => (
+                  <button
+                    key={preset.label}
+                    onClick={() => {
+                      const selectedRange = 'random' in preset
+                        ? randomCalendarRange(initialStart)
+                        : preset;
+                      setStart(selectedRange.start);
+                      setEnd(selectedRange.end);
+                      setPreviewPage(0);
+                    }}
+                    type="button"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
             <div className="date-grid">
               <label htmlFor="calendar-start"><span>{copy.generator.start}</span><Input aria-invalid={invalidRange} id="calendar-start" max="9999-12-31" min="1900-01-01" onChange={(event) => setStart(event.target.value)} type="date" value={start} /></label>
               <label htmlFor="calendar-end"><span>{copy.generator.end}</span><Input aria-invalid={invalidRange} id="calendar-end" max="9999-12-31" min={start || '1900-01-01'} onChange={(event) => setEnd(event.target.value)} type="date" value={end} /></label>
@@ -494,7 +565,8 @@ export default function Home() {
 
       <section className="support-section" id="wsparcie">
         <p className="section-kicker">{copy.support.kicker}</p><h2>{copy.support.line1}<br />{copy.support.line2}</h2>
-        <p>{copy.support.text}</p><Button disabled variant="outline">{copy.support.button}</Button>
+        <p>{copy.support.text}</p>
+        <DonationCheckout copy={copy.donation} language={language} source="section" status={supportStatus} />
       </section>
 
       <footer>
@@ -514,7 +586,7 @@ export default function Home() {
             <div className="donation-copy">
               <DialogTitle>{copy.donation.title}</DialogTitle>
               <DialogFooter className="donation-actions">
-                <Button disabled><Coffee aria-hidden="true" data-icon="inline-start" />{copy.donation.button}</Button>
+                <DonationCheckout copy={copy.donation} language={language} source="dialog" status={supportStatus} />
               </DialogFooter>
               <DialogDescription>{copy.donation.lead}</DialogDescription>
             </div>

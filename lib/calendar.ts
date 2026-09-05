@@ -162,55 +162,21 @@ export function rangeComment(units: { days: number; years: number }, language: S
   return '';
 }
 
-function lastDayOfFebruary(year: number) {
-  return utcDate(year, 2, 0).getUTCDate();
-}
-
-function nextSeason(
-  reference: Date,
-  label: string,
-  startMonth: number,
-  startDay: number,
-  endMonth: number,
-  endDay: number,
-) {
-  let year = reference.getUTCFullYear();
-  let start = utcDate(year, startMonth, startDay);
-  let end = utcDate(year, endMonth, endDay);
-  if (reference > end) {
-    year += 1;
-    start = utcDate(year, startMonth, startDay);
-    end = utcDate(year, endMonth, endDay);
-  }
-  return { label: `${label} ${year}`, start: dateValue(start), end: dateValue(end) };
-}
-
-export function polishRangePresets(referenceValue: string) {
+export function rangePresets(referenceValue: string, language: SiteLanguage) {
   const reference = parseDate(referenceValue);
   let holidayYear = reference.getUTCFullYear();
   if (reference > utcDate(holidayYear, 7, 31)) holidayYear += 1;
   const holidayStart = utcDate(holidayYear, 5, 21);
   holidayStart.setUTCDate(holidayStart.getUTCDate() + (6 - holidayStart.getUTCDay() + 7) % 7);
-
-  let winterStartYear = reference.getUTCFullYear();
-  if (reference.getUTCMonth() <= 1) winterStartYear -= 1;
-  let winterEndYear = winterStartYear + 1;
-  let winterEnd = utcDate(winterEndYear, 1, lastDayOfFebruary(winterEndYear));
-  if (reference > winterEnd) {
-    winterStartYear += 1;
-    winterEndYear += 1;
-    winterEnd = utcDate(winterEndYear, 1, lastDayOfFebruary(winterEndYear));
-  }
-
   const nextYear = reference.getUTCFullYear() + 1;
-  return [
+  const presets = [
     {
-      label: 'Rok od teraz 🗓️',
+      label: language === 'pl' ? 'Rok od teraz 🗓️' : 'One year from now 🗓️',
       start: referenceValue,
       end: defaultEndDateValue(referenceValue),
     },
     {
-      label: `${nextYear} rok 🔮`,
+      label: language === 'pl' ? `${nextYear} rok 🔮` : `Year ${nextYear} 🔮`,
       start: dateValue(utcDate(nextYear, 0, 1)),
       end: dateValue(utcDate(nextYear, 11, 31)),
     },
@@ -218,17 +184,17 @@ export function polishRangePresets(referenceValue: string) {
       label: `Wakacje ${holidayYear} 🏖️`,
       start: dateValue(holidayStart),
       end: dateValue(utcDate(holidayYear, 7, 31)),
+      languages: ['pl'] as SiteLanguage[],
     },
-    nextSeason(reference, 'Wiosna 🌱', 2, 1, 4, 31),
-    nextSeason(reference, 'Lato ☀️', 5, 1, 7, 31),
-    nextSeason(reference, 'Jesień 🍂', 8, 1, 10, 30),
     {
-      label: `Zima ${winterStartYear}/${String(winterEndYear).slice(-2)} ❄️`,
-      start: dateValue(utcDate(winterStartYear, 11, 1)),
-      end: dateValue(winterEnd),
+      label: language === 'pl' ? 'Zaskocz mnie 🎲' : 'Surprise me 🎲',
+      random: true as const,
     },
-    { label: 'Zaskocz mnie 🎲', random: true as const },
   ];
+
+  return presets.filter(
+    (preset) => preset.languages?.includes(language) ?? true,
+  );
 }
 
 export function randomCalendarRange(referenceValue: string) {

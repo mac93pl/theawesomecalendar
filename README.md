@@ -5,8 +5,8 @@ dowolny zakres dat z dokładnością do dnia, język polski lub angielski oraz j
 z dwóch stylów: **Ryż** albo **Boksy**. Gotowy kalendarz jest generowany jako
 wielostronicowy PDF A4 do wycięcia i sklejenia.
 
-Cała logika generatora oraz eksport PDF działają w przeglądarce. Projekt nie
-wymaga backendu, bazy danych ani zewnętrznej usługi do generowania plików.
+Cała logika generatora oraz eksport PDF działają w przeglądarce. Jedyny endpoint
+serwerowy tworzy sesje Stripe Checkout dla dobrowolnego wsparcia projektu.
 
 ## Stack
 
@@ -26,6 +26,22 @@ npm run dev
 ```
 
 Strona będzie dostępna pod adresem <http://localhost:3000>.
+
+## Stripe Checkout
+
+Przyciski 10, 20 i 50 zł oraz pole własnej kwoty korzystają z hostowanego
+Stripe Checkout. Skopiuj `.env.example` do `.env.local` i uzupełnij testowy
+sekret z **Stripe Dashboard → Developers → API keys**:
+
+```bash
+STRIPE_SECRET_KEY=sk_test_...
+```
+
+Klucz `sk_...` jest używany wyłącznie w endpointcie serwerowym i nie może być
+udostępniony w kodzie klienta. W środowisku produkcyjnym dodaj
+`STRIPE_SECRET_KEY` jako zaszyfrowany sekret Workera. Metody płatności są
+dobierane dynamicznie z ustawień Stripe Dashboard; tam możesz włączyć m.in.
+karty, Apple Pay i Google Pay. Przed publikacją zamień klucz testowy na `sk_live_...`.
 
 ## Skrypty
 

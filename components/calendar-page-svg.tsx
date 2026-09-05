@@ -256,7 +256,7 @@ function YearMarkers({ strip, stripY }: { strip: CalendarStripLayout; stripY: nu
               dy="0.07em"
               fill="#bdbdb8"
               fontFamily="Lato, Arial, sans-serif"
-              fontSize={CALENDAR_GEOMETRY.yearMarkerHeight - 1.4}
+              fontSize={CALENDAR_GEOMETRY.yearMarkerFontSize}
               fontWeight={900}
               textAnchor="middle"
               x={x + YEAR_MARKER_WIDTH / 2}
