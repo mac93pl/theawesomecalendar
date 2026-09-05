@@ -91,7 +91,6 @@ type CalendarDownloadRequest = {
 
 type Theme = 'light' | 'dark';
 type SupportStatus = 'cancelled' | 'error' | 'invalid' | 'success' | null;
-type DonationStep = 'download-confirmation' | 'support';
 
 const THEME_STORAGE_KEY = 'awesome-calendar-theme';
 const MODULE_RECOVERY_KEY = 'awesome-calendar-module-recovery';
@@ -225,7 +224,6 @@ export default function Home() {
   const [downloadState, setDownloadState] = useState<'idle' | 'working' | 'done' | 'cancelled' | 'error'>('idle');
   const [downloadProgress, setDownloadProgress] = useState<{ current: number; total: number } | null>(null);
   const [donationOpen, setDonationOpen] = useState(false);
-  const [donationStep, setDonationStep] = useState<DonationStep>('support');
   const [supportStatus, setSupportStatus] = useState<SupportStatus>(null);
   const downloadAbortRef = useRef<AbortController | null>(null);
   const copy = COPY[language];
@@ -263,12 +261,6 @@ export default function Home() {
     }, 0);
     return () => window.clearTimeout(timeout);
   }, []);
-
-  useEffect(() => {
-    if (!donationOpen || donationStep !== 'download-confirmation') return;
-    const timeout = window.setTimeout(() => setDonationStep('support'), 1000);
-    return () => window.clearTimeout(timeout);
-  }, [donationOpen, donationStep]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -393,7 +385,6 @@ export default function Home() {
       window.sessionStorage.removeItem(MODULE_RECOVERY_KEY);
       downloadPdf(result.bytes, result.filename);
       setDownloadState('done');
-      setDonationStep('download-confirmation');
       setDonationOpen(true);
       return { downloaded: true, filename: result.filename, days: result.days, pages: result.pages, language, format: result.format };
     } catch (error) {
@@ -422,11 +413,6 @@ export default function Home() {
 
   const cancelDownload = useCallback(() => {
     downloadAbortRef.current?.abort();
-  }, []);
-
-  const handleDonationOpenChange = useCallback((open: boolean) => {
-    setDonationOpen(open);
-    if (!open) setDonationStep('support');
   }, []);
 
   const selectPreset = useCallback((preset: CalendarRangePreset) => {
@@ -931,34 +917,31 @@ export default function Home() {
         <a className="footer-top" href="#top">{copy.footer.top}</a>
       </footer>
 
-      <Dialog onOpenChange={handleDonationOpenChange} open={donationOpen}>
-        {donationStep === 'download-confirmation' ? (
-          <DialogContent className="download-confirmation-dialog" showCloseButton={false}>
-            <div aria-hidden="true" className="download-confirmation-check"><Check /></div>
-            <DialogHeader>
-              <DialogTitle>{copy.donation.downloadTitle}</DialogTitle>
-              <DialogDescription>{copy.donation.downloadLead}</DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        ) : (
-          <DialogContent className="donation-dialog" showCloseButton={false}>
-            <DialogClose aria-label={copy.donation.closeLabel} className="donation-x"><X aria-hidden="true" /></DialogClose>
-            <div className="donation-signal">
-              <Coffee aria-hidden="true" />
-              <span>{copy.donation.badge}</span>
+      <Dialog onOpenChange={setDonationOpen} open={donationOpen}>
+        <DialogContent className="donation-dialog" showCloseButton={false}>
+          <output aria-live="polite" className="donation-download-banner">
+            <span aria-hidden="true" className="donation-download-check"><Check /></span>
+            <span className="donation-download-message">
+              <strong>{copy.donation.downloadTitle}</strong>
+              <small>{copy.donation.downloadLead}</small>
+            </span>
+          </output>
+          <DialogClose aria-label={copy.donation.closeLabel} className="donation-x"><X aria-hidden="true" /></DialogClose>
+          <div className="donation-signal">
+            <Coffee aria-hidden="true" />
+            <span>{copy.donation.badge}</span>
+          </div>
+          <DialogHeader>
+            <p className="donation-eyebrow">{copy.donation.eyebrow}</p>
+            <div className="donation-copy">
+              <DialogTitle>{copy.donation.title}</DialogTitle>
+              <DialogFooter className="donation-actions">
+                <DonationCheckout copy={copy.donation} language={language} source="dialog" status={supportStatus} />
+              </DialogFooter>
+              <DialogDescription>{copy.donation.lead}</DialogDescription>
             </div>
-            <DialogHeader>
-              <p className="donation-eyebrow">{copy.donation.eyebrow}</p>
-              <div className="donation-copy">
-                <DialogTitle>{copy.donation.title}</DialogTitle>
-                <DialogFooter className="donation-actions">
-                  <DonationCheckout copy={copy.donation} language={language} source="dialog" status={supportStatus} />
-                </DialogFooter>
-                <DialogDescription>{copy.donation.lead}</DialogDescription>
-              </div>
-            </DialogHeader>
-          </DialogContent>
-        )}
+          </DialogHeader>
+        </DialogContent>
       </Dialog>
     </main>
   );

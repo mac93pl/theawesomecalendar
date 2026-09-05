@@ -1043,43 +1043,58 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 .donation-status.error,
 .donation-status.invalid { color: var(--error); }
 
-.download-confirmation-dialog {
-  background: var(--donation-background);
-  border: 2px solid var(--donation-foreground);
-  border-radius: 0;
-  box-shadow: none;
-  color: var(--donation-foreground);
-  display: grid;
-  gap: clamp(18px, 3vw, 28px);
-  justify-items: center;
-  max-width: none;
-  outline: none;
-  padding: clamp(34px, 6vw, 58px);
-  text-align: center;
-  width: min(440px, calc(100vw - 32px));
-}
-.download-confirmation-dialog [data-slot='dialog-header'] { align-items: center; gap: 10px; text-align: center; }
-.download-confirmation-dialog [data-slot='dialog-title'] { font-family: Impact, 'Lato', sans-serif; font-size: clamp(2.5rem, 8vw, 4rem); line-height: 0.95; text-transform: uppercase; }
-.download-confirmation-dialog [data-slot='dialog-description'] { color: var(--donation-quiet); font-size: 1rem; line-height: 1.5; max-width: 310px; }
-.download-confirmation-check {
+.donation-download-banner {
   align-items: center;
-  animation: donation-check-pop 480ms cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
+  background: var(--donation-background);
+  border-bottom: 2px solid var(--donation-foreground);
+  color: var(--donation-foreground);
+  display: flex;
+  gap: 14px;
+  grid-column: 1 / -1;
+  min-height: 78px;
+  overflow: hidden;
+  padding: 14px 72px 14px clamp(18px, 3vw, 28px);
+  position: relative;
+}
+.donation-download-banner::after {
+  animation: donation-banner-progress 2s linear both;
+  background: var(--donation-accent);
+  bottom: 0;
+  content: '';
+  height: 5px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.donation-download-check {
+  align-items: center;
+  animation: donation-check-pop 520ms cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
   background: var(--donation-accent);
   border: 2px solid var(--donation-foreground);
-  box-shadow: 6px 6px 0 var(--donation-shadow);
+  box-shadow: 3px 3px 0 var(--donation-shadow);
   color: var(--donation-accent-foreground);
   display: flex;
-  height: clamp(88px, 22vw, 116px);
+  flex: 0 0 auto;
+  height: 44px;
   justify-content: center;
-  transform: rotate(-3deg);
-  width: clamp(88px, 22vw, 116px);
+  transform: rotate(-2deg);
+  width: 44px;
 }
-.download-confirmation-check svg { height: 62%; stroke-width: 3; width: 62%; }
-.download-confirmation-check svg path { animation: donation-check-draw 520ms 160ms ease-out both; stroke-dasharray: 48; stroke-dashoffset: 48; }
+.donation-download-check svg { height: 62%; stroke-width: 3; width: 62%; }
+.donation-download-check svg path { animation: donation-check-draw 1.2s 120ms ease-out both; stroke-dasharray: 48; stroke-dashoffset: 48; }
+.donation-download-message { display: grid; gap: 2px; min-width: 0; }
+.donation-download-message strong { font-size: 0.9rem; font-weight: 900; letter-spacing: 0.055em; line-height: 1.15; text-transform: uppercase; }
+.donation-download-message small { color: var(--donation-quiet); font-size: 0.78rem; line-height: 1.35; }
+
+@keyframes donation-banner-progress {
+  to { transform: scaleX(1); }
+}
 
 @keyframes donation-check-pop {
-  from { opacity: 0; transform: rotate(-9deg) scale(0.7); }
-  to { opacity: 1; transform: rotate(-3deg) scale(1); }
+  from { opacity: 0; transform: rotate(-8deg) scale(0.7); }
+  to { opacity: 1; transform: rotate(-2deg) scale(1); }
 }
 
 @keyframes donation-check-draw {
@@ -1095,6 +1110,7 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   display: grid;
   gap: 0;
   grid-template-columns: minmax(180px, 0.34fr) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   max-height: calc(100svh - 32px);
   max-width: none;
   overflow: auto;
@@ -1298,10 +1314,14 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   .quick-download-body { border-left: 2px solid var(--ink); border-top: 0; }
   .donation-dialog {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr);
     max-height: calc(100svh - 24px);
     width: min(460px, calc(100vw - 24px));
   }
+  .donation-download-banner { gap: 11px; min-height: 82px; padding: 12px 68px 12px 16px; }
+  .donation-download-check { height: 38px; width: 38px; }
+  .donation-download-message strong { font-size: 0.78rem; }
+  .donation-download-message small { font-size: 0.7rem; }
   .donation-signal { align-items: center; border-bottom: 2px solid var(--donation-foreground); border-right: 0; flex-direction: row; min-height: 108px; padding: 20px 68px 20px clamp(24px, 8vw, 44px); }
   .donation-signal svg { height: 50px; width: 50px; }
   .donation-signal span {
@@ -1370,7 +1390,9 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
-  .download-confirmation-check,
-  .download-confirmation-check svg path { animation: none !important; }
-  .download-confirmation-check svg path { stroke-dashoffset: 0; }
+  .donation-download-banner::after,
+  .donation-download-check,
+  .donation-download-check svg path { animation: none !important; }
+  .donation-download-banner::after { transform: scaleX(1); }
+  .donation-download-check svg path { stroke-dashoffset: 0; }
 }
