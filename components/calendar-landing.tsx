@@ -108,9 +108,45 @@ type CalendarDownloadRequest = {
 type Theme = 'light' | 'dark';
 type SupportStatus = 'cancelled' | 'error' | 'invalid' | 'success' | null;
 type ShareStatus = 'copied' | 'error' | 'idle' | 'shared';
+type PendingPdfDownload = {
+  deliveryFrame: number | null;
+  deliveryTimeout: number | null;
+  file: File;
+  filename: string;
+  manuallyDelivered: boolean;
+  url: string;
+};
 
 const THEME_STORAGE_KEY = 'awesome-calendar-theme';
 const MODULE_RECOVERY_KEY = 'awesome-calendar-module-recovery';
+
+function isMobilePdfFlow() {
+  return (
+    window.matchMedia('(max-width: 980px)').matches ||
+    (navigator.maxTouchPoints > 0 &&
+      window.matchMedia('(max-width: 1180px)').matches)
+  );
+}
+
+function triggerPdfDownload(url: string, filename: string) {
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
+function openPdfInNewTab(url: string) {
+  const openedTab = window.open(url, '_blank');
+  if (!openedTab) return false;
+  try {
+    openedTab.opener = null;
+  } catch {
+    // Some mobile browsers do not expose the newly opened tab.
+  }
+  return true;
+}
 
 function calendarYearRange(year: number) {
   return { start: `${year}-01-01`, end: `${year}-12-31` };
@@ -306,9 +342,11 @@ export function CalendarLanding({
     total: number;
   } | null>(null);
   const [donationOpen, setDonationOpen] = useState(false);
+  const [mobilePdfReady, setMobilePdfReady] = useState(false);
   const [supportStatus, setSupportStatus] = useState<SupportStatus>(null);
   const [shareStatus, setShareStatus] = useState<ShareStatus>('idle');
   const downloadAbortRef = useRef<AbortController | null>(null);
+  const pendingPdfRef = useRef<PendingPdfDownload | null>(null);
   const copy = COPY[language];
   const currentYear = Number(initialStart.slice(0, 4));
   const nextYear = currentYear + 1;
@@ -363,6 +401,19 @@ export function CalendarLanding({
     }, 0);
     return () => window.clearTimeout(timeout);
   }, []);
+
+  useEffect(
+    () => () => {
+      const pending = pendingPdfRef.current;
+      if (!pending) return;
+      if (pending.deliveryFrame !== null)
+        window.cancelAnimationFrame(pending.deliveryFrame);
+      if (pending.deliveryTimeout !== null)
+        window.clearTimeout(pending.deliveryTimeout);
+      URL.revokeObjectURL(pending.url);
+    },
+    [],
+  );
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -479,14 +530,23 @@ export function CalendarLanding({
       if (!targetLayout) throw new Error(copy.generator.error);
 
       downloadAbortRef.current?.abort();
+      const previousPdf = pendingPdfRef.current;
+      if (previousPdf) {
+        if (previousPdf.deliveryFrame !== null)
+          window.cancelAnimationFrame(previousPdf.deliveryFrame);
+        if (previousPdf.deliveryTimeout !== null)
+          window.clearTimeout(previousPdf.deliveryTimeout);
+        URL.revokeObjectURL(previousPdf.url);
+        pendingPdfRef.current = null;
+      }
       const controller = new AbortController();
       downloadAbortRef.current = controller;
+      setMobilePdfReady(false);
       setDownloadState('working');
       setDownloadProgress({ current: 0, total: targetLayout.pages.length });
 
       try {
-        const { downloadPdf, generateCalendarPdf } =
-          await import('@/lib/calendar-export');
+        const { generateCalendarPdf } = await import('@/lib/calendar-export');
         const result = await generateCalendarPdf(
           targetLayout,
           rangeStart,
@@ -500,9 +560,38 @@ export function CalendarLanding({
           },
         );
         window.sessionStorage.removeItem(MODULE_RECOVERY_KEY);
-        downloadPdf(result.bytes, result.filename);
+        const file = new File([result.bytes as BlobPart], result.filename, {
+          type: 'application/pdf',
+        });
+        const pendingPdf: PendingPdfDownload = {
+          deliveryFrame: null,
+          deliveryTimeout: null,
+          file,
+          filename: result.filename,
+          manuallyDelivered: false,
+          url: URL.createObjectURL(file),
+        };
+        const mobileFlow = isMobilePdfFlow();
+        pendingPdfRef.current = pendingPdf;
         setDownloadState('done');
+        setMobilePdfReady(mobileFlow);
         setDonationOpen(true);
+        pendingPdf.deliveryFrame = window.requestAnimationFrame(() => {
+          pendingPdf.deliveryFrame = null;
+          pendingPdf.deliveryTimeout = window.setTimeout(() => {
+            pendingPdf.deliveryTimeout = null;
+            if (
+              pendingPdfRef.current !== pendingPdf ||
+              pendingPdf.manuallyDelivered
+            )
+              return;
+            if (mobileFlow) {
+              openPdfInNewTab(pendingPdf.url);
+              return;
+            }
+            triggerPdfDownload(pendingPdf.url, pendingPdf.filename);
+          }, 1_000);
+        });
         return {
           downloaded: true,
           filename: result.filename,
@@ -551,6 +640,38 @@ export function CalendarLanding({
 
   const cancelDownload = useCallback(() => {
     downloadAbortRef.current?.abort();
+  }, []);
+
+  const saveMobilePdf = useCallback(async () => {
+    const pending = pendingPdfRef.current;
+    if (!pending) return;
+
+    pending.manuallyDelivered = true;
+    if (pending.deliveryFrame !== null) {
+      window.cancelAnimationFrame(pending.deliveryFrame);
+      pending.deliveryFrame = null;
+    }
+    if (pending.deliveryTimeout !== null) {
+      window.clearTimeout(pending.deliveryTimeout);
+      pending.deliveryTimeout = null;
+    }
+
+    try {
+      if (
+        navigator.share &&
+        navigator.canShare?.({ files: [pending.file] })
+      ) {
+        await navigator.share({
+          files: [pending.file],
+          title: pending.filename,
+        });
+        return;
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+    }
+
+    openPdfInNewTab(pending.url);
   }, []);
 
   const shareCalendar = useCallback(async () => {
@@ -1614,6 +1735,16 @@ export function CalendarLanding({
                 </span>
               </output>
               <div className="donation-share">
+                {mobilePdfReady ? (
+                  <Button
+                    className="donation-mobile-download-button"
+                    onClick={() => void saveMobilePdf()}
+                    type="button"
+                  >
+                    <Download aria-hidden="true" data-icon="inline-start" />
+                    {copy.donation.mobileDownload}
+                  </Button>
+                ) : null}
                 <Button
                   className="donation-share-button"
                   onClick={() => void shareCalendar()}

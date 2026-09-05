@@ -197,6 +197,7 @@ export const COPY = {
       downloadTitle: 'Kalendarz gotowy!',
       downloadLead:
         'Generowanie zakończone. Pobieranie zrobione. Jeśli oszczędzi Ci trochę czasu, możesz dorzucić się do rozwoju projektu.',
+      mobileDownload: 'Pobierz i zapisz w plikach',
       title: 'Podoba Ci się to, co robimy?',
       lead: 'Jak to mówią? Czas to pieniądz 💸. Jeśli nasza praca pozwoli Ci zaoszczędzić trochę czasu, to chętnie napijemy się kawy w Twoim imieniu!',
       amountLegend: 'Wybierz kwotę',
@@ -436,6 +437,7 @@ export const COPY = {
       downloadTitle: 'Calendar ready!',
       downloadLead:
         'Generation complete. Download done. If it saves you some time, you can contribute to the project’s development.',
+      mobileDownload: 'Download and save to Files',
       title: 'Like what we do?',
       lead: 'You know what they say: time is money 💸. If our work saves you a little time, we’ll happily have a coffee on your behalf!',
       amountLegend: 'Choose an amount',
