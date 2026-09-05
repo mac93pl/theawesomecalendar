@@ -15,7 +15,7 @@ export const CALENDAR_GEOMETRY = {
   finalDaysPerStrip: 63,
   leadingMarginDays: 2,
   yearMarkerDays: 5,
-  yearMarkerHeight: 9.2,
+  yearMarkerHeight: 10.2,
   yearMarkerGap: 0.8,
   cutLineOffset: 0.25,
 } as const;
