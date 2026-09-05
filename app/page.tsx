@@ -1,9 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { type PointerEvent as ReactPointerEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowDown,
   CalendarRange,
   ChevronDown,
   ChevronLeft,
@@ -11,6 +10,7 @@ import {
   Coffee,
   Download,
   FileText,
+  Menu,
   Moon,
   MoveHorizontal,
   Ruler,
@@ -217,13 +217,14 @@ export default function Home() {
   const [end, setEnd] = useState(initialEnd);
   const [style, setStyle] = useState<CalendarStyle>('rice');
   const [format, setFormat] = useState<CalendarFormat>('standard');
+  const [readyYear, setReadyYear] = useState(() => new Date().getFullYear());
+  const [readyStyle, setReadyStyle] = useState<CalendarStyle>('rice');
   const [previewPage, setPreviewPage] = useState(0);
   const [downloadState, setDownloadState] = useState<'idle' | 'working' | 'done' | 'cancelled' | 'error'>('idle');
   const [downloadProgress, setDownloadProgress] = useState<{ current: number; total: number } | null>(null);
   const [donationOpen, setDonationOpen] = useState(false);
   const [supportStatus, setSupportStatus] = useState<SupportStatus>(null);
   const downloadAbortRef = useRef<AbortController | null>(null);
-  const downloadTooltipRef = useRef<HTMLSpanElement | null>(null);
   const copy = COPY[language];
   const currentYear = Number(initialStart.slice(0, 4));
   const nextYear = currentYear + 1;
@@ -233,11 +234,14 @@ export default function Home() {
     [currentYearRange.end, currentYearRange.start, language],
   );
   const sampleStrip = currentYearLayout.strips[0];
-  const currentRiceLabel = insertYear(copy.hero.riceButton, currentYear);
-  const currentBlockLabel = insertYear(copy.hero.blockButton, currentYear);
-  const nextYearLabel = insertYear(copy.hero.nextYearButton, nextYear);
-  const currentYearTooltip = insertYear(copy.hero.clickToDownload, currentYear);
-  const nextYearTooltip = insertYear(copy.hero.clickToDownload, nextYear);
+  const readyYearRange = useMemo(() => calendarYearRange(readyYear), [readyYear]);
+  const readyYearLayout = useMemo(
+    () => createCalendarLayout(readyYearRange.start, readyYearRange.end, language),
+    [language, readyYearRange.end, readyYearRange.start],
+  );
+  const readySampleStrip = readyYearLayout.strips[0];
+  const readyStyleLabel = readyStyle === 'rice' ? copy.generator.rice : copy.generator.block;
+  const readyDownloadLabel = insertYear(copy.ready.download, readyYear);
   const currentVariantDownloadLabel = insertYear(copy.variants.download, currentYear);
   const nextVariantDownloadLabel = insertYear(copy.variants.download, nextYear);
 
@@ -272,6 +276,7 @@ export default function Home() {
       setInitialStart(localStart);
       setStart(localStart);
       setEnd(defaultEndDateValue(localStart));
+      setReadyYear(Number(localStart.slice(0, 4)));
       setPreviewPage(0);
     }, 0);
     return () => window.clearTimeout(timeout);
@@ -426,31 +431,6 @@ export default function Home() {
     setPreviewPage(0);
   }, [initialStart]);
 
-  const moveDownloadTooltip = useCallback((event: ReactPointerEvent<HTMLButtonElement>) => {
-    const tooltip = downloadTooltipRef.current;
-    if (!tooltip || event.pointerType === 'touch' || event.currentTarget.disabled) {
-      if (tooltip) tooltip.hidden = true;
-      return;
-    }
-    tooltip.textContent = event.currentTarget.dataset.downloadTooltip || '';
-    tooltip.hidden = false;
-    const tooltipWidth = tooltip.offsetWidth;
-    const tooltipHeight = tooltip.offsetHeight;
-    const offset = 16;
-    const x = event.clientX + offset + tooltipWidth > window.innerWidth
-      ? event.clientX - tooltipWidth - offset
-      : event.clientX + offset;
-    const y = event.clientY + offset + tooltipHeight > window.innerHeight
-      ? event.clientY - tooltipHeight - offset
-      : event.clientY + offset;
-    tooltip.style.left = `${x}px`;
-    tooltip.style.top = `${y}px`;
-  }, []);
-
-  const hideDownloadTooltip = useCallback(() => {
-    if (downloadTooltipRef.current) downloadTooltipRef.current.hidden = true;
-  }, []);
-
   useEffect(() => {
     const context = (document as Document & { modelContext?: ModelContext }).modelContext;
     if (!context?.registerTool) return;
@@ -543,11 +523,22 @@ export default function Home() {
           <BrandLogo alt="" priority />
         </a>
         <div className="header-actions">
-          <nav aria-label={copy.navLabel}>
-            <a href="#jak-to-dziala">{copy.nav.how}</a>
-            <a href="#warianty">{copy.nav.variants}</a>
+          <nav aria-label={copy.navLabel} className="desktop-nav">
+            <a href="#gotowy">{copy.nav.ready}</a>
+            <a href="#generator">{copy.nav.custom}</a>
             <a className="nav-support" href="#wsparcie">{copy.nav.support}</a>
           </nav>
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<button aria-label={copy.nav.menu} className="mobile-nav-trigger" type="button" />}>
+              <Menu aria-hidden="true" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="mobile-nav-menu" sideOffset={8}>
+              <DropdownMenuItem render={<a aria-label={copy.nav.ready} href="#gotowy" />}>{copy.nav.ready}</DropdownMenuItem>
+              <DropdownMenuItem render={<a aria-label={copy.nav.custom} href="#generator" />}>{copy.nav.custom}</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem render={<a aria-label={copy.nav.support} href="#wsparcie" />}>{copy.nav.support}</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <button
             aria-label={theme === 'dark' ? copy.theme.light : copy.theme.dark}
             className="theme-toggle"
@@ -566,119 +557,96 @@ export default function Home() {
         </div>
       </header>
 
+      <section aria-label={copy.process.label} className="process-strip">
+        <ol>
+          {copy.process.steps.map((step) => <li key={step}>{step}</li>)}
+        </ol>
+      </section>
+
       <section className="promo-hero" id="top">
         <div className="hero-copy">
           <p className="eyebrow">{copy.hero.eyebrow}</p>
           <h1>{copy.hero.line1}<br />{copy.hero.line2}</h1>
           <p className="hero-lead">{copy.hero.lead}</p>
-        </div>
-
-        <div className="year-download-grid">
-          <div className="year-download-option">
-            <button
-              aria-label={currentRiceLabel}
-              className="year-download-card rice-download-card"
-              data-download-tooltip={currentYearTooltip}
-              disabled={downloadState === 'working'}
-              onClick={() => {
-                hideDownloadTooltip();
-                void runReadyCalendarDownload('rice', currentYear);
-              }}
-              onPointerEnter={moveDownloadTooltip}
-              onPointerCancel={hideDownloadTooltip}
-              onPointerLeave={hideDownloadTooltip}
-              onPointerMove={moveDownloadTooltip}
-              type="button"
-            >
-              <CalendarSampleSvg strip={sampleStrip} style="rice" title={copy.variants.riceAlt} />
-              <span className="year-download-button">
-                <Download aria-hidden="true" data-icon="inline-start" />{currentRiceLabel}
-              </span>
-            </button>
-            <button
-              aria-label={`${nextYearLabel} — ${copy.variants.rice}`}
-              className="year-download-next"
-              data-download-tooltip={nextYearTooltip}
-              disabled={downloadState === 'working'}
-              onClick={() => {
-                hideDownloadTooltip();
-                void runReadyCalendarDownload('rice', nextYear);
-              }}
-              onPointerEnter={moveDownloadTooltip}
-              onPointerCancel={hideDownloadTooltip}
-              onPointerLeave={hideDownloadTooltip}
-              onPointerMove={moveDownloadTooltip}
-              type="button"
-            >
-              <Download aria-hidden="true" />{nextYearLabel}
-            </button>
+          <div className="hero-actions">
+            <a className="hero-primary" href="#gotowy"><Download aria-hidden="true" />{copy.hero.primaryCta}</a>
+            <a className="hero-secondary" href="#generator"><CalendarRange aria-hidden="true" />{copy.hero.secondaryCta}</a>
           </div>
-          <div className="year-download-option">
-            <button
-              aria-label={currentBlockLabel}
-              className="year-download-card block-download-card"
-              data-download-tooltip={currentYearTooltip}
-              disabled={downloadState === 'working'}
-              onClick={() => {
-                hideDownloadTooltip();
-                void runReadyCalendarDownload('block', currentYear);
-              }}
-              onPointerEnter={moveDownloadTooltip}
-              onPointerCancel={hideDownloadTooltip}
-              onPointerLeave={hideDownloadTooltip}
-              onPointerMove={moveDownloadTooltip}
-              type="button"
-            >
-              <CalendarSampleSvg strip={sampleStrip} style="block" title={copy.variants.blockAlt} />
-              <span className="year-download-button">
-                <Download aria-hidden="true" data-icon="inline-start" />{currentBlockLabel}
-              </span>
-            </button>
-            <button
-              aria-label={`${nextYearLabel} — ${copy.variants.block}`}
-              className="year-download-next"
-              data-download-tooltip={nextYearTooltip}
-              disabled={downloadState === 'working'}
-              onClick={() => {
-                hideDownloadTooltip();
-                void runReadyCalendarDownload('block', nextYear);
-              }}
-              onPointerEnter={moveDownloadTooltip}
-              onPointerCancel={hideDownloadTooltip}
-              onPointerLeave={hideDownloadTooltip}
-              onPointerMove={moveDownloadTooltip}
-              type="button"
-            >
-              <Download aria-hidden="true" />{nextYearLabel}
-            </button>
-          </div>
+          <p className="hero-meta">{copy.hero.meta}</p>
         </div>
-        <span aria-hidden="true" className="download-cursor-tooltip" hidden ref={downloadTooltipRef}>
-          {currentYearTooltip}
-        </span>
-        <a className="scroll-cue" href="#generator">{copy.hero.cue} <ArrowDown aria-hidden="true" /></a>
       </section>
 
-      <section className="project-note">
-        <div className="project-note-copy">
-          <span className="project-note-stamp">{copy.projectNote.stamp}</span>
-          <p className="project-note-lead">
-            {copy.projectNote.leadPrefix}<mark>{copy.projectNote.leadHighlight}</mark>{copy.projectNote.leadSuffix}
-          </p>
-          <div className="project-note-grid">
-            <p>
-              {copy.projectNote.originPrefix}<mark>{copy.projectNote.originHighlight}</mark>{copy.projectNote.originSuffix}
-            </p>
-            <p>
-              {copy.projectNote.usagePrefix}<mark>{copy.projectNote.usageHighlight}</mark>{copy.projectNote.usageSuffix}
-            </p>
+      <section className="facts-rail" aria-label={copy.facts.label}>
+        <div><Ruler aria-hidden="true" /><strong>{language === 'pl' ? '≈ 1,5–3 M' : '≈ 1.5–3 M'}</strong><span>{copy.facts.length}</span></div>
+        <div><FileText aria-hidden="true" /><strong>3–12 × A4</strong><span>{copy.facts.pages}</span></div>
+        <div><MoveHorizontal aria-hidden="true" /><strong>{copy.facts.axisValue}</strong><span>{copy.facts.axis}</span></div>
+      </section>
+
+      <section className="how-section" id="jak-to-dziala">
+        <p className="section-kicker">{copy.how.kicker}</p><h2>{copy.how.heading}</h2>
+        <div className="steps">
+          {copy.how.steps.map(([title, text], index) => (
+            <article className="step-card" key={title}>
+              <span className="step-number">0{index + 1}</span><Image alt="" height={264} src={stepImages[index]} width={264} />
+              <h3>{title}</h3><p>{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="ready-section" id="gotowy">
+        <div className="ready-heading">
+          <div><p className="section-kicker">{copy.ready.kicker}</p><h2>{copy.ready.heading}</h2></div>
+          <p>{copy.ready.lead}</p>
+        </div>
+        <div className="ready-builder">
+          <div className="ready-choice ready-year-choice">
+            <span className="ready-choice-label">{copy.ready.yearLabel}</span>
+            <RadioGroup
+              aria-label={copy.ready.yearLabel}
+              className="ready-year-picker"
+              onValueChange={(value) => setReadyYear(Number(value))}
+              value={String(readyYear)}
+            >
+              <label className="ready-year-option" htmlFor="ready-year-current">
+                <RadioGroupItem id="ready-year-current" value={String(currentYear)} />
+                <span><strong>{currentYear}</strong><small>{copy.ready.currentYear}</small></span>
+              </label>
+              <label className="ready-year-option" htmlFor="ready-year-next">
+                <RadioGroupItem id="ready-year-next" value={String(nextYear)} />
+                <span><strong>{nextYear}</strong><small>{copy.ready.nextYear}</small></span>
+              </label>
+            </RadioGroup>
           </div>
-          <div className="project-note-closing">
+
+          <div className="ready-choice ready-style-choice">
+            <span className="ready-choice-label">{copy.ready.styleLabel}</span>
+            <RadioGroup
+              aria-label={copy.ready.styleLabel}
+              className="ready-style-picker"
+              onValueChange={(value) => setReadyStyle(value as CalendarStyle)}
+              value={readyStyle}
+            >
+              <label className="ready-style-option ready-style-rice" htmlFor="ready-style-rice">
+                <span className="ready-style-preview"><CalendarSampleSvg strip={readySampleStrip} style="rice" title={copy.variants.riceAlt} /></span>
+                <span className="ready-style-meta"><RadioGroupItem id="ready-style-rice" value="rice" /><span><strong>{copy.generator.rice}</strong><small>{copy.generator.riceHint}</small></span></span>
+              </label>
+              <label className="ready-style-option ready-style-block" htmlFor="ready-style-block">
+                <span className="ready-style-preview"><CalendarSampleSvg strip={readySampleStrip} style="block" title={copy.variants.blockAlt} /></span>
+                <span className="ready-style-meta"><RadioGroupItem id="ready-style-block" value="block" /><span><strong>{copy.generator.block}</strong><small>{copy.generator.blockHint}</small></span></span>
+              </label>
+            </RadioGroup>
+          </div>
+
+          <div className="ready-result">
             <div>
-              <p>{copy.projectNote.thanks}</p>
-              <p className="project-note-signoff">{copy.projectNote.signoff}</p>
+              <span>{copy.ready.selected}</span>
+              <strong>{readyYear} · {readyStyleLabel}</strong>
+              <small>{copy.ready.summary}</small>
             </div>
-            <a className="project-note-cta" href="#wsparcie"><Coffee aria-hidden="true" />{copy.projectNote.cta}</a>
+            <Button className="ready-download-button" disabled={downloadState === 'working'} onClick={() => void runReadyCalendarDownload(readyStyle, readyYear)} size="lg">
+              <Download aria-hidden="true" data-icon="inline-start" />{downloadState === 'working' ? copy.generator.working : readyDownloadLabel}
+            </Button>
           </div>
         </div>
       </section>
@@ -841,24 +809,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="facts-rail" aria-label={copy.facts.label}>
-        <div><Ruler aria-hidden="true" /><strong>{language === 'pl' ? '≈ 1,5–3 M' : '≈ 1.5–3 M'}</strong><span>{copy.facts.length}</span></div>
-        <div><FileText aria-hidden="true" /><strong>3–12 × A4</strong><span>{copy.facts.pages}</span></div>
-        <div><MoveHorizontal aria-hidden="true" /><strong>{copy.facts.axisValue}</strong><span>{copy.facts.axis}</span></div>
-      </section>
-
-      <section className="how-section" id="jak-to-dziala">
-        <p className="section-kicker">{copy.how.kicker}</p><h2>{copy.how.heading}</h2>
-        <div className="steps">
-          {copy.how.steps.map(([title, text], index) => (
-            <article className="step-card" key={title}>
-              <span className="step-number">0{index + 1}</span><Image alt="" height={264} src={stepImages[index]} width={264} />
-              <h3>{title}</h3><p>{text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <section className="variants-section" id="warianty">
         <div className="section-heading-row">
           <div><p className="section-kicker">{copy.variants.kicker}</p><h2>{copy.variants.heading}</h2></div>
@@ -885,6 +835,30 @@ export default function Home() {
               </div>
             </div>
           </article>
+        </div>
+      </section>
+
+      <section className="project-note">
+        <div className="project-note-copy">
+          <span className="project-note-stamp">{copy.projectNote.stamp}</span>
+          <p className="project-note-lead">
+            {copy.projectNote.leadPrefix}<mark>{copy.projectNote.leadHighlight}</mark>{copy.projectNote.leadSuffix}
+          </p>
+          <div className="project-note-grid">
+            <p>
+              {copy.projectNote.originPrefix}<mark>{copy.projectNote.originHighlight}</mark>{copy.projectNote.originSuffix}
+            </p>
+            <p>
+              {copy.projectNote.usagePrefix}<mark>{copy.projectNote.usageHighlight}</mark>{copy.projectNote.usageSuffix}
+            </p>
+          </div>
+          <div className="project-note-closing">
+            <div>
+              <p>{copy.projectNote.thanks}</p>
+              <p className="project-note-signoff">{copy.projectNote.signoff}</p>
+            </div>
+            <a className="project-note-cta" href="#wsparcie"><Coffee aria-hidden="true" />{copy.projectNote.cta}</a>
+          </div>
         </div>
       </section>
 
