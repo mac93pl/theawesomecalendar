@@ -228,12 +228,6 @@ export default function Home() {
   const copy = COPY[language];
   const currentYear = Number(initialStart.slice(0, 4));
   const nextYear = currentYear + 1;
-  const currentYearRange = useMemo(() => calendarYearRange(currentYear), [currentYear]);
-  const currentYearLayout = useMemo(
-    () => createCalendarLayout(currentYearRange.start, currentYearRange.end, language),
-    [currentYearRange.end, currentYearRange.start, language],
-  );
-  const sampleStrip = currentYearLayout.strips[0];
   const readyYearRange = useMemo(() => calendarYearRange(readyYear), [readyYear]);
   const readyYearLayout = useMemo(
     () => createCalendarLayout(readyYearRange.start, readyYearRange.end, language),
@@ -242,8 +236,6 @@ export default function Home() {
   const readySampleStrip = readyYearLayout.strips[0];
   const readyStyleLabel = readyStyle === 'rice' ? copy.generator.rice : copy.generator.block;
   const readyDownloadLabel = insertYear(copy.ready.download, readyYear);
-  const currentVariantDownloadLabel = insertYear(copy.variants.download, currentYear);
-  const nextVariantDownloadLabel = insertYear(copy.variants.download, nextYear);
 
   const selectLanguage = useCallback((nextLanguage: SiteLanguage) => {
     setLanguage(nextLanguage);
@@ -809,35 +801,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="variants-section" id="warianty">
-        <div className="section-heading-row">
-          <div><p className="section-kicker">{copy.variants.kicker}</p><h2>{copy.variants.heading}</h2></div>
-          <p>{copy.variants.lead}</p>
-        </div>
-        <div className="variant-grid">
-          <article className="variant-card rice-variant">
-            <div className="variant-image"><CalendarSampleSvg strip={sampleStrip} style="rice" title={copy.variants.riceAlt} /></div>
-            <div className="variant-copy">
-              <span>{copy.variants.variant} 01</span><h3>{copy.variants.rice}</h3><p>{copy.variants.riceText}</p>
-              <div className="variant-download-actions">
-                <Button disabled={downloadState === 'working'} onClick={() => void runReadyCalendarDownload('rice', currentYear)}><Download data-icon="inline-start" />{currentVariantDownloadLabel}</Button>
-                <Button className="variant-download-next" disabled={downloadState === 'working'} onClick={() => void runReadyCalendarDownload('rice', nextYear)}><Download data-icon="inline-start" />{nextVariantDownloadLabel}</Button>
-              </div>
-            </div>
-          </article>
-          <article className="variant-card block-variant">
-            <div className="variant-image"><CalendarSampleSvg strip={sampleStrip} style="block" title={copy.variants.blockAlt} /></div>
-            <div className="variant-copy">
-              <span>{copy.variants.variant} 02</span><h3>{copy.variants.block}</h3><p>{copy.variants.blockText}</p>
-              <div className="variant-download-actions">
-                <Button disabled={downloadState === 'working'} onClick={() => void runReadyCalendarDownload('block', currentYear)}><Download data-icon="inline-start" />{currentVariantDownloadLabel}</Button>
-                <Button className="variant-download-next" disabled={downloadState === 'working'} onClick={() => void runReadyCalendarDownload('block', nextYear)}><Download data-icon="inline-start" />{nextVariantDownloadLabel}</Button>
-              </div>
-            </div>
-          </article>
-        </div>
-      </section>
-
       <section className="project-note">
         <div className="project-note-copy">
           <span className="project-note-stamp">{copy.projectNote.stamp}</span>
@@ -891,6 +854,47 @@ export default function Home() {
         <p className="section-kicker">{copy.support.kicker}</p><h2>{copy.support.line1}<br />{copy.support.line2}</h2>
         <p>{copy.support.text}</p>
         <DonationCheckout copy={copy.donation} language={language} source="section" status={supportStatus} />
+      </section>
+
+      <section aria-labelledby="quick-download-heading" className="quick-download-section">
+        <div className="quick-download-heading">
+          <div>
+            <p className="section-kicker">{copy.quickDownload.kicker}</p>
+            <h2 id="quick-download-heading">{copy.quickDownload.heading}</h2>
+          </div>
+          <p>{copy.quickDownload.lead}</p>
+        </div>
+        <div className="quick-download-grid">
+          {([
+            { name: copy.generator.rice, style: 'rice' as const, title: copy.variants.riceAlt },
+            { name: copy.generator.block, style: 'block' as const, title: copy.variants.blockAlt },
+          ]).map((variant, index) => (
+            <article className={`quick-download-card quick-download-${variant.style}`} key={variant.style}>
+              <div className="quick-download-preview">
+                <CalendarSampleSvg strip={readySampleStrip} style={variant.style} title={variant.title} />
+              </div>
+              <div className="quick-download-body">
+                <div className="quick-download-title">
+                  <span>{copy.variants.variant} 0{index + 1}</span>
+                  <h3>{variant.name}</h3>
+                </div>
+                <div className="quick-download-actions">
+                  {[currentYear, nextYear].map((year) => (
+                    <Button
+                      disabled={downloadState === 'working'}
+                      key={year}
+                      onClick={() => void runReadyCalendarDownload(variant.style, year)}
+                      type="button"
+                    >
+                      <Download aria-hidden="true" data-icon="inline-start" />
+                      {insertYear(copy.variants.download, year)}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
       </section>
 
       <footer className="site-footer">

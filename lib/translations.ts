@@ -32,6 +32,11 @@ export const COPY = {
       summary: 'Standard · 3 kartki A4 · około 1,5 m',
       download: 'Pobierz kalendarz {year}',
     },
+    quickDownload: {
+      kicker: 'Gotowe pliki',
+      heading: 'POBIERZ I DRUKUJ.',
+      lead: 'Wybierz styl i rok. Gotowy plik PDF pobierze się od razu.',
+    },
     projectNote: {
       stamp: 'Projekt z pasji · za darmo',
       leadPrefix: 'Ten kalendarz to inne podejście do planowania: kalendarz w formie ',
@@ -222,6 +227,11 @@ export const COPY = {
       selected: 'Selected calendar',
       summary: 'Standard · 3 A4 sheets · about 1.5 m',
       download: 'Download calendar {year}',
+    },
+    quickDownload: {
+      kicker: 'Ready-made files',
+      heading: 'DOWNLOAD AND PRINT.',
+      lead: 'Choose a style and year. Your print-ready PDF will download immediately.',
     },
     projectNote: {
       stamp: 'A passion project · free to use',

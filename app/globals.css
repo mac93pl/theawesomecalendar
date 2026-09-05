@@ -782,7 +782,7 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 .download-spec { color: var(--quiet); font-size: 0.64rem; line-height: 1.35; margin: 0; text-align: right; }
 .download-spec span { display: block; font-weight: 900; letter-spacing: 0.09em; margin-bottom: 2px; text-transform: uppercase; }
 .download-spec strong { color: var(--foreground); display: block; font-size: 0.7rem; font-weight: 750; }
-.download-button, .variant-copy button {
+.download-button {
   background: var(--solid);
   border: 2px solid var(--ink);
   border-radius: 0;
@@ -794,8 +794,8 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   padding: 0 18px;
   text-transform: uppercase;
 }
-.download-button:hover, .variant-copy button:hover { background: var(--yellow); color: var(--on-yellow); }
-.download-button:disabled, .variant-copy button:disabled { background: var(--disabled); border-color: var(--disabled); color: var(--solid-foreground); }
+.download-button:hover { background: var(--yellow); color: var(--on-yellow); }
+.download-button:disabled { background: var(--disabled); border-color: var(--disabled); color: var(--solid-foreground); }
 .download-actions { align-items: center; display: flex; gap: 8px; }
 .generator-download-button {
   background: var(--yellow);
@@ -886,13 +886,13 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 .facts-rail strong { font-family: Impact, 'Lato', sans-serif; font-size: clamp(1.8rem, 3vw, 3.1rem); line-height: 1; }
 .facts-rail span { color: #b9b9b5; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 
-.how-section, .variants-section, .faq-section {
+.how-section, .faq-section {
   margin: 0 auto;
   max-width: 1500px;
   padding: clamp(104px, 12vw, 184px) clamp(20px, 4vw, 64px);
 }
 .how-section { padding-block: clamp(72px, 8vw, 112px); }
-.how-section > h2, .variants-section h2, .faq-section h2 { font-size: clamp(3.1rem, 6.8vw, 7.5rem); }
+.how-section > h2, .faq-section h2 { font-size: clamp(3.1rem, 6.8vw, 7.5rem); }
 .steps { display: grid; gap: 0; grid-template-columns: repeat(3, 1fr); margin-top: 40px; }
 .step-card { border: 2px solid var(--ink); min-height: 360px; padding: clamp(22px, 3vw, 36px); position: relative; }
 .step-card + .step-card { border-left: 0; }
@@ -903,27 +903,6 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 .step-card h3 { font-size: clamp(2.2rem, 4vw, 4rem); }
 .step-card p { line-height: 1.5; margin: 14px 0 0; max-width: 310px; }
 
-.variants-section { border-top: 2px solid var(--ink); }
-.section-heading-row { align-items: end; display: flex; justify-content: space-between; margin-bottom: 54px; }
-.section-heading-row > p { line-height: 1.55; margin: 0 0 8px; max-width: 330px; }
-.variant-grid { display: grid; gap: 24px; grid-template-columns: 1fr 1fr; }
-.variant-card { border: 2px solid var(--ink); box-shadow: 8px 8px 0 var(--shadow); display: grid; grid-template-rows: minmax(250px, 1fr) auto; overflow: hidden; }
-.variant-image { align-items: center; background: white; display: flex; justify-content: center; min-height: 320px; overflow: hidden; padding: clamp(20px, 4vw, 56px); }
-.variant-image .calendar-sample { height: auto; max-height: 320px; width: 100%; }
-.rice-variant .variant-image { background: #eeeae1; }
-.block-variant .variant-image { background: #dedbd2; }
-.variant-copy { background: var(--paper); border-top: 2px solid var(--ink); padding: clamp(24px, 3vw, 42px); }
-.rice-variant .variant-copy { background: var(--yellow); color: var(--on-yellow); }
-.rice-variant .variant-copy button { border-color: var(--solid); }
-.dark .rice-variant .variant-copy { background: var(--surface); color: var(--foreground); }
-.dark .rice-variant .variant-copy button { border-color: var(--ink); }
-.variant-copy > span { font-size: 0.68rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
-.variant-copy h3 { font-size: clamp(2.3rem, 4vw, 4.4rem); margin-top: 10px; }
-.variant-copy p { line-height: 1.52; margin: 16px 0 24px; max-width: 490px; }
-.variant-download-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.variant-download-actions button { flex: 1 1 150px; margin: 0; }
-.variant-copy .variant-download-next { background: transparent; border-color: var(--ink); color: var(--foreground); }
-.variant-copy .variant-download-next:hover:not(:disabled) { background: var(--surface); color: var(--foreground); }
 
 .manifesto-section {
   align-items: center;
@@ -1134,6 +1113,57 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 .donation-dialog .donation-legal { color: var(--donation-quiet); }
 .donation-actions button svg { height: 20px; width: 20px; }
 
+.quick-download-section {
+  background: var(--yellow);
+  border-top: 2px solid var(--ink);
+  color: var(--on-yellow);
+  padding: clamp(58px, 7vw, 88px) clamp(20px, 4vw, 64px);
+}
+.quick-download-heading {
+  align-items: end;
+  display: flex;
+  gap: 32px;
+  justify-content: space-between;
+  margin: 0 auto 28px;
+  max-width: 1240px;
+}
+.quick-download-heading .section-kicker::before { background: currentColor; }
+.quick-download-heading h2 { font-size: clamp(2.8rem, 5.2vw, 5.6rem); }
+.quick-download-heading > p { font-size: 0.95rem; line-height: 1.55; margin: 0 0 7px; max-width: 390px; }
+.quick-download-grid { display: grid; gap: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-inline: auto; max-width: 1240px; }
+.quick-download-card {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--shadow);
+  color: var(--foreground);
+  display: grid;
+  grid-template-columns: minmax(150px, 0.7fr) minmax(220px, 1.3fr);
+  min-width: 0;
+  overflow: hidden;
+}
+.quick-download-preview { align-items: center; background: #eeeae1; display: flex; min-height: 190px; padding: 18px; }
+.quick-download-block .quick-download-preview { background: #dedbd2; }
+.quick-download-preview .calendar-sample { height: auto; width: 100%; }
+.quick-download-body { align-content: space-between; border-left: 2px solid var(--ink); display: grid; gap: 20px; padding: 20px; }
+.quick-download-title > span { color: var(--quiet); font-size: 0.65rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; }
+.quick-download-title h3 { font-size: clamp(1.75rem, 2.6vw, 2.7rem); margin-top: 5px; }
+.quick-download-actions { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.quick-download-actions button {
+  background: var(--solid);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  color: var(--solid-foreground);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  min-height: 48px;
+  padding-inline: 12px;
+  text-transform: uppercase;
+}
+.quick-download-actions button:hover { background: var(--yellow); color: var(--on-yellow); }
+.quick-download-actions button:disabled { background: var(--disabled); border-color: var(--disabled); }
+.quick-download-actions svg { height: 16px; width: 16px; }
+
 @media (min-width: 721px) {
   .donation-dialog [data-slot='dialog-description'] {
     justify-self: stretch;
@@ -1180,6 +1210,8 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   .facts-rail > div { padding-inline: 22px; }
   .manifesto-section { grid-template-columns: auto 1fr; }
   .manifesto-copy { grid-column: 2; }
+  .quick-download-card { grid-template-columns: 1fr; }
+  .quick-download-body { border-left: 0; border-top: 2px solid var(--ink); }
 }
 
 @media (max-width: 720px) {
@@ -1192,7 +1224,6 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   .project-note-closing { flex-direction: column; gap: 20px; text-align: center; }
   .generator-hero,
   .how-section,
-  .variants-section,
   .manifesto-section,
   .faq-section,
   .support-section { padding-block: clamp(84px, 18vw, 120px); }
@@ -1201,7 +1232,7 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   .ready-style-preview { min-height: 150px; }
   .ready-result { align-items: stretch; flex-direction: column; }
   .ready-download-button { width: 100%; }
-  .date-grid, .format-picker, .style-picker, .variant-grid { grid-template-columns: 1fr; }
+  .date-grid, .format-picker, .style-picker { grid-template-columns: 1fr; }
   .generator-result { align-items: stretch; flex-direction: column; gap: 16px; }
   .download-panel { align-items: stretch; min-width: 0; }
   .download-panel .download-spec { text-align: left; }
@@ -1212,13 +1243,16 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   .steps { grid-template-columns: 1fr; }
   .step-card { min-height: 0; }
   .step-card + .step-card { border-left: 2px solid var(--ink); border-top: 0; }
-  .section-heading-row { align-items: start; flex-direction: column; gap: 22px; }
-  .variant-image { min-height: 230px; }
   .manifesto-section { gap: 26px; grid-template-columns: 1fr; }
   .manifesto-mark { height: 62px; width: 62px; }
   .manifesto-copy { border-left: 0; border-top: 2px solid currentColor; grid-column: 1; padding-left: 0; padding-top: 24px; }
   .faq-section { grid-template-columns: 1fr; }
   .support-section::after { opacity: 0.25; }
+  .quick-download-heading { align-items: start; flex-direction: column; gap: 16px; }
+  .quick-download-heading > p { max-width: 600px; }
+  .quick-download-grid { grid-template-columns: 1fr; }
+  .quick-download-card { grid-template-columns: minmax(150px, 0.65fr) minmax(220px, 1.35fr); }
+  .quick-download-body { border-left: 2px solid var(--ink); border-top: 0; }
   .donation-dialog {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
@@ -1263,6 +1297,11 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   .ready-style-picker { grid-template-columns: 1fr; }
   .ready-style-preview { justify-content: center; }
   .ready-style-preview .calendar-sample { max-width: 360px; }
+  .quick-download-card { grid-template-columns: 1fr; }
+  .quick-download-preview { min-height: 150px; }
+  .quick-download-preview .calendar-sample { margin-inline: auto; max-width: 360px; }
+  .quick-download-body { border-left: 0; border-top: 2px solid var(--ink); }
+  .quick-download-actions { grid-template-columns: 1fr; }
   .preview-toolbar { align-items: flex-start; flex-direction: column; gap: 9px; }
   .preview-page-controls { justify-content: space-between; width: 100%; }
   .sheet-stage { padding: 12px; }
