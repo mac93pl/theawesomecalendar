@@ -61,6 +61,7 @@ import {
   yearWord,
 } from '@/lib/calendar';
 import { createCalendarLayout } from '@/lib/calendar-layout';
+import { formatSupportAmount, SUPPORT_CONFIG } from '@/lib/support';
 import { COPY } from '@/lib/translations';
 
 type ToolDefinition = {
@@ -95,7 +96,6 @@ type SupportStatus = 'cancelled' | 'error' | 'invalid' | 'success' | null;
 
 const THEME_STORAGE_KEY = 'awesome-calendar-theme';
 const MODULE_RECOVERY_KEY = 'awesome-calendar-module-recovery';
-const SUPPORT_AMOUNTS = [5, 10, 20] as const;
 
 function calendarYearRange(year: number) {
   return { start: `${year}-01-01`, end: `${year}-12-31` };
@@ -134,6 +134,7 @@ type DonationCheckoutProps = {
 };
 
 function DonationCheckout({ copy, language, source, status }: DonationCheckoutProps) {
+  const supportConfig = SUPPORT_CONFIG[language];
   const statusMessage = status ? copy.status[status] : '';
 
   return (
@@ -141,21 +142,21 @@ function DonationCheckout({ copy, language, source, status }: DonationCheckoutPr
       <fieldset className="donation-presets">
         <legend>{copy.amountLegend}</legend>
         <div className="donation-preset-buttons">
-          {SUPPORT_AMOUNTS.map((amount, index) => (
+          {supportConfig.amounts.map((amount, index) => (
             <form action="/api/checkout" key={amount} method="post">
               <input name="language" type="hidden" value={language} />
               <input name="source" type="hidden" value={source} />
               <Button
-                aria-label={`${copy.presetButton}: ${language === 'pl' ? `${amount} zł` : `PLN ${amount}`} — ${copy.amountNames[index]}`}
+                aria-label={`${copy.presetButton}: ${formatSupportAmount(amount, language)} — ${copy.amountNames[index]}`}
                 aria-describedby={`donation-legal-${source}`}
-                className={amount === 10 ? 'donation-preset-option is-recommended' : 'donation-preset-option'}
+                className={amount === supportConfig.recommendedAmount ? 'donation-preset-option is-recommended' : 'donation-preset-option'}
                 name="amount"
                 type="submit"
                 value={amount}
               >
-                <strong>{language === 'pl' ? `${amount} zł` : `PLN ${amount}`}</strong>
+                <strong>{formatSupportAmount(amount, language)}</strong>
                 <span>{copy.amountNames[index]}</span>
-                {amount === 10 && <small>{copy.recommended}</small>}
+                {amount === supportConfig.recommendedAmount && <small>{copy.recommended}</small>}
               </Button>
             </form>
           ))}
@@ -171,15 +172,15 @@ function DonationCheckout({ copy, language, source, status }: DonationCheckoutPr
               aria-describedby={`support-hint-${source} donation-legal-${source}`}
               id={`support-amount-${source}`}
               inputMode="numeric"
-              max="1000"
-              min="5"
+              max={supportConfig.maxAmount}
+              min={supportConfig.minAmount}
               name="amount"
               placeholder={copy.customPlaceholder}
               required
               step="1"
               type="number"
             />
-            <span aria-hidden="true">PLN</span>
+            <span aria-hidden="true">{supportConfig.currencyLabel}</span>
           </div>
           <Button aria-describedby={`donation-legal-${source}`} type="submit"><Coffee aria-hidden="true" />{copy.customButton}</Button>
         </div>

@@ -1,5 +1,4 @@
-const MIN_AMOUNT_PLN = 5;
-const MAX_AMOUNT_PLN = 1000;
+import { SUPPORT_CONFIG } from '@/lib/support';
 
 type SiteLanguage = 'pl' | 'en';
 type CheckoutSource = 'section' | 'dialog';
@@ -28,8 +27,9 @@ export async function POST(request: Request) {
   const language: SiteLanguage = formData.get('language') === 'en' ? 'en' : 'pl';
   const source: CheckoutSource = formData.get('source') === 'dialog' ? 'dialog' : 'section';
   const amount = Number(formData.get('amount'));
+  const supportConfig = SUPPORT_CONFIG[language];
 
-  if (!Number.isInteger(amount) || amount < MIN_AMOUNT_PLN || amount > MAX_AMOUNT_PLN) {
+  if (!Number.isInteger(amount) || amount < supportConfig.minAmount || amount > supportConfig.maxAmount) {
     return redirectBack(request, language, 'invalid');
   }
 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     locale: language,
     success_url: successUrl.toString(),
     cancel_url: cancelUrl.toString(),
-    'line_items[0][price_data][currency]': 'pln',
+    'line_items[0][price_data][currency]': supportConfig.currency,
     'line_items[0][price_data][unit_amount]': String(amount * 100),
     'line_items[0][price_data][product_data][name]': productName,
     'line_items[0][quantity]': '1',
