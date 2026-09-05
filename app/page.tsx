@@ -919,20 +919,19 @@ export default function Home() {
 
       <Dialog onOpenChange={setDonationOpen} open={donationOpen}>
         <DialogContent className="donation-dialog" showCloseButton={false}>
-          <output aria-live="polite" className="donation-download-banner">
-            <span aria-hidden="true" className="donation-download-check"><Check /></span>
-            <span className="donation-download-message">
-              <strong>{copy.donation.downloadTitle}</strong>
-              <small>{copy.donation.downloadLead}</small>
-            </span>
-          </output>
           <DialogClose aria-label={copy.donation.closeLabel} className="donation-x"><X aria-hidden="true" /></DialogClose>
           <div className="donation-signal">
             <Coffee aria-hidden="true" />
             <span>{copy.donation.badge}</span>
           </div>
           <DialogHeader>
-            <p className="donation-eyebrow">{copy.donation.eyebrow}</p>
+            <output aria-live="polite" className="donation-download-note">
+              <span aria-hidden="true" className="donation-download-check"><Check /></span>
+              <span className="donation-download-message">
+                <strong>{copy.donation.downloadTitle}</strong>
+                <small>{copy.donation.downloadLead}</small>
+              </span>
+            </output>
             <div className="donation-copy">
               <DialogTitle>{copy.donation.title}</DialogTitle>
               <DialogFooter className="donation-actions">

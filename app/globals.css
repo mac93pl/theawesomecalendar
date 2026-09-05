@@ -1043,34 +1043,17 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 .donation-status.error,
 .donation-status.invalid { color: var(--error); }
 
-.donation-download-banner {
-  align-items: center;
-  background: var(--donation-background);
-  border-bottom: 2px solid var(--donation-foreground);
+.donation-download-note {
+  align-items: flex-start;
   color: var(--donation-foreground);
   display: flex;
   gap: 14px;
-  grid-column: 1 / -1;
-  min-height: 78px;
-  overflow: hidden;
-  padding: 14px 72px 14px clamp(18px, 3vw, 28px);
-  position: relative;
-}
-.donation-download-banner::after {
-  animation: donation-banner-progress 2s linear both;
-  background: var(--donation-accent);
-  bottom: 0;
-  content: '';
-  height: 5px;
-  left: 0;
-  position: absolute;
-  right: 0;
-  transform: scaleX(0);
-  transform-origin: left;
+  margin: 0;
+  max-width: 620px;
 }
 .donation-download-check {
   align-items: center;
-  animation: donation-check-pop 520ms cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
+  animation: donation-check-pop 2s cubic-bezier(0.2, 0.9, 0.25, 1.1) both;
   background: var(--donation-accent);
   border: 2px solid var(--donation-foreground);
   box-shadow: 3px 3px 0 var(--donation-shadow);
@@ -1086,15 +1069,14 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 .donation-download-check svg path { animation: donation-check-draw 1.2s 120ms ease-out both; stroke-dasharray: 48; stroke-dashoffset: 48; }
 .donation-download-message { display: grid; gap: 2px; min-width: 0; }
 .donation-download-message strong { font-size: 0.9rem; font-weight: 900; letter-spacing: 0.055em; line-height: 1.15; text-transform: uppercase; }
-.donation-download-message small { color: var(--donation-quiet); font-size: 0.78rem; line-height: 1.35; }
-
-@keyframes donation-banner-progress {
-  to { transform: scaleX(1); }
-}
+.donation-download-message small { color: var(--donation-quiet); font-size: clamp(0.75rem, 1.2vw, 0.88rem); line-height: 1.45; }
 
 @keyframes donation-check-pop {
-  from { opacity: 0; transform: rotate(-8deg) scale(0.7); }
-  to { opacity: 1; transform: rotate(-2deg) scale(1); }
+  0% { opacity: 0; transform: rotate(-10deg) scale(0.65); }
+  18% { opacity: 1; transform: rotate(2deg) scale(1.08); }
+  32%, 72% { opacity: 1; transform: rotate(-2deg) scale(1); }
+  84% { opacity: 1; transform: rotate(1deg) scale(1.05); }
+  100% { opacity: 1; transform: rotate(-2deg) scale(1); }
 }
 
 @keyframes donation-check-draw {
@@ -1110,7 +1092,6 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   display: grid;
   gap: 0;
   grid-template-columns: minmax(180px, 0.34fr) minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr);
   max-height: calc(100svh - 32px);
   max-width: none;
   overflow: auto;
@@ -1154,7 +1135,6 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   z-index: 3;
 }
 .donation-dialog [data-slot='dialog-header'] { align-content: space-between; display: grid; gap: clamp(26px, 4vh, 44px); grid-template-rows: auto 1fr; padding: clamp(32px, 4.5vw, 58px); padding-right: clamp(68px, 8vw, 100px); text-align: left; }
-.donation-eyebrow { color: var(--donation-quiet); font-size: clamp(0.75rem, 1.2vw, 0.88rem); font-weight: 700; line-height: 1.45; margin: 0; max-width: 620px; }
 .donation-copy { align-self: center; display: grid; gap: clamp(16px, 2.2vh, 24px); justify-items: start; padding-block: 8px; }
 .donation-dialog [data-slot='dialog-title'] { color: var(--donation-foreground); font-family: Impact, 'Lato', sans-serif; font-size: clamp(2.8rem, 5.2vw, 5.2rem); font-weight: 700; line-height: 0.95; margin: 0; max-width: 640px; text-wrap: balance; }
 .donation-dialog [data-slot='dialog-description'] { color: var(--donation-quiet); font-size: clamp(0.95rem, 1.35vw, 1.08rem); line-height: 1.55; margin: 0; max-width: 620px; text-wrap: balance; }
@@ -1314,14 +1294,14 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   .quick-download-body { border-left: 2px solid var(--ink); border-top: 0; }
   .donation-dialog {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
     max-height: calc(100svh - 24px);
     width: min(460px, calc(100vw - 24px));
   }
-  .donation-download-banner { gap: 11px; min-height: 82px; padding: 12px 68px 12px 16px; }
+  .donation-download-note { gap: 11px; }
   .donation-download-check { height: 38px; width: 38px; }
   .donation-download-message strong { font-size: 0.78rem; }
-  .donation-download-message small { font-size: 0.7rem; }
+  .donation-download-message small { font-size: 0.75rem; }
   .donation-signal { align-items: center; border-bottom: 2px solid var(--donation-foreground); border-right: 0; flex-direction: row; min-height: 108px; padding: 20px 68px 20px clamp(24px, 8vw, 44px); }
   .donation-signal svg { height: 50px; width: 50px; }
   .donation-signal span {
@@ -1332,7 +1312,6 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
     transform: rotate(-2.5deg) translateY(5px);
   }
   .donation-dialog [data-slot='dialog-header'] { gap: 24px; padding: 32px clamp(24px, 8vw, 44px) 30px; }
-  .donation-eyebrow { font-size: 0.75rem; padding-inline: 0; }
   .donation-dialog [data-slot='dialog-title'] { font-size: clamp(2.7rem, 12vw, 4.3rem); }
   .donation-dialog [data-slot='dialog-description'] { font-size: 0.95rem; }
   .donation-actions { padding: 2px 0 8px; }
@@ -1390,9 +1369,7 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
-  .donation-download-banner::after,
   .donation-download-check,
   .donation-download-check svg path { animation: none !important; }
-  .donation-download-banner::after { transform: scaleX(1); }
   .donation-download-check svg path { stroke-dashoffset: 0; }
 }
