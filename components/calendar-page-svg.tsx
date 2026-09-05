@@ -220,15 +220,6 @@ function GlueTab({ strip, stripY, patternId, language }: {
   return (
     <g>
       <rect fill={`url(#${patternId})`} height={CALENDAR_GEOMETRY.stripHeight} width={strip.glueWidth} x={x} y={stripY} />
-      <line
-        stroke={MID_GRAY}
-        strokeDasharray="1.2 1.1"
-        strokeWidth={0.18}
-        x1={x}
-        x2={x}
-        y1={stripY}
-        y2={stripY + CALENDAR_GEOMETRY.stripHeight}
-      />
       <text
         dominantBaseline="middle"
         fill="#9b9b96"
@@ -251,8 +242,6 @@ function YearMarkers({ strip, stripY }: { strip: CalendarStripLayout; stripY: nu
       {strip.yearMarkers.map((marker) => {
         const x = CALENDAR_GEOMETRY.margin + marker.x;
         const padding = CALENDAR_GEOMETRY.yearMarkerPadding;
-        const textWidth = YEAR_MARKER_WIDTH - 2 * padding;
-        const digits = String(marker.year).split('');
         return (
           <g key={marker.year}>
             <rect
@@ -262,17 +251,16 @@ function YearMarkers({ strip, stripY }: { strip: CalendarStripLayout; stripY: nu
               x={x}
               y={stripY}
             />
-            {digits.map((digit, index) => (
-              <text
-                fill="#c7c7c2"
-                fontFamily="Anton, Arial Narrow, sans-serif"
-                fontSize={7}
-                key={index}
-                textAnchor="middle"
-                x={x + padding + (index + 0.5) * textWidth / digits.length}
-                y={stripY + 7.35}
-              >{digit}</text>
-            ))}
+            <text
+              fill="#bdbdb8"
+              fontFamily="Barlow Condensed Black, Impact, sans-serif"
+              fontSize={9}
+              fontWeight={900}
+              letterSpacing={-0.1}
+              textAnchor="start"
+              x={x + padding}
+              y={stripY + 8.05}
+            >{marker.year}</text>
           </g>
         );
       })}

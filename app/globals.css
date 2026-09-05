@@ -34,6 +34,14 @@
   src: url('/fonts/anton-regular.ttf') format('truetype');
 }
 
+@font-face {
+  font-family: 'Barlow Condensed Black';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/fonts/barlow-condensed-black.ttf') format('truetype');
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

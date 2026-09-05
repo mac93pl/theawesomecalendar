@@ -34,8 +34,9 @@ export async function generateCalendarPdf(
     import('react-dom/server'),
     import('svg2pdf.js'),
   ]);
-  const [antonBytes, interBytes, logoBytes] = await Promise.all([
+  const [antonBytes, barlowCondensedBlackBytes, interBytes, logoBytes] = await Promise.all([
     fetch('/fonts/anton-regular.ttf').then((response) => response.arrayBuffer()),
+    fetch('/fonts/barlow-condensed-black.ttf').then((response) => response.arrayBuffer()),
     fetch('/fonts/inter-latin-ext.ttf').then((response) => response.arrayBuffer()),
     fetch('/brand/logo.png').then((response) => response.arrayBuffer()),
   ]);
@@ -57,6 +58,8 @@ export async function generateCalendarPdf(
   document.setLanguage(language);
   document.addFileToVFS('Anton-Regular.ttf', asBase64(antonBytes));
   document.addFont('Anton-Regular.ttf', 'Anton', 'normal');
+  document.addFileToVFS('BarlowCondensed-Black.ttf', asBase64(barlowCondensedBlackBytes));
+  document.addFont('BarlowCondensed-Black.ttf', 'Barlow Condensed Black', 'normal', 900);
   document.addFileToVFS('Inter-Regular.ttf', asBase64(interBytes));
   document.addFont('Inter-Regular.ttf', 'Inter', 'normal');
   document.addFont('Inter-Regular.ttf', 'Inter', 'bold');
