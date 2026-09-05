@@ -1,5 +1,17 @@
 export type CalendarStyle = 'rice' | 'block';
+export type CalendarFormat = 'standard' | 'tall' | 'big';
 export type SiteLanguage = 'pl' | 'en';
+
+export type CalendarRangePreset = {
+  end: string;
+  group: 'calendar' | 'duration' | 'quick';
+  label: string;
+  start: string;
+} | {
+  group: 'random';
+  label: string;
+  random: true;
+};
 
 export type CalendarDay = {
   iso: string;
@@ -76,10 +88,17 @@ export function addDaysValue(value: string, amount: number) {
   return dateValue(date);
 }
 
-export function addYearsValue(value: string, amount: number) {
+export function addMonthsValue(value: string, amount: number) {
   const source = parseDate(value);
-  const date = utcDate(source.getUTCFullYear() + amount, source.getUTCMonth(), source.getUTCDate());
-  return dateValue(date);
+  const targetMonthIndex = source.getUTCMonth() + amount;
+  const targetYear = source.getUTCFullYear() + Math.floor(targetMonthIndex / 12);
+  const targetMonth = ((targetMonthIndex % 12) + 12) % 12;
+  const lastTargetDay = utcDate(targetYear, targetMonth + 1, 0).getUTCDate();
+  return dateValue(utcDate(targetYear, targetMonth, Math.min(source.getUTCDate(), lastTargetDay)));
+}
+
+export function addYearsValue(value: string, amount: number) {
+  return addMonthsValue(value, amount * 12);
 }
 
 export function defaultEndDateValue(start: string) {
@@ -107,16 +126,38 @@ export function dayCount(start: string, end: string) {
 
 export function rangeUnits(start: string, end: string) {
   const days = dayCount(start, end);
-  if (days === 0) return { days: 0, months: 0, years: 0 };
+  if (days === 0) {
+    return { days: 0, months: 0, remainingDays: 0, remainingMonths: 0, years: 0 };
+  }
 
   const from = parseDate(start);
   const inclusiveEnd = parseDate(end);
   const exclusiveEnd = new Date(inclusiveEnd.getTime() + DAY_MS);
-  let months = (exclusiveEnd.getUTCFullYear() - from.getUTCFullYear()) * 12
-    + exclusiveEnd.getUTCMonth() - from.getUTCMonth();
-  if (exclusiveEnd.getUTCDate() < from.getUTCDate()) months -= 1;
-  months = Math.max(0, months);
-  return { days, months, years: Math.floor(months / 12) };
+  let years = exclusiveEnd.getUTCFullYear() - from.getUTCFullYear();
+  let yearAnchorValue = addYearsValue(start, years);
+  if (parseDate(yearAnchorValue) > exclusiveEnd) {
+    years -= 1;
+    yearAnchorValue = addYearsValue(start, years);
+  }
+
+  const yearAnchor = parseDate(yearAnchorValue);
+  let remainingMonths = (exclusiveEnd.getUTCFullYear() - yearAnchor.getUTCFullYear()) * 12
+    + exclusiveEnd.getUTCMonth() - yearAnchor.getUTCMonth();
+  let monthAnchorValue = addMonthsValue(yearAnchorValue, remainingMonths);
+  if (parseDate(monthAnchorValue) > exclusiveEnd) {
+    remainingMonths -= 1;
+    monthAnchorValue = addMonthsValue(yearAnchorValue, remainingMonths);
+  }
+
+  const monthAnchor = parseDate(monthAnchorValue);
+  const remainingDays = Math.max(0, Math.floor((exclusiveEnd.getTime() - monthAnchor.getTime()) / DAY_MS));
+  return {
+    days,
+    months: years * 12 + remainingMonths,
+    remainingDays,
+    remainingMonths,
+    years,
+  };
 }
 
 type RangeCommentCopy = string | readonly string[];
@@ -258,37 +299,122 @@ export function rangeComment(units: { days: number; months: number; years: numbe
 
 export function rangePresets(referenceValue: string, language: SiteLanguage) {
   const reference = parseDate(referenceValue);
+  const referenceYear = reference.getUTCFullYear();
+  const referenceMonth = reference.getUTCMonth();
+  const schoolStartYear = referenceMonth >= 6 ? referenceYear : referenceYear - 1;
+  const schoolYearLabel = `${schoolStartYear}/${String(schoolStartYear + 1).slice(-2)}`;
+  const springSemester = referenceMonth < 6;
+  const semesterStart = springSemester
+    ? utcDate(referenceYear, 0, 1)
+    : utcDate(referenceYear, 8, 1);
+  const semesterEnd = springSemester
+    ? utcDate(referenceYear, 5, 30)
+    : utcDate(referenceYear + 1, 0, 31);
+  const semesterYearLabel = springSemester
+    ? String(referenceYear)
+    : `${referenceYear}/${String(referenceYear + 1).slice(-2)}`;
   let holidayYear = reference.getUTCFullYear();
   if (reference > utcDate(holidayYear, 7, 31)) holidayYear += 1;
   const holidayStart = utcDate(holidayYear, 5, 21);
   holidayStart.setUTCDate(holidayStart.getUTCDate() + (6 - holidayStart.getUTCDay() + 7) % 7);
-  const nextYear = reference.getUTCFullYear() + 1;
-  const presets = [
+  let gardenYear = referenceYear;
+  if (reference > utcDate(gardenYear, 9, 31)) gardenYear += 1;
+  const nextYear = referenceYear + 1;
+  const presets: CalendarRangePreset[] = [
     {
+      group: 'quick',
+      label: language === 'pl' ? '30 dni' : '30 days',
+      start: referenceValue,
+      end: addDaysValue(referenceValue, 29),
+    },
+    {
+      group: 'quick',
+      label: language === 'pl' ? 'Kwartał' : 'Quarter',
+      start: referenceValue,
+      end: addDaysValue(referenceValue, 89),
+    },
+    {
+      group: 'quick',
       label: language === 'pl' ? 'Rok od teraz 🗓️' : 'One year from now 🗓️',
       start: referenceValue,
       end: defaultEndDateValue(referenceValue),
     },
     {
-      label: language === 'pl' ? `${nextYear} rok 🔮` : `Year ${nextYear} 🔮`,
+      group: 'quick',
+      label: language === 'pl' ? 'Do końca roku' : 'Until year-end',
+      start: referenceValue,
+      end: dateValue(utcDate(referenceYear, 11, 31)),
+    },
+    {
+      group: 'duration',
+      label: language === 'pl' ? '12 tygodni' : '12 weeks',
+      start: referenceValue,
+      end: addDaysValue(referenceValue, 83),
+    },
+    {
+      group: 'duration',
+      label: language === 'pl' ? '100 dni' : '100 days',
+      start: referenceValue,
+      end: addDaysValue(referenceValue, 99),
+    },
+    {
+      group: 'duration',
+      label: language === 'pl' ? '6 miesięcy' : '6 months',
+      start: referenceValue,
+      end: addDaysValue(addMonthsValue(referenceValue, 6), -1),
+    },
+    {
+      group: 'duration',
+      label: language === 'pl' ? '9 miesięcy' : '9 months',
+      start: referenceValue,
+      end: addDaysValue(addMonthsValue(referenceValue, 9), -1),
+    },
+    {
+      group: 'duration',
+      label: language === 'pl' ? '2 lata' : '2 years',
+      start: referenceValue,
+      end: addDaysValue(addYearsValue(referenceValue, 2), -1),
+    },
+    {
+      group: 'quick',
+      label: language === 'pl' ? `Rok ${nextYear} 🔮` : `Year ${nextYear} 🔮`,
       start: dateValue(utcDate(nextYear, 0, 1)),
       end: dateValue(utcDate(nextYear, 11, 31)),
     },
     {
-      label: `Wakacje ${holidayYear} 🏖️`,
-      start: dateValue(holidayStart),
-      end: dateValue(utcDate(holidayYear, 7, 31)),
-      languages: ['pl'] as SiteLanguage[],
+      group: 'calendar',
+      label: language === 'pl' ? `Rok szkolny ${schoolYearLabel}` : `School year ${schoolYearLabel}`,
+      start: dateValue(utcDate(schoolStartYear, 8, 1)),
+      end: dateValue(utcDate(schoolStartYear + 1, 5, 30)),
     },
     {
+      group: 'calendar',
+      label: language === 'pl'
+        ? `Semestr ${springSemester ? 'letni' : 'zimowy'} ${semesterYearLabel}`
+        : `${springSemester ? 'Spring' : 'Fall'} semester ${semesterYearLabel}`,
+      start: dateValue(semesterStart),
+      end: dateValue(semesterEnd),
+    },
+    {
+      group: 'calendar',
+      label: language === 'pl' ? `Wakacje ${holidayYear} 🏖️` : `Summer ${holidayYear} 🏖️`,
+      start: dateValue(holidayStart),
+      end: dateValue(utcDate(holidayYear, 7, 31)),
+    },
+    {
+      group: 'calendar',
+      label: language === 'pl' ? `Sezon ogrodowy ${gardenYear} 🌱` : `Gardening season ${gardenYear} 🌱`,
+      start: dateValue(utcDate(gardenYear, 2, 1)),
+      end: dateValue(utcDate(gardenYear, 9, 31)),
+    },
+    {
+      group: 'random',
       label: language === 'pl' ? 'Zaskocz mnie 🎲' : 'Surprise me 🎲',
       random: true as const,
     },
   ];
 
-  return presets.filter(
-    (preset) => preset.languages?.includes(language) ?? true,
-  );
+  return presets;
 }
 
 export function randomCalendarRange(referenceValue: string) {
@@ -346,9 +472,17 @@ export function createDays(start: string, end: string, language: SiteLanguage): 
   });
 }
 
-export function calendarFileName(start: string, end: string, style: CalendarStyle, language: SiteLanguage, extension = 'pdf') {
+export function calendarFileName(
+  start: string,
+  end: string,
+  style: CalendarStyle,
+  language: SiteLanguage,
+  format: CalendarFormat = 'standard',
+  extension = 'pdf',
+) {
   const styleName = style === 'rice' ? (language === 'pl' ? 'ryz' : 'grain') : 'block';
-  return 'the-awesome-calendar_' + language + '_' + start + '_' + end + '_' + styleName + '.' + extension;
+  const formatName = format === 'standard' ? '' : '_' + format;
+  return 'the-awesome-calendar_' + language + '_' + start + '_' + end + '_' + styleName + formatName + '.' + extension;
 }
 
 export function rangeError(language: SiteLanguage) {

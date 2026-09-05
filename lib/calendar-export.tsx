@@ -1,6 +1,6 @@
 import { CalendarPageSvg } from '@/components/calendar-page-svg';
 import { CalendarStyle, SiteLanguage, calendarFileName } from '@/lib/calendar';
-import { CALENDAR_GEOMETRY, CalendarLayout } from '@/lib/calendar-layout';
+import { CalendarLayout } from '@/lib/calendar-layout';
 
 type ExportOptions = {
   onProgress?: (current: number, total: number) => void;
@@ -79,8 +79,8 @@ export async function generateCalendarPdf(
     await document.svg(svg, {
       x: 0,
       y: 0,
-      width: CALENDAR_GEOMETRY.pageWidth,
-      height: CALENDAR_GEOMETRY.pageHeight,
+      width: layout.geometry.pageWidth,
+      height: layout.geometry.pageHeight,
       loadExternalStyleSheets: false,
     });
     options.onProgress?.(index + 1, layout.pages.length);
@@ -90,10 +90,11 @@ export async function generateCalendarPdf(
   throwIfCancelled(options.signal);
   return {
     bytes: new Uint8Array(document.output('arraybuffer')),
-    filename: calendarFileName(start, end, style, language),
+    filename: calendarFileName(start, end, style, language, layout.format),
     pages: layout.pages.length,
     days: layout.days.length,
     language,
+    format: layout.format,
   };
 }
 

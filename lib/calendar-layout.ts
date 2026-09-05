@@ -1,31 +1,121 @@
-import { type CalendarDay, type SiteLanguage, createDays } from '@/lib/calendar';
+import {
+  type CalendarDay,
+  type CalendarFormat,
+  type SiteLanguage,
+  createDays,
+} from '@/lib/calendar';
 
-export const CALENDAR_GEOMETRY = {
+type GeometryProfile = {
+  format: CalendarFormat;
+  stripsPerPage: 1 | 2;
+  stripHeight: number;
+  monthBandHeight: number;
+  referenceStrips: number;
+  regularDaysPerStrip: number;
+  finalDaysPerStrip: number;
+  visualScale: number;
+};
+
+export type CalendarGeometry = {
+  readonly format: CalendarFormat;
+  readonly pageWidth: number;
+  readonly pageHeight: number;
+  readonly margin: number;
+  readonly workWidth: number;
+  readonly workHeight: number;
+  readonly stripsPerPage: 1 | 2;
+  readonly stripHeight: number;
+  readonly monthBandHeight: number;
+  readonly dayAreaHeight: number;
+  readonly referenceStrips: number;
+  readonly glueTabWidth: number;
+  readonly regularContentWidth: number;
+  readonly regularDaysPerStrip: number;
+  readonly finalDaysPerStrip: number;
+  readonly leadingMarginDays: number;
+  readonly dayWidth: number;
+  readonly yearMarkerDays: number;
+  readonly yearMarkerWidth: number;
+  readonly yearMarkerHeight: number;
+  readonly yearMarkerFontSize: number;
+  readonly yearMarkerGap: number;
+  readonly cutLineOffset: number;
+  readonly visualScale: number;
+};
+
+const PAGE_GEOMETRY = {
   pageWidth: 297,
   pageHeight: 210,
   margin: 15,
   workWidth: 267,
   workHeight: 180,
-  stripHeight: 90,
-  monthBandHeight: 9,
-  dayAreaHeight: 81,
-  referenceStrips: 6,
   glueTabWidth: 10,
-  regularDaysPerStrip: 61,
-  finalDaysPerStrip: 63,
   leadingMarginDays: 2,
   yearMarkerDays: 5,
-  yearMarkerHeight: 10.2,
-  yearMarkerFontSize: 8.4,
-  yearMarkerGap: 0.8,
   cutLineOffset: 0.25,
 } as const;
 
-const REGULAR_CONTENT_WIDTH = CALENDAR_GEOMETRY.workWidth - CALENDAR_GEOMETRY.glueTabWidth;
+function createGeometry(profile: GeometryProfile): CalendarGeometry {
+  const regularContentWidth = PAGE_GEOMETRY.workWidth - PAGE_GEOMETRY.glueTabWidth;
+  const dayWidth = regularContentWidth / profile.regularDaysPerStrip;
 
-export const DAY_WIDTH = REGULAR_CONTENT_WIDTH / CALENDAR_GEOMETRY.regularDaysPerStrip;
-export const YEAR_MARKER_WIDTH = DAY_WIDTH * CALENDAR_GEOMETRY.yearMarkerDays;
-export const REFERENCE_GLUE_TAB_WIDTH = CALENDAR_GEOMETRY.glueTabWidth;
+  return {
+    ...PAGE_GEOMETRY,
+    ...profile,
+    dayAreaHeight: profile.stripHeight - profile.monthBandHeight,
+    regularContentWidth,
+    dayWidth,
+    yearMarkerWidth: dayWidth * PAGE_GEOMETRY.yearMarkerDays,
+    yearMarkerHeight: 10.2 * profile.visualScale,
+    yearMarkerFontSize: 8.4 * profile.visualScale,
+    yearMarkerGap: 0.8 * profile.visualScale,
+  };
+}
+
+export const STANDARD_CALENDAR_GEOMETRY = createGeometry({
+  format: 'standard',
+  stripsPerPage: 2,
+  stripHeight: 90,
+  monthBandHeight: 9,
+  referenceStrips: 6,
+  regularDaysPerStrip: 61,
+  finalDaysPerStrip: 63,
+  visualScale: 1,
+});
+
+export const TALL_CALENDAR_GEOMETRY = createGeometry({
+  format: 'tall',
+  stripsPerPage: 1,
+  stripHeight: 180,
+  monthBandHeight: 9,
+  referenceStrips: 6,
+  regularDaysPerStrip: 61,
+  finalDaysPerStrip: 63,
+  visualScale: 1,
+});
+
+export const BIG_CALENDAR_GEOMETRY = createGeometry({
+  format: 'big',
+  stripsPerPage: 1,
+  stripHeight: 180,
+  monthBandHeight: 18,
+  referenceStrips: 12,
+  regularDaysPerStrip: 31,
+  finalDaysPerStrip: 32,
+  visualScale: 2,
+});
+
+export const CALENDAR_GEOMETRIES: Record<CalendarFormat, CalendarGeometry> = {
+  standard: STANDARD_CALENDAR_GEOMETRY,
+  tall: TALL_CALENDAR_GEOMETRY,
+  big: BIG_CALENDAR_GEOMETRY,
+};
+
+// Backwards-compatible aliases intentionally point at the original renderer.
+export const CALENDAR_GEOMETRY = STANDARD_CALENDAR_GEOMETRY;
+export const DAY_WIDTH = STANDARD_CALENDAR_GEOMETRY.dayWidth;
+export const YEAR_MARKER_WIDTH = STANDARD_CALENDAR_GEOMETRY.yearMarkerWidth;
+export const REFERENCE_GLUE_TAB_WIDTH = STANDARD_CALENDAR_GEOMETRY.glueTabWidth;
 
 export type CalendarYearMarkerLayout = {
   year: number;
@@ -46,10 +136,13 @@ export type CalendarStripLayout = {
 
 export type CalendarPageLayout = {
   index: number;
+  format: CalendarFormat;
   strips: CalendarStripLayout[];
 };
 
 export type CalendarLayout = {
+  format: CalendarFormat;
+  geometry: CalendarGeometry;
   days: CalendarDay[];
   strips: CalendarStripLayout[];
   pages: CalendarPageLayout[];
@@ -60,29 +153,25 @@ export type CalendarLayout = {
   trailingMargin: number;
 };
 
-function packDays(days: CalendarDay[]) {
+function packDays(days: CalendarDay[], geometry: CalendarGeometry) {
   const strips: CalendarStripLayout[] = [];
   let cursor = 0;
 
   while (cursor < days.length) {
     const isFirstStrip = strips.length === 0;
-    const marginDaySlots = isFirstStrip
-      ? CALENDAR_GEOMETRY.leadingMarginDays
-      : 0;
-    const dayOffset = marginDaySlots * DAY_WIDTH;
+    const marginDaySlots = isFirstStrip ? geometry.leadingMarginDays : 0;
+    const dayOffset = marginDaySlots * geometry.dayWidth;
     const remaining = days.length - cursor;
-    const finalCapacity =
-      CALENDAR_GEOMETRY.finalDaysPerStrip - marginDaySlots;
+    const finalCapacity = geometry.finalDaysPerStrip - marginDaySlots;
     const hasGlueTab = remaining > finalCapacity;
-    const stripCapacity =
-      (hasGlueTab
-        ? CALENDAR_GEOMETRY.regularDaysPerStrip
-        : CALENDAR_GEOMETRY.finalDaysPerStrip) - marginDaySlots;
+    const stripCapacity = (
+      hasGlueTab ? geometry.regularDaysPerStrip : geometry.finalDaysPerStrip
+    ) - marginDaySlots;
     const take = Math.min(remaining, stripCapacity);
     const stripDays = days.slice(cursor, cursor + take);
     const contentWidth = hasGlueTab
-      ? REGULAR_CONTENT_WIDTH
-      : dayOffset + stripDays.length * DAY_WIDTH;
+      ? geometry.regularContentWidth
+      : dayOffset + stripDays.length * geometry.dayWidth;
 
     strips.push({
       index: strips.length,
@@ -90,7 +179,7 @@ function packDays(days: CalendarDay[]) {
       dayOffset,
       hasGlueTab,
       contentWidth,
-      glueWidth: hasGlueTab ? CALENDAR_GEOMETRY.glueTabWidth : 0,
+      glueWidth: hasGlueTab ? geometry.glueTabWidth : 0,
       yearMarkers: [],
     });
     cursor += take;
@@ -111,7 +200,7 @@ function packDays(days: CalendarDay[]) {
     if (!day.startsYear) return [];
     const originStripIndex = stripForDay(globalIndex);
     const placementCounts = new Map<number, number>();
-    const markerEnd = Math.min(days.length, globalIndex + CALENDAR_GEOMETRY.yearMarkerDays);
+    const markerEnd = Math.min(days.length, globalIndex + geometry.yearMarkerDays);
     for (let markerDayIndex = globalIndex; markerDayIndex < markerEnd; markerDayIndex += 1) {
       const stripIndex = stripForDay(markerDayIndex);
       placementCounts.set(stripIndex, (placementCounts.get(stripIndex) ?? 0) + 1);
@@ -124,16 +213,16 @@ function packDays(days: CalendarDay[]) {
     const targetStart = stripStarts[targetStripIndex];
     const requestedX = targetStrip.dayOffset + (
       targetStripIndex === originStripIndex
-        ? (globalIndex - targetStart) * DAY_WIDTH
+        ? (globalIndex - targetStart) * geometry.dayWidth
         : 0
     );
-    const drawableWidth = targetStrip.hasGlueTab ? targetStrip.contentWidth : CALENDAR_GEOMETRY.workWidth;
+    const drawableWidth = targetStrip.hasGlueTab ? targetStrip.contentWidth : geometry.workWidth;
     return [{
       marker: {
         year: day.year,
         x: Math.max(
           targetStrip.dayOffset,
-          Math.min(requestedX, drawableWidth - YEAR_MARKER_WIDTH),
+          Math.min(requestedX, drawableWidth - geometry.yearMarkerWidth),
         ),
         rangeDayCount: daysByYear.get(day.year) ?? 0,
         placementDayCount: placementCounts.get(targetStripIndex) ?? 0,
@@ -154,8 +243,8 @@ function packDays(days: CalendarDay[]) {
     const visibleMarkers: CalendarYearMarkerLayout[] = [];
     for (const marker of markerCandidates) {
       const overlaps = visibleMarkers.some((visible) => (
-        marker.x < visible.x + YEAR_MARKER_WIDTH + CALENDAR_GEOMETRY.yearMarkerGap
-        && visible.x < marker.x + YEAR_MARKER_WIDTH + CALENDAR_GEOMETRY.yearMarkerGap
+        marker.x < visible.x + geometry.yearMarkerWidth + geometry.yearMarkerGap
+        && visible.x < marker.x + geometry.yearMarkerWidth + geometry.yearMarkerGap
       ));
       if (!overlaps) visibleMarkers.push(marker);
     }
@@ -165,31 +254,67 @@ function packDays(days: CalendarDay[]) {
   return strips;
 }
 
-export function createCalendarLayout(start: string, end: string, language: SiteLanguage): CalendarLayout {
+function buildCalendarLayout(
+  start: string,
+  end: string,
+  language: SiteLanguage,
+  geometry: CalendarGeometry,
+): CalendarLayout {
   const days = createDays(start, end, language);
-  const strips = packDays(days);
-  const pages = Array.from({ length: Math.ceil(strips.length / 2) }, (_, index) => ({
-    index,
-    strips: strips.slice(index * 2, index * 2 + 2),
-  }));
-  const loosePaperLength = strips.length * CALENDAR_GEOMETRY.workWidth;
+  const strips = packDays(days, geometry);
+  const pages = Array.from(
+    { length: Math.ceil(strips.length / geometry.stripsPerPage) },
+    (_, index) => ({
+      index,
+      format: geometry.format,
+      strips: strips.slice(
+        index * geometry.stripsPerPage,
+        index * geometry.stripsPerPage + geometry.stripsPerPage,
+      ),
+    }),
+  );
+  const loosePaperLength = strips.length * geometry.workWidth;
   const overlap = strips.reduce((sum, strip) => sum + strip.glueWidth, 0);
   const firstStrip = strips[0];
   const lastStrip = strips.at(-1);
   const leadingMargin = firstStrip?.dayOffset ?? 0;
   const trailingMargin = lastStrip
-    ? CALENDAR_GEOMETRY.workWidth -
-      lastStrip.dayOffset -
-      lastStrip.days.length * DAY_WIDTH
+    ? geometry.workWidth - lastStrip.dayOffset - lastStrip.days.length * geometry.dayWidth
     : 0;
+
   return {
+    format: geometry.format,
+    geometry,
     days,
     strips,
     pages,
     loosePaperLength,
     assembledPaperLength: loosePaperLength - overlap,
-    dayAxisLength: days.length * DAY_WIDTH,
+    dayAxisLength: days.length * geometry.dayWidth,
     leadingMargin,
     trailingMargin,
   };
+}
+
+export function createStandardCalendarLayout(start: string, end: string, language: SiteLanguage) {
+  return buildCalendarLayout(start, end, language, STANDARD_CALENDAR_GEOMETRY);
+}
+
+export function createTallCalendarLayout(start: string, end: string, language: SiteLanguage) {
+  return buildCalendarLayout(start, end, language, TALL_CALENDAR_GEOMETRY);
+}
+
+export function createBigCalendarLayout(start: string, end: string, language: SiteLanguage) {
+  return buildCalendarLayout(start, end, language, BIG_CALENDAR_GEOMETRY);
+}
+
+export function createCalendarLayout(
+  start: string,
+  end: string,
+  language: SiteLanguage,
+  format: CalendarFormat = 'standard',
+): CalendarLayout {
+  if (format === 'tall') return createTallCalendarLayout(start, end, language);
+  if (format === 'big') return createBigCalendarLayout(start, end, language);
+  return createStandardCalendarLayout(start, end, language);
 }

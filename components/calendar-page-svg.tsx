@@ -1,8 +1,13 @@
+import { useId } from 'react';
+
 import type { CalendarStyle, SiteLanguage } from '@/lib/calendar';
 import {
+  BIG_CALENDAR_GEOMETRY,
   CALENDAR_GEOMETRY,
   DAY_WIDTH,
-  YEAR_MARKER_WIDTH,
+  STANDARD_CALENDAR_GEOMETRY,
+  TALL_CALENDAR_GEOMETRY,
+  type CalendarGeometry,
   type CalendarPageLayout,
   type CalendarStripLayout,
 } from '@/lib/calendar-layout';
@@ -17,34 +22,53 @@ const RICE_INK = '#000000';
 const RICE_LINE_WIDTH = 0.16;
 const RICE_MONTH_LINE_WIDTH = 0.24;
 const RICE_WEEK_LABEL_OFFSET = 0.44;
+const MONTH_LABEL_MIN_WIDTH = 11;
+// Worst-case uppercase Lato Black glyph advance, including letter spacing.
+const MONTH_LABEL_CHARACTER_WIDTH = 2.55;
+const MONTH_LABEL_WIDTH_PADDING = 0.5;
+const SAMPLE_DAY_COUNT = 34;
+const SAMPLE_VIEW_X = CALENDAR_GEOMETRY.margin - 1;
+const SAMPLE_VIEW_WIDTH =
+  (CALENDAR_GEOMETRY.leadingMarginDays + SAMPLE_DAY_COUNT) * DAY_WIDTH + 2;
+const SAMPLE_VIEW_HEIGHT = SAMPLE_VIEW_WIDTH / 1.5;
+const SAMPLE_VIEW_Y = CALENDAR_GEOMETRY.margin - 6;
 
 const DRAW_COPY = {
   pl: { glue: 'TU NAKLEJ' },
   en: { glue: 'GLUE HERE' },
 } as const;
 
-function DayColumn({ day, dayOffset, index, stripY, style }: {
+function estimateMonthLabelWidth(label: string, visualScale: number) {
+  const characterCount = Array.from(label).length;
+  return Math.max(
+    MONTH_LABEL_MIN_WIDTH,
+    characterCount * MONTH_LABEL_CHARACTER_WIDTH + MONTH_LABEL_WIDTH_PADDING,
+  ) * visualScale;
+}
+
+function DayColumn({ day, dayOffset, geometry, index, stripY, style }: {
   day: CalendarStripLayout['days'][number];
   dayOffset: number;
+  geometry: CalendarGeometry;
   index: number;
   stripY: number;
   style: CalendarStyle;
 }) {
-  const x = CALENDAR_GEOMETRY.margin + dayOffset + index * DAY_WIDTH;
-  const center = x + DAY_WIDTH / 2;
-  const lineBottom = stripY + CALENDAR_GEOMETRY.dayAreaHeight - 2 * DAY_WIDTH;
-  const pillHeight = CALENDAR_GEOMETRY.dayAreaHeight / 16 * (day.startsMonth ? 1.16 : 1);
-  const pillWidth = DAY_WIDTH * 0.29;
-  const lineWidth = day.startsMonth ? RICE_MONTH_LINE_WIDTH : RICE_LINE_WIDTH;
+  const x = geometry.margin + dayOffset + index * geometry.dayWidth;
+  const center = x + geometry.dayWidth / 2;
+  const lineBottom = stripY + geometry.dayAreaHeight - 2 * geometry.dayWidth;
+  const pillHeight = geometry.dayAreaHeight / 16 * (day.startsMonth ? 1.16 : 1);
+  const pillWidth = geometry.dayWidth * 0.29;
+  const lineWidth = (day.startsMonth ? RICE_MONTH_LINE_WIDTH : RICE_LINE_WIDTH) * geometry.visualScale;
   const weekNumber = day.weekday === 1 ? (
     <text
       fill={MID_GRAY}
       fontFamily="Lato, sans-serif"
-      fontSize={style === 'rice' ? 1.5 : 1.65}
+      fontSize={(style === 'rice' ? 1.5 : 1.65) * geometry.visualScale}
       fontWeight={700}
       textAnchor={style === 'rice' ? 'start' : 'middle'}
-      x={style === 'rice' ? center + RICE_WEEK_LABEL_OFFSET : center}
-      y={stripY + 3}
+      x={style === 'rice' ? center + RICE_WEEK_LABEL_OFFSET * geometry.visualScale : center}
+      y={stripY + 3 * geometry.visualScale}
     >{day.isoWeek}</text>
   ) : null;
 
@@ -53,35 +77,35 @@ function DayColumn({ day, dayOffset, index, stripY, style }: {
       <g>
         <rect
           fill={day.isWeekend ? BODY_WEEKEND : '#ffffff'}
-          height={CALENDAR_GEOMETRY.dayAreaHeight}
+          height={geometry.dayAreaHeight}
           stroke={LIGHT_GRAY}
-          strokeWidth={0.12}
-          width={DAY_WIDTH}
+          strokeWidth={0.12 * geometry.visualScale}
+          width={geometry.dayWidth}
           x={x}
           y={stripY}
         />
-        <rect fill={DATE_CELL} height={DAY_WIDTH} width={DAY_WIDTH} x={x} y={lineBottom} />
-        <rect fill={WEEKDAY_CELL} height={DAY_WIDTH} width={DAY_WIDTH} x={x} y={lineBottom + DAY_WIDTH} />
+        <rect fill={DATE_CELL} height={geometry.dayWidth} width={geometry.dayWidth} x={x} y={lineBottom} />
+        <rect fill={WEEKDAY_CELL} height={geometry.dayWidth} width={geometry.dayWidth} x={x} y={lineBottom + geometry.dayWidth} />
         {weekNumber}
         <text
           dominantBaseline="middle"
           fill={INK}
           fontFamily="Lato, sans-serif"
-          fontSize={1.65}
+          fontSize={1.65 * geometry.visualScale}
           fontWeight={700}
           textAnchor="middle"
           x={center}
-          y={lineBottom + DAY_WIDTH / 2}
+          y={lineBottom + geometry.dayWidth / 2}
         >{day.day}</text>
         <text
           dominantBaseline="middle"
           fill={INK}
           fontFamily="Lato, sans-serif"
-          fontSize={1.7}
+          fontSize={1.7 * geometry.visualScale}
           fontWeight={700}
           textAnchor="middle"
           x={center}
-          y={lineBottom + DAY_WIDTH * 1.5}
+          y={lineBottom + geometry.dayWidth * 1.5}
         >{day.weekdayLabel}</text>
       </g>
     );
@@ -112,39 +136,44 @@ function DayColumn({ day, dayOffset, index, stripY, style }: {
         dominantBaseline="middle"
         fill={RICE_INK}
         fontFamily="Lato, sans-serif"
-        fontSize={1.7}
+        fontSize={1.7 * geometry.visualScale}
         fontWeight={700}
         textAnchor="middle"
         x={center}
-        y={lineBottom + DAY_WIDTH / 2}
+        y={lineBottom + geometry.dayWidth / 2}
       >{day.weekdayLabel}</text>
       <text
         dominantBaseline="middle"
         fill={RICE_INK}
         fontFamily="Lato, sans-serif"
-        fontSize={1.65}
+        fontSize={1.65 * geometry.visualScale}
         fontWeight={700}
         textAnchor="middle"
         x={center}
-        y={lineBottom + DAY_WIDTH * 1.5}
+        y={lineBottom + geometry.dayWidth * 1.5}
       >{day.day}</text>
     </g>
   );
 }
 
-function MonthLabels({ strip, stripY }: { strip: CalendarStripLayout; stripY: number }) {
-  const bandY = stripY + CALENDAR_GEOMETRY.dayAreaHeight;
-  const labelGap = 2;
-  const leftEdge = CALENDAR_GEOMETRY.margin + strip.dayOffset + 0.8;
-  const drawableWidth = strip.hasGlueTab ? strip.contentWidth : CALENDAR_GEOMETRY.workWidth;
-  const rightEdge = CALENDAR_GEOMETRY.margin + drawableWidth - 0.8;
+function MonthLabels({ geometry, strip, stripY }: {
+  geometry: CalendarGeometry;
+  strip: CalendarStripLayout;
+  stripY: number;
+}) {
+  const bandY = stripY + geometry.dayAreaHeight;
+  const labelGap = 2 * geometry.visualScale;
+  const edgeInset = 0.8 * geometry.visualScale;
+  const leftEdge = geometry.margin + strip.dayOffset + edgeInset;
+  const drawableWidth = strip.hasGlueTab ? strip.contentWidth : geometry.workWidth;
+  const rightEdge = geometry.margin + drawableWidth - edgeInset;
   const requestedLabels = strip.days.flatMap((day, index) => {
     if (!day.startsMonth) return [];
     const startX =
-      CALENDAR_GEOMETRY.margin + strip.dayOffset + index * DAY_WIDTH;
-    const estimatedWidth = Math.min(31, Math.max(11, day.monthLabel.length * 1.7));
+      geometry.margin + strip.dayOffset + index * geometry.dayWidth;
+    const estimatedWidth = estimateMonthLabelWidth(day.monthLabel, geometry.visualScale);
     const latestX = rightEdge - estimatedWidth;
-    const requestedX = Math.max(leftEdge, Math.min(startX + 0.8, latestX));
+    const requestedX = Math.max(leftEdge, Math.min(startX + edgeInset, latestX));
     return [{ day, estimatedWidth, requestedX }];
   });
 
@@ -190,62 +219,72 @@ function MonthLabels({ strip, stripY }: { strip: CalendarStripLayout; stripY: nu
 
   return (
     <g>
-      {labels.map(({ day, labelX }) => (
-        <g key={day.iso}>
-          <text
-            dominantBaseline="middle"
-            fill={INK}
-            fontFamily="Lato, sans-serif"
-            fontSize={3.15}
-            fontWeight={900}
-            letterSpacing={0.08}
-            x={labelX}
-            y={bandY + CALENDAR_GEOMETRY.monthBandHeight / 2 + 0.35}
-          >{day.monthLabel}</text>
-        </g>
-      ))}
+      {labels.map(({ day, estimatedWidth, labelX }) => {
+        const isRightAligned = labelX + estimatedWidth >= rightEdge - 0.01;
+
+        return (
+          <g key={day.iso}>
+            <text
+              dominantBaseline="middle"
+              fill={INK}
+              fontFamily="Lato, sans-serif"
+              fontSize={3.15 * geometry.visualScale}
+              fontWeight={900}
+              letterSpacing={0.08 * geometry.visualScale}
+              textAnchor={isRightAligned ? 'end' : 'start'}
+              x={isRightAligned ? rightEdge : labelX}
+              y={bandY + geometry.monthBandHeight / 2 + 0.35 * geometry.visualScale}
+            >{day.monthLabel}</text>
+          </g>
+        );
+      })}
     </g>
   );
 }
 
-function GlueTab({ strip, stripY, patternId, language }: {
+function GlueTab({ geometry, strip, stripY, patternId, language }: {
+  geometry: CalendarGeometry;
   strip: CalendarStripLayout;
   stripY: number;
   patternId: string;
   language: SiteLanguage;
 }) {
   if (!strip.hasGlueTab) return null;
-  const x = CALENDAR_GEOMETRY.margin + strip.contentWidth;
+  const x = geometry.margin + strip.contentWidth;
   return (
     <g>
-      <rect fill={`url(#${patternId})`} height={CALENDAR_GEOMETRY.stripHeight} width={strip.glueWidth} x={x} y={stripY} />
+      <rect fill={`url(#${patternId})`} height={geometry.stripHeight} width={strip.glueWidth} x={x} y={stripY} />
       <text
         dominantBaseline="middle"
         fill="#9b9b96"
         fontFamily="Lato, sans-serif"
-        fontSize={1.8}
+        fontSize={1.8 * geometry.visualScale}
         fontWeight={700}
-        letterSpacing={0.35}
+        letterSpacing={0.35 * geometry.visualScale}
         textAnchor="middle"
-        transform={`rotate(-90 ${x + strip.glueWidth / 2} ${stripY + CALENDAR_GEOMETRY.stripHeight / 2})`}
+        transform={`rotate(-90 ${x + strip.glueWidth / 2} ${stripY + geometry.stripHeight / 2})`}
         x={x + strip.glueWidth / 2}
-        y={stripY + CALENDAR_GEOMETRY.stripHeight / 2}
+        y={stripY + geometry.stripHeight / 2}
       >{DRAW_COPY[language].glue}</text>
     </g>
   );
 }
 
-function YearMarkers({ strip, stripY }: { strip: CalendarStripLayout; stripY: number }) {
+function YearMarkers({ geometry, strip, stripY }: {
+  geometry: CalendarGeometry;
+  strip: CalendarStripLayout;
+  stripY: number;
+}) {
   return (
     <g>
       {strip.yearMarkers.map((marker) => {
-        const x = CALENDAR_GEOMETRY.margin + marker.x;
+        const x = geometry.margin + marker.x;
         return (
           <g key={marker.year}>
             <rect
               fill="#ffffff"
-              height={CALENDAR_GEOMETRY.yearMarkerHeight}
-              width={YEAR_MARKER_WIDTH}
+              height={geometry.yearMarkerHeight}
+              width={geometry.yearMarkerWidth}
               x={x}
               y={stripY}
             />
@@ -255,11 +294,11 @@ function YearMarkers({ strip, stripY }: { strip: CalendarStripLayout; stripY: nu
               dy="0.07em"
               fill="#bdbdb8"
               fontFamily="Lato, sans-serif"
-              fontSize={CALENDAR_GEOMETRY.yearMarkerFontSize}
+              fontSize={geometry.yearMarkerFontSize}
               fontWeight={900}
               textAnchor="middle"
-              x={x + YEAR_MARKER_WIDTH / 2}
-              y={stripY + CALENDAR_GEOMETRY.yearMarkerHeight / 2}
+              x={x + geometry.yearMarkerWidth / 2}
+              y={stripY + geometry.yearMarkerHeight / 2}
             >{marker.year}</text>
           </g>
         );
@@ -268,12 +307,17 @@ function YearMarkers({ strip, stripY }: { strip: CalendarStripLayout; stripY: nu
   );
 }
 
-function CutGuides({ row, stripY, isLastRow }: { row: number; stripY: number; isLastRow: boolean }) {
-  const offset = CALENDAR_GEOMETRY.cutLineOffset;
-  const left = CALENDAR_GEOMETRY.margin - offset;
-  const right = CALENDAR_GEOMETRY.margin + CALENDAR_GEOMETRY.workWidth + offset;
+function CutGuides({ geometry, row, stripY, isLastRow }: {
+  geometry: CalendarGeometry;
+  row: number;
+  stripY: number;
+  isLastRow: boolean;
+}) {
+  const offset = geometry.cutLineOffset;
+  const left = geometry.margin - offset;
+  const right = geometry.margin + geometry.workWidth + offset;
   const top = stripY - (row === 0 ? offset : 0);
-  const bottom = stripY + CALENDAR_GEOMETRY.stripHeight + (isLastRow ? offset : 0);
+  const bottom = stripY + geometry.stripHeight + (isLastRow ? offset : 0);
   const segments = [
     `M ${left} ${top} V ${bottom}`,
     `M ${right} ${top} V ${bottom}`,
@@ -291,7 +335,8 @@ function CutGuides({ row, stripY, isLastRow }: { row: number; stripY: number; is
   );
 }
 
-function CalendarStrip({ strip, row, patternId, style, language, isLastRow }: {
+function CalendarStrip({ geometry, strip, row, patternId, style, language, isLastRow }: {
+  geometry: CalendarGeometry;
   strip: CalendarStripLayout;
   row: number;
   patternId: string;
@@ -299,60 +344,114 @@ function CalendarStrip({ strip, row, patternId, style, language, isLastRow }: {
   language: SiteLanguage;
   isLastRow: boolean;
 }) {
-  const stripY = CALENDAR_GEOMETRY.margin + row * CALENDAR_GEOMETRY.stripHeight;
+  const stripY = geometry.margin + row * geometry.stripHeight;
   return (
     <g>
       {strip.days.map((day, index) => (
         <DayColumn
           day={day}
           dayOffset={strip.dayOffset}
+          geometry={geometry}
           index={index}
           key={day.iso}
           stripY={stripY}
           style={style}
         />
       ))}
-      <MonthLabels strip={strip} stripY={stripY} />
-      <GlueTab language={language} patternId={patternId} strip={strip} stripY={stripY} />
-      <YearMarkers strip={strip} stripY={stripY} />
-      <CutGuides isLastRow={isLastRow} row={row} stripY={stripY} />
+      <MonthLabels geometry={geometry} strip={strip} stripY={stripY} />
+      <GlueTab geometry={geometry} language={language} patternId={patternId} strip={strip} stripY={stripY} />
+      <YearMarkers geometry={geometry} strip={strip} stripY={stripY} />
+      <CutGuides geometry={geometry} isLastRow={isLastRow} row={row} stripY={stripY} />
     </g>
   );
 }
 
-export function CalendarPageSvg({ page, style, language, title, logoHref = '/brand/logo.png' }: {
+export function CalendarSampleSvg({ strip, style, title }: {
+  strip: CalendarStripLayout;
+  style: CalendarStyle;
+  title: string;
+}) {
+  const stripY = CALENDAR_GEOMETRY.margin;
+  const titleId = useId();
+
+  return (
+    <svg
+      aria-labelledby={titleId}
+      className={`calendar-sample calendar-sample-${style}`}
+      preserveAspectRatio="xMidYMid meet"
+      shapeRendering="geometricPrecision"
+      viewBox={`${SAMPLE_VIEW_X} ${SAMPLE_VIEW_Y} ${SAMPLE_VIEW_WIDTH} ${SAMPLE_VIEW_HEIGHT}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title id={titleId}>{title}</title>
+      <rect
+        fill="#ffffff"
+        height={SAMPLE_VIEW_HEIGHT}
+        width={SAMPLE_VIEW_WIDTH}
+        x={SAMPLE_VIEW_X}
+        y={SAMPLE_VIEW_Y}
+      />
+      {strip.days.slice(0, SAMPLE_DAY_COUNT).map((day, index) => (
+        <DayColumn
+          day={day}
+          dayOffset={strip.dayOffset}
+          geometry={STANDARD_CALENDAR_GEOMETRY}
+          index={index}
+          key={day.iso}
+          stripY={stripY}
+          style={style}
+        />
+      ))}
+      <MonthLabels geometry={STANDARD_CALENDAR_GEOMETRY} strip={strip} stripY={stripY} />
+      <YearMarkers geometry={STANDARD_CALENDAR_GEOMETRY} strip={strip} stripY={stripY} />
+    </svg>
+  );
+}
+
+type CalendarPageSvgProps = {
   page: CalendarPageLayout;
   style: CalendarStyle;
   language: SiteLanguage;
   title: string;
   logoHref?: string;
-}) {
-  const patternId = `glue-stripes-${page.index}`;
-  const titleId = `calendar-page-${page.index}-title`;
+};
+
+function CalendarPageRenderer({
+  geometry,
+  page,
+  style,
+  language,
+  title,
+  logoHref = '/brand/logo.png',
+}: CalendarPageSvgProps & { geometry: CalendarGeometry }) {
+  const patternId = `glue-stripes-${geometry.format}-${page.index}`;
+  const titleId = `calendar-page-${geometry.format}-${page.index}-title`;
+  const patternSize = 4 * geometry.visualScale;
   const finalCutLineY =
-    CALENDAR_GEOMETRY.margin +
-    page.strips.length * CALENDAR_GEOMETRY.stripHeight +
-    CALENDAR_GEOMETRY.cutLineOffset;
+    geometry.margin +
+    page.strips.length * geometry.stripHeight +
+    geometry.cutLineOffset;
   return (
     <svg
       aria-labelledby={titleId}
       className="calendar-sheet"
       height="210mm"
       shapeRendering="geometricPrecision"
-      viewBox="0 0 297 210"
+      viewBox={`0 0 ${geometry.pageWidth} ${geometry.pageHeight}`}
       width="297mm"
       xmlns="http://www.w3.org/2000/svg"
     >
       <title id={titleId}>{title}</title>
       <defs>
-        <pattern height="4" id={patternId} patternTransform="rotate(-45)" patternUnits="userSpaceOnUse" width="4">
-          <rect fill="#ffffff" height="4" width="4" />
-          <rect fill="#eeeeeb" height="4" width="1.25" />
+        <pattern height={patternSize} id={patternId} patternTransform="rotate(-45)" patternUnits="userSpaceOnUse" width={patternSize}>
+          <rect fill="#ffffff" height={patternSize} width={patternSize} />
+          <rect fill="#eeeeeb" height={patternSize} width={1.25 * geometry.visualScale} />
         </pattern>
       </defs>
-      <rect fill="#ffffff" height={CALENDAR_GEOMETRY.pageHeight} width={CALENDAR_GEOMETRY.pageWidth} />
+      <rect fill="#ffffff" height={geometry.pageHeight} width={geometry.pageWidth} />
       {page.strips.map((strip, row) => (
         <CalendarStrip
+          geometry={geometry}
           isLastRow={row === page.strips.length - 1}
           key={strip.index}
           language={language}
@@ -368,9 +467,28 @@ export function CalendarPageSvg({ page, style, language, title, logoHref = '/bra
         href={logoHref}
         preserveAspectRatio="xMinYMid meet"
         width={27.17}
-        x={CALENDAR_GEOMETRY.margin - CALENDAR_GEOMETRY.cutLineOffset}
+        x={geometry.margin - geometry.cutLineOffset}
         y={finalCutLineY + 0.8}
       />
     </svg>
   );
+}
+
+export function StandardCalendarPageSvg(props: CalendarPageSvgProps) {
+  return <CalendarPageRenderer {...props} geometry={STANDARD_CALENDAR_GEOMETRY} />;
+}
+
+export function TallCalendarPageSvg(props: CalendarPageSvgProps) {
+  return <CalendarPageRenderer {...props} geometry={TALL_CALENDAR_GEOMETRY} />;
+}
+
+export function BigCalendarPageSvg(props: CalendarPageSvgProps) {
+  return <CalendarPageRenderer {...props} geometry={BIG_CALENDAR_GEOMETRY} />;
+}
+
+export function CalendarPageSvg(props: CalendarPageSvgProps) {
+  const format = props.page.format ?? 'standard';
+  if (format === 'tall') return <TallCalendarPageSvg {...props} />;
+  if (format === 'big') return <BigCalendarPageSvg {...props} />;
+  return <StandardCalendarPageSvg {...props} />;
 }

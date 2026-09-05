@@ -5,6 +5,7 @@ import { type PointerEvent as ReactPointerEvent, useCallback, useEffect, useMemo
 import {
   ArrowDown,
   CalendarRange,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Coffee,
@@ -13,12 +14,11 @@ import {
   Moon,
   MoveHorizontal,
   Ruler,
-  Sparkles,
   Sun,
   X,
 } from 'lucide-react';
 
-import { CalendarPageSvg } from '@/components/calendar-page-svg';
+import { CalendarPageSvg, CalendarSampleSvg } from '@/components/calendar-page-svg';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,9 +30,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
+  type CalendarRangePreset,
+  type CalendarFormat,
   type CalendarStyle,
   type SiteLanguage,
   currentDateValue,
@@ -67,14 +78,51 @@ type CalendarToolInput = {
   start: string;
   end: string;
   style: CalendarStyle;
+  format?: CalendarFormat;
   language?: SiteLanguage;
+};
+
+type CalendarDownloadRequest = {
+  format?: CalendarFormat;
+  range?: { start: string; end: string };
+  style?: CalendarStyle;
 };
 
 type Theme = 'light' | 'dark';
 type SupportStatus = 'cancelled' | 'error' | 'invalid' | 'success' | null;
 
 const THEME_STORAGE_KEY = 'awesome-calendar-theme';
+const MODULE_RECOVERY_KEY = 'awesome-calendar-module-recovery';
 const SUPPORT_AMOUNTS = [5, 10, 20] as const;
+
+function calendarYearRange(year: number) {
+  return { start: `${year}-01-01`, end: `${year}-12-31` };
+}
+
+function insertYear(template: string, year: number) {
+  return template.replace('{year}', String(year));
+}
+
+function displayDateRange(start: string, end: string, language: SiteLanguage) {
+  const displayDate = (value: string) => {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (!match) return value;
+    return language === 'pl'
+      ? `${match[3]}.${match[2]}.${match[1]}`
+      : `${match[3]}/${match[2]}/${match[1]}`;
+  };
+
+  return `${displayDate(start)}–${displayDate(end)}`;
+}
+
+function BrandLogo({ alt, priority = false }: { alt: string; priority?: boolean }) {
+  return (
+    <span className="brand-logo">
+      <Image alt={alt} className="brand-logo-light" height={113} priority={priority} src="/brand/logo-light.svg" width={545} />
+      <Image alt={alt} className="brand-logo-dark" height={113} priority={priority} src="/brand/logo-dark.svg" width={545} />
+    </span>
+  );
+}
 
 type DonationCheckoutProps = {
   copy: (typeof COPY)[SiteLanguage]['donation'];
@@ -97,6 +145,7 @@ function DonationCheckout({ copy, language, source, status }: DonationCheckoutPr
               <input name="source" type="hidden" value={source} />
               <Button
                 aria-label={`${copy.presetButton}: ${language === 'pl' ? `${amount} zł` : `PLN ${amount}`} — ${copy.amountNames[index]}`}
+                aria-describedby={`donation-legal-${source}`}
                 className={amount === 10 ? 'donation-preset-option is-recommended' : 'donation-preset-option'}
                 name="amount"
                 type="submit"
@@ -117,7 +166,7 @@ function DonationCheckout({ copy, language, source, status }: DonationCheckoutPr
         <div className="donation-custom-row">
           <div className="donation-amount-field">
             <Input
-              aria-describedby={`support-hint-${source}`}
+              aria-describedby={`support-hint-${source} donation-legal-${source}`}
               id={`support-amount-${source}`}
               inputMode="numeric"
               max="1000"
@@ -130,10 +179,11 @@ function DonationCheckout({ copy, language, source, status }: DonationCheckoutPr
             />
             <span aria-hidden="true">PLN</span>
           </div>
-          <Button type="submit"><Coffee aria-hidden="true" />{copy.customButton}</Button>
+          <Button aria-describedby={`donation-legal-${source}`} type="submit"><Coffee aria-hidden="true" />{copy.customButton}</Button>
         </div>
         <p className="donation-hint" id={`support-hint-${source}`}>{copy.hint}</p>
       </form>
+      <p className="donation-legal" id={`donation-legal-${source}`}>{copy.legal}</p>
       <p
         aria-live="polite"
         className={status ? `donation-status ${status}` : 'donation-status'}
@@ -152,6 +202,7 @@ function validToolInput(input: unknown): input is CalendarToolInput {
     typeof value.start === 'string' &&
     typeof value.end === 'string' &&
     (value.style === 'rice' || value.style === 'block') &&
+    (value.format === undefined || value.format === 'standard' || value.format === 'tall' || value.format === 'big') &&
     (value.language === undefined || value.language === 'pl' || value.language === 'en') &&
     rangeIsValid(value.start, value.end)
   );
@@ -165,6 +216,7 @@ export default function Home() {
   const [start, setStart] = useState(initialStart);
   const [end, setEnd] = useState(initialEnd);
   const [style, setStyle] = useState<CalendarStyle>('rice');
+  const [format, setFormat] = useState<CalendarFormat>('standard');
   const [previewPage, setPreviewPage] = useState(0);
   const [downloadState, setDownloadState] = useState<'idle' | 'working' | 'done' | 'cancelled' | 'error'>('idle');
   const [downloadProgress, setDownloadProgress] = useState<{ current: number; total: number } | null>(null);
@@ -173,6 +225,21 @@ export default function Home() {
   const downloadAbortRef = useRef<AbortController | null>(null);
   const downloadTooltipRef = useRef<HTMLSpanElement | null>(null);
   const copy = COPY[language];
+  const currentYear = Number(initialStart.slice(0, 4));
+  const nextYear = currentYear + 1;
+  const currentYearRange = useMemo(() => calendarYearRange(currentYear), [currentYear]);
+  const currentYearLayout = useMemo(
+    () => createCalendarLayout(currentYearRange.start, currentYearRange.end, language),
+    [currentYearRange.end, currentYearRange.start, language],
+  );
+  const sampleStrip = currentYearLayout.strips[0];
+  const currentRiceLabel = insertYear(copy.hero.riceButton, currentYear);
+  const currentBlockLabel = insertYear(copy.hero.blockButton, currentYear);
+  const nextYearLabel = insertYear(copy.hero.nextYearButton, nextYear);
+  const currentYearTooltip = insertYear(copy.hero.clickToDownload, currentYear);
+  const nextYearTooltip = insertYear(copy.hero.clickToDownload, nextYear);
+  const currentVariantDownloadLabel = insertYear(copy.variants.download, currentYear);
+  const nextVariantDownloadLabel = insertYear(copy.variants.download, nextYear);
 
   const selectLanguage = useCallback((nextLanguage: SiteLanguage) => {
     setLanguage(nextLanguage);
@@ -248,10 +315,25 @@ export default function Home() {
       : 'The Awesome Calendar - linear calendar';
   }, [language]);
 
+  useEffect(() => {
+    const recoverFromStaleModule = (event: Event) => {
+      event.preventDefault();
+      if (window.sessionStorage.getItem(MODULE_RECOVERY_KEY) === 'reloaded') {
+        setDownloadState('error');
+        return;
+      }
+      window.sessionStorage.setItem(MODULE_RECOVERY_KEY, 'reloaded');
+      window.location.reload();
+    };
+
+    window.addEventListener('vite:preloadError', recoverFromStaleModule);
+    return () => window.removeEventListener('vite:preloadError', recoverFromStaleModule);
+  }, []);
+
   const invalidRange = !rangeIsValid(start, end);
   const layout = useMemo(
-    () => invalidRange ? null : createCalendarLayout(start, end, language),
-    [end, invalidRange, language, start],
+    () => invalidRange ? null : createCalendarLayout(start, end, language, format),
+    [end, format, invalidRange, language, start],
   );
   const units = useMemo(() => rangeUnits(start, end), [end, start]);
   const pages = layout?.pages.length ?? 0;
@@ -259,29 +341,40 @@ export default function Home() {
     () => rangePresets(initialStart, language),
     [initialStart, language],
   );
+  const quickPresets = presets.filter((preset) => preset.group === 'quick');
+  const durationPresets = presets.filter((preset) => preset.group === 'duration');
+  const calendarPresets = presets.filter((preset) => preset.group === 'calendar');
+  const randomPreset = presets.find((preset) => preset.group === 'random');
   const rangeFeedback = useMemo(
     () => rangeComment(units, language),
     [language, units],
   );
   const validationMessage = invalidRange ? rangeFeedback || copy.generator.error : rangeFeedback;
   const activePreviewPage = Math.min(previewPage, Math.max(0, pages - 1));
+  const selectedFormatLabel = format === 'standard'
+    ? copy.generator.formatStandard
+    : format === 'tall'
+      ? copy.generator.formatTall
+      : copy.generator.formatBig;
+  const selectedStyleLabel = style === 'rice' ? copy.generator.rice : copy.generator.block;
+  const downloadSpec = invalidRange
+    ? copy.generator.downloadFixRange
+    : `${displayDateRange(start, end, language)} · ${selectedFormatLabel} · ${selectedStyleLabel} · ${pages} A4`;
 
-  const runDownload = useCallback(async (
-    selectedStyle: CalendarStyle = style,
-    selectedRange?: { start: string; end: string },
-  ) => {
-    const rangeStart = selectedRange?.start ?? start;
-    const rangeEnd = selectedRange?.end ?? end;
+  const runDownload = useCallback(async (request: CalendarDownloadRequest = {}) => {
+    const selectedStyle = request.style ?? style;
+    const selectedFormat = request.format ?? format;
+    const rangeStart = request.range?.start ?? start;
+    const rangeEnd = request.range?.end ?? end;
     if (!rangeIsValid(rangeStart, rangeEnd)) throw new Error(copy.generator.error);
-    const targetLayout = selectedRange
-      ? createCalendarLayout(rangeStart, rangeEnd, language)
+    const targetLayout = request.range || request.format
+      ? createCalendarLayout(rangeStart, rangeEnd, language, selectedFormat)
       : layout;
     if (!targetLayout) throw new Error(copy.generator.error);
 
     downloadAbortRef.current?.abort();
     const controller = new AbortController();
     downloadAbortRef.current = controller;
-    setStyle(selectedStyle);
     setDownloadState('working');
     setDownloadProgress({ current: 0, total: targetLayout.pages.length });
 
@@ -291,25 +384,47 @@ export default function Home() {
         signal: controller.signal,
         onProgress: (current, total) => setDownloadProgress({ current, total }),
       });
+      window.sessionStorage.removeItem(MODULE_RECOVERY_KEY);
       downloadPdf(result.bytes, result.filename);
       setDownloadState('done');
       setDonationOpen(true);
-      return { downloaded: true, filename: result.filename, days: result.days, pages: result.pages, language };
+      return { downloaded: true, filename: result.filename, days: result.days, pages: result.pages, language, format: result.format };
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
         setDownloadState('cancelled');
         return { downloaded: false, cancelled: true };
       }
       setDownloadState('error');
-      throw error;
+      console.warn('Calendar PDF generation failed.', error);
+      return {
+        downloaded: false,
+        error: error instanceof Error ? error.message : copy.generator.failed,
+      };
     } finally {
       if (downloadAbortRef.current === controller) downloadAbortRef.current = null;
     }
-  }, [copy.generator.error, end, language, layout, start, style]);
+  }, [copy.generator.error, copy.generator.failed, end, format, language, layout, start, style]);
+
+  const runReadyCalendarDownload = useCallback((selectedStyle: CalendarStyle, year: number) => (
+    runDownload({
+      format: 'standard',
+      range: calendarYearRange(year),
+      style: selectedStyle,
+    })
+  ), [runDownload]);
 
   const cancelDownload = useCallback(() => {
     downloadAbortRef.current?.abort();
   }, []);
+
+  const selectPreset = useCallback((preset: CalendarRangePreset) => {
+    const selectedRange = preset.group === 'random'
+      ? randomCalendarRange(initialStart)
+      : preset;
+    setStart(selectedRange.start);
+    setEnd(selectedRange.end);
+    setPreviewPage(0);
+  }, [initialStart]);
 
   const moveDownloadTooltip = useCallback((event: ReactPointerEvent<HTMLButtonElement>) => {
     const tooltip = downloadTooltipRef.current;
@@ -317,6 +432,7 @@ export default function Home() {
       if (tooltip) tooltip.hidden = true;
       return;
     }
+    tooltip.textContent = event.currentTarget.dataset.downloadTooltip || '';
     tooltip.hidden = false;
     const tooltipWidth = tooltip.offsetWidth;
     const tooltipHeight = tooltip.offsetHeight;
@@ -351,14 +467,15 @@ export default function Home() {
       name: 'configure_calendar',
       title: language === 'pl' ? 'Ustaw kalendarz' : 'Configure calendar',
       description: language === 'pl'
-        ? 'Ustawia widoczny zakres dni, styl i opcjonalnie język kalendarza.'
-        : 'Sets the visible date range, style and optional calendar language.',
+        ? 'Ustawia widoczny zakres dni, styl, rozmiar i opcjonalnie język kalendarza.'
+        : 'Sets the visible date range, style, size and optional calendar language.',
       inputSchema: {
         type: 'object',
         properties: {
           start: { type: 'string', description: 'Inclusive start date in YYYY-MM-DD format.' },
           end: { type: 'string', description: 'Inclusive end date in YYYY-MM-DD format.' },
           style: { type: 'string', enum: ['rice', 'block'] },
+          format: { type: 'string', enum: ['standard', 'tall', 'big'] },
           language: { type: 'string', enum: ['pl', 'en'] },
         },
         required: ['start', 'end', 'style'],
@@ -370,12 +487,21 @@ export default function Home() {
         setStart(input.start);
         setEnd(input.end);
         setStyle(input.style);
+        const configuredFormat = input.format || format;
+        setFormat(configuredFormat);
+        setPreviewPage(0);
         if (input.language) selectLanguage(input.language);
-        const configuredLayout = createCalendarLayout(input.start, input.end, input.language || language);
+        const configuredLayout = createCalendarLayout(
+          input.start,
+          input.end,
+          input.language || language,
+          configuredFormat,
+        );
         return {
           start: input.start,
           end: input.end,
           style: input.style,
+          format: configuredFormat,
           language: input.language || language,
           days: configuredLayout.days.length,
           strips: configuredLayout.strips.length,
@@ -395,7 +521,7 @@ export default function Home() {
       execute: () => runDownload(),
     });
     return () => lifecycle.abort();
-  }, [copy.generator.error, language, runDownload, selectLanguage]);
+  }, [copy.generator.error, format, language, runDownload, selectLanguage]);
 
   const statusMessage = downloadState === 'working'
     ? copy.generator.preparing
@@ -414,7 +540,7 @@ export default function Home() {
     <main>
       <header className="site-header">
         <a aria-label={copy.homeLabel} className="brand" href="#top">
-          <Image alt="" height={100} priority src="/brand/logo.png" width={494} />
+          <BrandLogo alt="" priority />
         </a>
         <div className="header-actions">
           <nav aria-label={copy.navLabel}>
@@ -448,55 +574,112 @@ export default function Home() {
         </div>
 
         <div className="year-download-grid">
-          <button
-            aria-label={copy.hero.riceButton}
-            className="year-download-card rice-download-card"
-            disabled={downloadState === 'working'}
-            onClick={() => {
-              hideDownloadTooltip();
-              void runDownload('rice', { start: initialStart, end: initialEnd });
-            }}
-            onPointerEnter={moveDownloadTooltip}
-            onPointerCancel={hideDownloadTooltip}
-            onPointerLeave={hideDownloadTooltip}
-            onPointerMove={moveDownloadTooltip}
-            type="button"
-          >
-            <Image alt={copy.variants.riceAlt} height={600} priority src="/brand/ryz-preview.png" width={900} />
-            <span className="year-download-button">
-              <Download aria-hidden="true" data-icon="inline-start" />{copy.hero.riceButton}
-            </span>
-          </button>
-          <button
-            aria-label={copy.hero.blockButton}
-            className="year-download-card block-download-card"
-            disabled={downloadState === 'working'}
-            onClick={() => {
-              hideDownloadTooltip();
-              void runDownload('block', { start: initialStart, end: initialEnd });
-            }}
-            onPointerEnter={moveDownloadTooltip}
-            onPointerCancel={hideDownloadTooltip}
-            onPointerLeave={hideDownloadTooltip}
-            onPointerMove={moveDownloadTooltip}
-            type="button"
-          >
-            <Image alt={copy.variants.blockAlt} height={600} priority src="/brand/blok-preview.png" width={900} />
-            <span className="year-download-button">
-              <Download aria-hidden="true" data-icon="inline-start" />{copy.hero.blockButton}
-            </span>
-          </button>
+          <div className="year-download-option">
+            <button
+              aria-label={currentRiceLabel}
+              className="year-download-card rice-download-card"
+              data-download-tooltip={currentYearTooltip}
+              disabled={downloadState === 'working'}
+              onClick={() => {
+                hideDownloadTooltip();
+                void runReadyCalendarDownload('rice', currentYear);
+              }}
+              onPointerEnter={moveDownloadTooltip}
+              onPointerCancel={hideDownloadTooltip}
+              onPointerLeave={hideDownloadTooltip}
+              onPointerMove={moveDownloadTooltip}
+              type="button"
+            >
+              <CalendarSampleSvg strip={sampleStrip} style="rice" title={copy.variants.riceAlt} />
+              <span className="year-download-button">
+                <Download aria-hidden="true" data-icon="inline-start" />{currentRiceLabel}
+              </span>
+            </button>
+            <button
+              aria-label={`${nextYearLabel} — ${copy.variants.rice}`}
+              className="year-download-next"
+              data-download-tooltip={nextYearTooltip}
+              disabled={downloadState === 'working'}
+              onClick={() => {
+                hideDownloadTooltip();
+                void runReadyCalendarDownload('rice', nextYear);
+              }}
+              onPointerEnter={moveDownloadTooltip}
+              onPointerCancel={hideDownloadTooltip}
+              onPointerLeave={hideDownloadTooltip}
+              onPointerMove={moveDownloadTooltip}
+              type="button"
+            >
+              <Download aria-hidden="true" />{nextYearLabel}
+            </button>
+          </div>
+          <div className="year-download-option">
+            <button
+              aria-label={currentBlockLabel}
+              className="year-download-card block-download-card"
+              data-download-tooltip={currentYearTooltip}
+              disabled={downloadState === 'working'}
+              onClick={() => {
+                hideDownloadTooltip();
+                void runReadyCalendarDownload('block', currentYear);
+              }}
+              onPointerEnter={moveDownloadTooltip}
+              onPointerCancel={hideDownloadTooltip}
+              onPointerLeave={hideDownloadTooltip}
+              onPointerMove={moveDownloadTooltip}
+              type="button"
+            >
+              <CalendarSampleSvg strip={sampleStrip} style="block" title={copy.variants.blockAlt} />
+              <span className="year-download-button">
+                <Download aria-hidden="true" data-icon="inline-start" />{currentBlockLabel}
+              </span>
+            </button>
+            <button
+              aria-label={`${nextYearLabel} — ${copy.variants.block}`}
+              className="year-download-next"
+              data-download-tooltip={nextYearTooltip}
+              disabled={downloadState === 'working'}
+              onClick={() => {
+                hideDownloadTooltip();
+                void runReadyCalendarDownload('block', nextYear);
+              }}
+              onPointerEnter={moveDownloadTooltip}
+              onPointerCancel={hideDownloadTooltip}
+              onPointerLeave={hideDownloadTooltip}
+              onPointerMove={moveDownloadTooltip}
+              type="button"
+            >
+              <Download aria-hidden="true" />{nextYearLabel}
+            </button>
+          </div>
         </div>
         <span aria-hidden="true" className="download-cursor-tooltip" hidden ref={downloadTooltipRef}>
-          {copy.hero.clickToDownload}
+          {currentYearTooltip}
         </span>
         <a className="scroll-cue" href="#generator">{copy.hero.cue} <ArrowDown aria-hidden="true" /></a>
       </section>
 
       <section className="project-note">
         <div className="project-note-copy">
-          {copy.projectNote.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-          <a className="project-note-cta" href="#wsparcie"><Coffee aria-hidden="true" />{copy.projectNote.cta}</a>
+          <span className="project-note-stamp">{copy.projectNote.stamp}</span>
+          <p className="project-note-lead">
+            {copy.projectNote.leadPrefix}<mark>{copy.projectNote.leadHighlight}</mark>{copy.projectNote.leadSuffix}
+          </p>
+          <div className="project-note-grid">
+            <p>
+              {copy.projectNote.originPrefix}<mark>{copy.projectNote.originHighlight}</mark>{copy.projectNote.originSuffix}
+            </p>
+            <p>
+              {copy.projectNote.usagePrefix}<mark>{copy.projectNote.usageHighlight}</mark>{copy.projectNote.usageSuffix}
+            </p>
+          </div>
+          <div className="project-note-closing">
+            <div>
+              <p>{copy.projectNote.thanks}</p>
+              <p className="project-note-signoff">{copy.projectNote.signoff}</p>
+            </div>
+            <a className="project-note-cta" href="#wsparcie"><Coffee aria-hidden="true" />{copy.projectNote.cta}</a>
+          </div>
         </div>
       </section>
 
@@ -513,51 +696,123 @@ export default function Home() {
               <div><p className="section-kicker">{copy.generator.kicker}</p><h2>{copy.generator.heading}</h2></div>
               <CalendarRange aria-hidden="true" />
             </div>
-            <div className="preset-group">
-              <span>{copy.generator.presets}</span>
-              <div className="preset-buttons">
-                {presets.map((preset) => (
-                  <button
-                    key={preset.label}
-                    onClick={() => {
-                      const selectedRange = 'random' in preset
-                        ? randomCalendarRange(initialStart)
-                        : preset;
-                      setStart(selectedRange.start);
-                      setEnd(selectedRange.end);
-                      setPreviewPage(0);
-                    }}
-                    type="button"
-                  >
-                    {preset.label}
-                  </button>
-                ))}
+            <section className="generator-step">
+              <h3 className="generator-step-title"><span>01</span>{copy.generator.rangeSection}</h3>
+              <div className="preset-group">
+                <span>{copy.generator.presets}</span>
+                <div className="preset-buttons">
+                  {quickPresets.map((preset) => (
+                    <button
+                      key={preset.label}
+                      onClick={() => selectPreset(preset)}
+                      type="button"
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger render={<button aria-label={copy.generator.morePresets} className="preset-more-button" type="button" />}>
+                      {copy.generator.morePresets}<ChevronDown aria-hidden="true" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="preset-menu" sideOffset={7}>
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel>{copy.generator.durationPresets}</DropdownMenuLabel>
+                        {durationPresets.map((preset) => (
+                          <DropdownMenuItem key={preset.label} onClick={() => selectPreset(preset)}>
+                            {preset.label}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuGroup>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel>{copy.generator.calendarPresets}</DropdownMenuLabel>
+                        {calendarPresets.map((preset) => (
+                          <DropdownMenuItem key={preset.label} onClick={() => selectPreset(preset)}>
+                            {preset.label}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuGroup>
+                      {randomPreset && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="preset-menu-random" onClick={() => selectPreset(randomPreset)}>
+                            {randomPreset.label}
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
-            </div>
-            <div className="date-grid">
-              <label htmlFor="calendar-start"><span>{copy.generator.start}</span><Input aria-invalid={invalidRange} id="calendar-start" max="9999-12-31" min="1900-01-01" onChange={(event) => setStart(event.target.value)} type="date" value={start} /></label>
-              <label htmlFor="calendar-end"><span>{copy.generator.end}</span><Input aria-invalid={invalidRange} id="calendar-end" max="9999-12-31" min={start || '1900-01-01'} onChange={(event) => setEnd(event.target.value)} type="date" value={end} /></label>
-            </div>
-            <RadioGroup aria-label={copy.generator.styleLabel} className="style-picker" onValueChange={(value) => setStyle(value as CalendarStyle)} value={style}>
-              <label className="style-option" htmlFor="style-rice"><RadioGroupItem id="style-rice" value="rice" /><span><strong>{copy.generator.rice}</strong><small>{copy.generator.riceHint}</small></span></label>
-              <label className="style-option" htmlFor="style-block"><RadioGroupItem id="style-block" value="block" /><span><strong>{copy.generator.block}</strong><small>{copy.generator.blockHint}</small></span></label>
-            </RadioGroup>
+              <div className="date-grid">
+                <label htmlFor="calendar-start"><span>{copy.generator.start}</span><Input aria-invalid={invalidRange} id="calendar-start" max="9999-12-31" min="1900-01-01" onChange={(event) => setStart(event.target.value)} type="date" value={start} /></label>
+                <label htmlFor="calendar-end"><span>{copy.generator.end}</span><Input aria-invalid={invalidRange} id="calendar-end" max="9999-12-31" min={start || '1900-01-01'} onChange={(event) => setEnd(event.target.value)} type="date" value={end} /></label>
+              </div>
+            </section>
+            <section className="generator-step">
+              <h3 className="generator-step-title"><span>02</span>{copy.generator.sizeSection}</h3>
+              <div className="format-control">
+                <RadioGroup
+                  aria-describedby="calendar-format-explanation"
+                  aria-label={copy.generator.formatLabel}
+                  className="format-picker"
+                  onValueChange={(value) => {
+                    setFormat(value as CalendarFormat);
+                    setPreviewPage(0);
+                  }}
+                  value={format}
+                >
+                  <label className="format-option format-option-standard" htmlFor="format-standard">
+                    <RadioGroupItem disabled={downloadState === 'working'} id="format-standard" value="standard" />
+                    <span aria-hidden="true" className="format-glyph format-glyph-standard" />
+                    <span><strong>{copy.generator.formatStandard}</strong><small>{copy.generator.formatStandardHint}</small></span>
+                  </label>
+                  <label className="format-option format-option-tall" htmlFor="format-tall">
+                    <RadioGroupItem disabled={downloadState === 'working'} id="format-tall" value="tall" />
+                    <span aria-hidden="true" className="format-glyph format-glyph-tall" />
+                    <span><strong>{copy.generator.formatTall}</strong><small>{copy.generator.formatTallHint}</small></span>
+                  </label>
+                  <label className="format-option format-option-big" htmlFor="format-big">
+                    <RadioGroupItem disabled={downloadState === 'working'} id="format-big" value="big" />
+                    <span aria-hidden="true" className="format-glyph format-glyph-big" />
+                    <span><strong>{copy.generator.formatBig}</strong><small>{copy.generator.formatBigHint}</small></span>
+                  </label>
+                </RadioGroup>
+                <p className="format-explanation" id="calendar-format-explanation">{copy.generator.formatExplanation}</p>
+              </div>
+            </section>
+            <section className="generator-step">
+              <h3 className="generator-step-title"><span>03</span>{copy.generator.styleSection}</h3>
+              <RadioGroup aria-label={copy.generator.styleLabel} className="style-picker" onValueChange={(value) => setStyle(value as CalendarStyle)} value={style}>
+                <label className="style-option" htmlFor="style-rice"><RadioGroupItem id="style-rice" value="rice" /><span aria-hidden="true" className="style-glyph style-glyph-rice" /><span><strong>{copy.generator.rice}</strong><small>{copy.generator.riceHint}</small></span></label>
+                <label className="style-option" htmlFor="style-block"><RadioGroupItem id="style-block" value="block" /><span aria-hidden="true" className="style-glyph style-glyph-block" /><span><strong>{copy.generator.block}</strong><small>{copy.generator.blockHint}</small></span></label>
+              </RadioGroup>
+            </section>
             <div className="generator-result">
               <div className="range-summary">
                 <div className="range-counters">
                   {units.years > 0 && <span><b>{units.years}</b> {yearWord(units.years, language)}</span>}
-                  {units.months > 0 && <span><b>{units.months}</b> {monthWord(units.months, language)}</span>}
-                  <span><b>{units.days || '—'}</b> {units.days ? dayWord(units.days, language) : ''}</span>
+                  {units.remainingMonths > 0 && <span><b>{units.remainingMonths}</b> {monthWord(units.remainingMonths, language)}</span>}
+                  {units.remainingDays > 0 && <span><b>{units.remainingDays}</b> {dayWord(units.remainingDays, language)}</span>}
+                  {units.years === 0 && units.remainingMonths === 0 && units.remainingDays === 0 && <span><b>—</b></span>}
                 </div>
                 <small>{invalidRange ? copy.generator.fixRange : String(pages) + ' ' + pageWord(pages, language) + ' A4'}</small>
-              </div>
-              <div className="download-actions">
-                <Button className="download-button" disabled={invalidRange || downloadState === 'working'} onClick={() => void runDownload()} size="lg">
-                  <Download aria-hidden="true" data-icon="inline-start" />{downloadState === 'working' ? copy.generator.working : copy.generator.download}
-                </Button>
-                {downloadState === 'working' && (
-                  <Button aria-label={copy.generator.cancel} className="cancel-button" onClick={cancelDownload} size="icon" variant="outline"><X aria-hidden="true" /></Button>
+                {!invalidRange && units.months > 0 && (
+                  <small className="range-totals">
+                    {copy.generator.totalRange}: {units.months} {monthWord(units.months, language)} · {units.days} {dayWord(units.days, language)}
+                  </small>
                 )}
+              </div>
+              <div className="download-panel">
+                <p className="download-spec"><span>{copy.generator.downloadIncludes}</span><strong>{downloadSpec}</strong></p>
+                <div className="download-actions">
+                  <Button className="download-button" disabled={invalidRange || downloadState === 'working'} onClick={() => void runDownload()} size="lg">
+                    <Download aria-hidden="true" data-icon="inline-start" />{downloadState === 'working' ? copy.generator.working : copy.generator.download}
+                  </Button>
+                  {downloadState === 'working' && (
+                    <Button aria-label={copy.generator.cancel} className="cancel-button" onClick={cancelDownload} size="icon" variant="outline"><X aria-hidden="true" /></Button>
+                  )}
+                </div>
               </div>
             </div>
             {validationMessage && (
@@ -582,13 +837,19 @@ export default function Home() {
                 <CalendarPageSvg language={language} page={layout.pages[activePreviewPage]} style={style} title={`${copy.preview.title} ${activePreviewPage + 1}`} />
               ) : <div className="empty-preview">{copy.preview.empty}</div>}
             </div>
+            <div className="preview-download">
+              <p className="download-spec"><span>{copy.generator.downloadIncludes}</span><strong>{downloadSpec}</strong></p>
+              <Button className="download-button preview-download-button" disabled={invalidRange || downloadState === 'working'} onClick={() => void runDownload()} size="lg">
+                <Download aria-hidden="true" data-icon="inline-start" />{downloadState === 'working' ? copy.generator.working : copy.generator.download}
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
       <section className="facts-rail" aria-label={copy.facts.label}>
-        <div><Ruler aria-hidden="true" /><strong>{language === 'pl' ? '≈ 1,5 M' : '≈ 1.5 M'}</strong><span>{copy.facts.length}</span></div>
-        <div><FileText aria-hidden="true" /><strong>3 × A4</strong><span>{copy.facts.pages}</span></div>
+        <div><Ruler aria-hidden="true" /><strong>{language === 'pl' ? '≈ 1,5–3 M' : '≈ 1.5–3 M'}</strong><span>{copy.facts.length}</span></div>
+        <div><FileText aria-hidden="true" /><strong>3–12 × A4</strong><span>{copy.facts.pages}</span></div>
         <div><MoveHorizontal aria-hidden="true" /><strong>{copy.facts.axisValue}</strong><span>{copy.facts.axis}</span></div>
       </section>
 
@@ -611,19 +872,42 @@ export default function Home() {
         </div>
         <div className="variant-grid">
           <article className="variant-card rice-variant">
-            <div className="variant-image"><Image alt={copy.variants.riceAlt} height={600} src="/brand/ryz-preview.png" width={900} /></div>
-            <div className="variant-copy"><span>{copy.variants.variant} 01</span><h3>{copy.variants.rice}</h3><p>{copy.variants.riceText}</p><Button onClick={() => void runDownload('rice', { start: initialStart, end: initialEnd })} disabled={downloadState === 'working'}><Download data-icon="inline-start" />{copy.variants.download}</Button></div>
+            <div className="variant-image"><CalendarSampleSvg strip={sampleStrip} style="rice" title={copy.variants.riceAlt} /></div>
+            <div className="variant-copy">
+              <span>{copy.variants.variant} 01</span><h3>{copy.variants.rice}</h3><p>{copy.variants.riceText}</p>
+              <div className="variant-download-actions">
+                <Button disabled={downloadState === 'working'} onClick={() => void runReadyCalendarDownload('rice', currentYear)}><Download data-icon="inline-start" />{currentVariantDownloadLabel}</Button>
+                <Button className="variant-download-next" disabled={downloadState === 'working'} onClick={() => void runReadyCalendarDownload('rice', nextYear)}><Download data-icon="inline-start" />{nextVariantDownloadLabel}</Button>
+              </div>
+            </div>
           </article>
           <article className="variant-card block-variant">
-            <div className="variant-image"><Image alt={copy.variants.blockAlt} height={600} src="/brand/blok-preview.png" width={900} /></div>
-            <div className="variant-copy"><span>{copy.variants.variant} 02</span><h3>{copy.variants.block}</h3><p>{copy.variants.blockText}</p><Button onClick={() => void runDownload('block', { start: initialStart, end: initialEnd })} disabled={downloadState === 'working'}><Download data-icon="inline-start" />{copy.variants.download}</Button></div>
+            <div className="variant-image"><CalendarSampleSvg strip={sampleStrip} style="block" title={copy.variants.blockAlt} /></div>
+            <div className="variant-copy">
+              <span>{copy.variants.variant} 02</span><h3>{copy.variants.block}</h3><p>{copy.variants.blockText}</p>
+              <div className="variant-download-actions">
+                <Button disabled={downloadState === 'working'} onClick={() => void runReadyCalendarDownload('block', currentYear)}><Download data-icon="inline-start" />{currentVariantDownloadLabel}</Button>
+                <Button className="variant-download-next" disabled={downloadState === 'working'} onClick={() => void runReadyCalendarDownload('block', nextYear)}><Download data-icon="inline-start" />{nextVariantDownloadLabel}</Button>
+              </div>
+            </div>
           </article>
         </div>
       </section>
 
       <section className="manifesto-section">
-        <div className="manifesto-mark"><Sparkles aria-hidden="true" /></div>
-        <blockquote>{copy.manifesto.quote}</blockquote><p>{copy.manifesto.text}</p>
+        <div className="manifesto-mark"><MoveHorizontal aria-hidden="true" /></div>
+        <div className="manifesto-main">
+          <blockquote>{copy.manifesto.quote}</blockquote>
+          <div aria-hidden="true" className="manifesto-axis">
+            <span>{copy.manifesto.past}</span>
+            <span>{copy.manifesto.now}</span>
+            <span>{copy.manifesto.future}</span>
+          </div>
+        </div>
+        <div className="manifesto-copy">
+          <p>{copy.manifesto.perception}</p>
+          <p>{copy.manifesto.approach}</p>
+        </div>
       </section>
 
       <section className="faq-section" id="faq">
@@ -641,9 +925,23 @@ export default function Home() {
         <DonationCheckout copy={copy.donation} language={language} source="section" status={supportStatus} />
       </section>
 
-      <footer>
-        <Image alt="The Awesome Calendar" height={100} src="/brand/logo.png" width={494} />
-        <p>{copy.footer.line}</p><a href="#top">{copy.footer.top}</a>
+      <footer className="site-footer">
+        <div className="footer-brand">
+          <BrandLogo alt="The Awesome Calendar" />
+          <p>{copy.footer.line}</p>
+          <p className="footer-copyright">{copy.footer.copyright}</p>
+        </div>
+        <div className="footer-legal">
+          <p>{copy.footer.permission}</p>
+          <nav aria-label={copy.footer.licensesLabel} className="footer-license-links">
+            <a data-license="MPL-2.0" href="https://www.mozilla.org/MPL/2.0/" rel="license">{copy.footer.codeLicense}</a>
+            <a data-license="CC-BY-4.0" href="https://creativecommons.org/licenses/by/4.0/" rel="license">{copy.footer.contentLicense}</a>
+          </nav>
+          <p>{copy.footer.attribution}</p>
+          <p>{copy.footer.brand}</p>
+          <p className="footer-warning">{copy.footer.warning}</p>
+        </div>
+        <a className="footer-top" href="#top">{copy.footer.top}</a>
       </footer>
 
       <Dialog onOpenChange={setDonationOpen} open={donationOpen}>
