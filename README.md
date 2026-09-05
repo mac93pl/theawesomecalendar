@@ -79,9 +79,26 @@ Po włączeniu CD każdy poprawny push do `main` wdroży wersję produkcyjną. W
 można też uruchomić ręcznie z zakładki **Actions**. Żaden sekret nie jest
 przechowywany w kodzie ani w konfiguracji Git.
 
+## Indeksowanie i wersje językowe
+
+Polska wersja strony jest dostępna pod `/`, a angielska pod `/en`. Obie wersje
+są renderowane na serwerze, mają własne canonicale i wzajemne odnośniki
+`hreflang`. Mapa strony i reguły crawlerów są generowane pod `/sitemap.xml` oraz
+`/robots.txt` dla domeny `https://theawesomecalendar.com`.
+
+Weryfikację Google Search Console i Bing Webmaster Tools można włączyć podczas
+budowania przez ustawienie odpowiednio `GOOGLE_SITE_VERIFICATION` oraz
+`BING_SITE_VERIFICATION`. Wartości są publicznymi tokenami weryfikacyjnymi, nie
+kluczami dostępowymi. W GitHub Actions dodaj je jako zmienne repozytorium
+(`Settings → Secrets and variables → Actions → Variables`). Po wdrożeniu zgłoś
+w obu usługach adres
+`https://theawesomecalendar.com/sitemap.xml`.
+
 ## Struktura projektu
 
-- `app/page.tsx` — onepager i interakcje generatora,
+- `app/(pl)/page.tsx` oraz `app/(en)/en/page.tsx` — indeksowalne wejścia językowe,
+- `components/calendar-landing.tsx` — onepager i interakcje generatora,
+- `lib/seo.ts`, `app/robots.ts` i `app/sitemap.ts` — metadata oraz indeksowanie,
 - `app/globals.css` — layout, responsywność i styl strony,
 - `components/calendar-page-svg.tsx` — render pojedynczej strony kalendarza,
 - `lib/calendar.ts` — daty, zakresy i presety,

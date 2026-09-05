@@ -6,7 +6,12 @@ export const COPY = {
     theme: { dark: 'Włącz tryb ciemny', light: 'Włącz tryb jasny' },
     homeLabel: 'The Awesome Calendar — strona główna',
     navLabel: 'Główna nawigacja',
-    nav: { menu: 'Otwórz menu', ready: 'Pobierz gotowy do druku', custom: 'Własny zakres', support: 'Wspieram' },
+    nav: {
+      menu: 'Otwórz menu',
+      ready: 'Pobierz gotowy do druku',
+      custom: 'Własny zakres',
+      support: 'Wspieram',
+    },
     process: {
       label: 'Jak przygotować kalendarz',
       steps: ['Pobierz', 'Wydrukuj', 'Wytnij', 'Sklej', 'Korzystaj'],
@@ -16,7 +21,8 @@ export const COPY = {
       line1: 'CAŁY ROK',
       line2: 'NA PIERWSZY RZUT OKA',
       lead: 'Pobierz projekt kalendarza liniowego i korzystaj! To gotowy plik PDF do samodzielnego wydrukowania w domu. Po wydrukowaniu wytnij paski i sklej je w jedną oś czasu. Tym samym zyskujesz jeden rok! Czyli ok. 1,5 m.',
-      yearPreviewTitle: 'Kalendarz liniowy {year} — cały rok od stycznia do grudnia',
+      yearPreviewTitle:
+        'Kalendarz liniowy {year} — cały rok od stycznia do grudnia',
       yearPreviewScrollHint: 'Przesuń, aby zobaczyć cały rok →',
       primaryCta: 'Pobierz gotowy do druku',
       secondaryCta: 'Ustaw własny zakres',
@@ -42,10 +48,12 @@ export const COPY = {
     },
     projectNote: {
       stamp: 'Projekt z pasji · za darmo',
-      leadPrefix: 'Ten kalendarz to inne podejście do planowania: kalendarz w formie ',
+      leadPrefix:
+        'Ten kalendarz to inne podejście do planowania: kalendarz w formie ',
       leadHighlight: 'jednego paska-osi czasu',
       leadSuffix: ', który prezentuje cały plan na raz.',
-      originPrefix: 'Powstał jako mały projekt z pasji do zorganizowania się. Oddajemy go ',
+      originPrefix:
+        'Powstał jako mały projekt z pasji do zorganizowania się. Oddajemy go ',
       originHighlight: 'za darmo',
       originSuffix: ', bo wiemy, jak bardzo może być przydatny.',
       usagePrefix: 'Pliki możesz pobrać i wydrukować ',
@@ -82,7 +90,8 @@ export const COPY = {
       formatTallHint: '1 pasek na A4 · więcej miejsca w pionie',
       formatBig: 'Big',
       formatBigHint: '1 pasek na A4 · dni około 2× większe',
-      formatExplanation: 'Rozmiar zmienia wysokość i szerokość dni oraz liczbę stron. Wybrany zakres dat pozostaje bez zmian.',
+      formatExplanation:
+        'Rozmiar zmienia wysokość i szerokość dni oraz liczbę stron. Wybrany zakres dat pozostaje bez zmian.',
       styleLabel: 'Styl kalendarza',
       rice: 'Nowoczesny ryż',
       riceHint: 'subtelne znaczniki dni',
@@ -133,17 +142,21 @@ export const COPY = {
       lead: 'Ten sam czas, tak samo proste podejście. Nieco inny styl.',
       variant: 'Wariant',
       rice: 'Nowoczesny ryż',
-      riceText: 'Lekki i precyzyjny. Dni to kolejne kreski i kropki; łącz je w zdarzenia.',
+      riceText:
+        'Lekki i precyzyjny. Dni to kolejne kreski i kropki; łącz je w zdarzenia.',
       riceAlt: 'Tak wygląda nowoczesny ryż',
       block: 'Klasyczny blok',
-      blockText: 'Konserwatywny i praktyczny. Weekend widać od razu, nawet z samego rana w poniedziałek.',
+      blockText:
+        'Konserwatywny i praktyczny. Weekend widać od razu, nawet z samego rana w poniedziałek.',
       blockAlt: 'A tutaj klasyczny blok',
       download: 'Pobierz {year}',
     },
     manifesto: {
       quote: 'DLA NAS CZAS TO OŚ.',
-      perception: 'Percepcja czasu może przybierać różne formy: siatkę tygodni, koło albo strzałkę. Czas może nadchodzić — jak kolejne święta — lub mijać, jak ubiegłoroczne wakacje. Czasem zatacza też koło, jak każdy kolejny weekend.',
-      approach: 'Nam najbliższa jest oś: przeszłość po jednej stronie, przyszłość po drugiej, a następujące po sobie dni są kolejnymi punktami. Takie przedstawienie godzin, dni, miesięcy i lat pomaga lepiej rozumieć plany. Przełożyliśmy tę koncepcję na coś praktycznego i łatwego w użyciu. Tak powstał kalendarz liniowy, którym teraz dzielimy się z Wami.',
+      perception:
+        'Percepcja czasu może przybierać różne formy: siatkę tygodni, koło albo strzałkę. Czas może nadchodzić — jak kolejne święta — lub mijać, jak ubiegłoroczne wakacje. Czasem zatacza też koło, jak każdy kolejny weekend.',
+      approach:
+        'Nam najbliższa jest oś: przeszłość po jednej stronie, przyszłość po drugiej, a następujące po sobie dni są kolejnymi punktami. Takie przedstawienie godzin, dni, miesięcy i lat pomaga lepiej rozumieć plany. Przełożyliśmy tę koncepcję na coś praktycznego i łatwego w użyciu. Tak powstał kalendarz liniowy, którym teraz dzielimy się z Wami.',
       past: 'Przeszłość',
       now: 'Teraz',
       future: 'Przyszłość',
@@ -153,8 +166,14 @@ export const COPY = {
       line1: 'DROBNE PYTANIA.',
       line2: 'PROSTE ODPOWIEDZI.',
       items: [
-        ['Jak ustawić drukarkę?', 'Wybierz papier A4 w poziomie, skalę 100% i wyłącz dopasowanie do strony. Linie cięcia oraz kolejność pasków są już w PDF.'],
-        ['Czy muszę zaczynać od stycznia?', 'Zacznij od początku, a skończ na sam koniec. Wybierz jakiekolwiek dni chcesz 🤷'],
+        [
+          'Jak ustawić drukarkę?',
+          'Wybierz papier A4 w poziomie, skalę 100% i wyłącz dopasowanie do strony. Linie cięcia oraz kolejność pasków są już w PDF.',
+        ],
+        [
+          'Czy muszę zaczynać od stycznia?',
+          'Zacznij od początku, a skończ na sam koniec. Wybierz jakiekolwiek dni chcesz 🤷',
+        ],
         ['Ile to kosztuje?', 'Panieeeee/Paniiiii - za darmo'],
       ],
     },
@@ -165,21 +184,35 @@ export const COPY = {
       text: 'Pobieraj do woli. Chcesz wspomóc? Klikaj śmiało.',
       button: 'Wsparcie',
     },
+    share: {
+      button: 'Udostępnij kalendarz',
+      title: 'The Awesome Calendar — kalendarz liniowy',
+      text: 'Darmowy kalendarz liniowy do wydrukowania na zwykłych kartkach A4.',
+      shared: 'Dzięki za udostępnienie!',
+      copied: 'Link skopiowany.',
+      error: 'Nie udało się udostępnić. Spróbuj ponownie.',
+    },
     donation: {
       badge: 'Dobrowolne wsparcie',
       downloadTitle: 'Kalendarz gotowy!',
-      downloadLead: 'Generowanie zakończone. Pobieranie zrobione. Jeśli oszczędzi Ci trochę czasu, możesz dorzucić się do rozwoju projektu.',
+      downloadLead:
+        'Generowanie zakończone. Pobieranie zrobione. Jeśli oszczędzi Ci trochę czasu, możesz dorzucić się do rozwoju projektu.',
       title: 'Podoba Ci się to, co robimy?',
       lead: 'Jak to mówią? Czas to pieniądz 💸. Jeśli nasza praca pozwoli Ci zaoszczędzić trochę czasu, to chętnie napijemy się kawy w Twoim imieniu!',
       amountLegend: 'Wybierz kwotę',
-      amountNames: ['espresso', 'flat white', 'matcha latte z wiórkami kokosowymi na owsianym'],
+      amountNames: [
+        'espresso',
+        'flat white',
+        'matcha latte z wiórkami kokosowymi na owsianym',
+      ],
       presetButton: 'Postaw nam kawę',
       recommended: 'to wygląda dobrze!',
       customLabel: 'Albo wpisz własną',
       customPlaceholder: 'np. 25',
       customButton: 'Wpłać',
       hint: 'Minimum 5 zł · bezpieczna płatność przez Stripe',
-      legal: 'Wpłata oznacza darowiznę na wsparcie i rozwój projektu. Wszystkie funkcje strony są dostępne za darmo i nie wymagają dodatkowych opłat. Dzięki za wsparcie!',
+      legal:
+        'Wpłata oznacza darowiznę na wsparcie i rozwój projektu. Wszystkie funkcje strony są dostępne za darmo i nie wymagają dodatkowych opłat. Dzięki za wsparcie!',
       status: {
         success: 'Dziękujemy! Wsparcie zostało przekazane.',
         cancelled: 'Płatność została anulowana. Nic nie pobraliśmy.',
@@ -191,13 +224,17 @@ export const COPY = {
     footer: {
       line: 'Kalendarz liniowy',
       copyright: '© 2026 · Maciej Dorotniak',
-      permission: 'Możesz korzystać, udostępniać i tworzyć własne wersje — zgodnie z poniższymi licencjami.',
+      permission:
+        'Możesz korzystać, udostępniać i tworzyć własne wersje — zgodnie z poniższymi licencjami.',
       licensesLabel: 'Licencje projektu',
       codeLicense: 'Kod · MPL-2.0',
       contentLicense: 'Kalendarze i materiały (bez nazwy i logo) · CC BY 4.0',
-      attribution: 'Przy udostępnianiu podaj nazwę projektu, link do tej strony i oznacz własne zmiany.',
-      brand: 'Nazwa „The Awesome Calendar” i logo wskazują oryginalny projekt. Własną wersję oznacz własną nazwą i logo.',
-      warning: 'Kopiowanie poza warunkami licencji może naruszać prawa autorskie.',
+      attribution:
+        'Przy udostępnianiu podaj nazwę projektu, link do tej strony i oznacz własne zmiany.',
+      brand:
+        'Nazwa „The Awesome Calendar” i logo wskazują oryginalny projekt. Własną wersję oznacz własną nazwą i logo.',
+      warning:
+        'Kopiowanie poza warunkami licencji może naruszać prawa autorskie.',
       top: 'Wróć na górę ↑',
     },
   },
@@ -206,7 +243,12 @@ export const COPY = {
     theme: { dark: 'Switch to dark mode', light: 'Switch to light mode' },
     homeLabel: 'The Awesome Calendar — home',
     navLabel: 'Main navigation',
-    nav: { menu: 'Open menu', ready: 'Ready-made', custom: 'Custom range', support: 'Support' },
+    nav: {
+      menu: 'Open menu',
+      ready: 'Ready-made',
+      custom: 'Custom range',
+      support: 'Support',
+    },
     process: {
       label: 'How to prepare the calendar',
       steps: ['Download', 'Print', 'Cut', 'Join', 'Use'],
@@ -216,7 +258,8 @@ export const COPY = {
       line1: 'THE WHOLE YEAR',
       line2: 'AT A GLANCE',
       lead: 'Download the linear calendar project and start using it! It’s a ready-made PDF to print at home. Once printed, cut out the strips and join them into one continuous timeline. Just like that, you get a whole year — about 1.5 metres of it.',
-      yearPreviewTitle: 'Linear calendar {year} — the full year from January to December',
+      yearPreviewTitle:
+        'Linear calendar {year} — the full year from January to December',
       yearPreviewScrollHint: 'Swipe to see the full year →',
       primaryCta: 'Download ready to print',
       secondaryCta: 'Choose a custom range',
@@ -242,16 +285,20 @@ export const COPY = {
     },
     projectNote: {
       stamp: 'A passion project · free to use',
-      leadPrefix: 'This calendar takes a different approach to planning: it is ',
+      leadPrefix:
+        'This calendar takes a different approach to planning: it is ',
       leadHighlight: 'a single timeline strip',
       leadSuffix: ' that shows your whole plan at once.',
-      originPrefix: 'It began as a small passion project born from a desire to get organized. We are sharing it ',
+      originPrefix:
+        'It began as a small passion project born from a desire to get organized. We are sharing it ',
       originHighlight: 'for free',
       originSuffix: ' because we know how useful it can be.',
       usagePrefix: 'You can download and print the files ',
       usageHighlight: 'without limits',
-      usageSuffix: '. Then cut out the individual pieces and join them into one.',
-      thanks: 'We would be grateful for your support and for sharing the project.',
+      usageSuffix:
+        '. Then cut out the individual pieces and join them into one.',
+      thanks:
+        'We would be grateful for your support and for sharing the project.',
       signoff: 'Good luck with every plan!',
       cta: 'Support the project',
     },
@@ -282,7 +329,8 @@ export const COPY = {
       formatTallHint: '1 strip per A4 · more vertical space',
       formatBig: 'Big',
       formatBigHint: '1 strip per A4 · days about 2× larger',
-      formatExplanation: 'Size changes day height and width and the number of pages. Your selected date range stays unchanged.',
+      formatExplanation:
+        'Size changes day height and width and the number of pages. Your selected date range stays unchanged.',
       styleLabel: 'Calendar style',
       rice: 'Modern grain',
       riceHint: 'subtle day markers',
@@ -333,17 +381,21 @@ export const COPY = {
       lead: 'The same time, the same simple approach. A slightly different style.',
       variant: 'Style',
       rice: 'Modern grain',
-      riceText: 'Light and precise. Days are marked by lines and dots; connect them into events.',
+      riceText:
+        'Light and precise. Days are marked by lines and dots; connect them into events.',
       riceAlt: 'This is what Modern grain looks like',
       block: 'Classic block',
-      blockText: 'Conservative and practical. You can spot the weekend right away, even first thing on Monday morning.',
+      blockText:
+        'Conservative and practical. You can spot the weekend right away, even first thing on Monday morning.',
       blockAlt: 'And this is Classic block',
       download: 'Download {year}',
     },
     manifesto: {
       quote: 'FOR US, TIME IS AN AXIS.',
-      perception: 'Time can be perceived in many ways: as a grid of weeks, a circle or an arrow. It can be approaching — like the next holiday — or passing, like last summer. Sometimes it loops around again, like another weekend.',
-      approach: 'We are drawn to the axis: the past on one side, the future on the other, and consecutive days arranged like points. Seeing hours, days, months and years this way makes plans easier to understand. We turned that idea into something practical and easy to use. The result is the linear calendar we now share with you.',
+      perception:
+        'Time can be perceived in many ways: as a grid of weeks, a circle or an arrow. It can be approaching — like the next holiday — or passing, like last summer. Sometimes it loops around again, like another weekend.',
+      approach:
+        'We are drawn to the axis: the past on one side, the future on the other, and consecutive days arranged like points. Seeing hours, days, months and years this way makes plans easier to understand. We turned that idea into something practical and easy to use. The result is the linear calendar we now share with you.',
       past: 'Past',
       now: 'Now',
       future: 'Future',
@@ -353,8 +405,14 @@ export const COPY = {
       line1: 'SMALL QUESTIONS.',
       line2: 'STRAIGHT ANSWERS.',
       items: [
-        ['How should I set up my printer?', 'Choose A4 landscape, set scale to 100% and disable fit to page. Cutting guides and strip order are already included in the PDF.'],
-        ['Do I have to start in January?', 'Start at the beginning and finish at the very end. Choose whichever days you want 🤷'],
+        [
+          'How should I set up my printer?',
+          'Choose A4 landscape, set scale to 100% and disable fit to page. Cutting guides and strip order are already included in the PDF.',
+        ],
+        [
+          'Do I have to start in January?',
+          'Start at the beginning and finish at the very end. Choose whichever days you want 🤷',
+        ],
         ['How much does it cost?', "free, don't you see sir/madame?"],
       ],
     },
@@ -365,21 +423,35 @@ export const COPY = {
       text: 'Download as much as you like. Want to help? Go ahead and click.',
       button: 'Support',
     },
+    share: {
+      button: 'Share the calendar',
+      title: 'The Awesome Calendar — linear calendar',
+      text: 'A free linear calendar you can print on regular A4 paper.',
+      shared: 'Thanks for sharing!',
+      copied: 'Link copied.',
+      error: 'Could not share the link. Please try again.',
+    },
     donation: {
       badge: 'Optional support',
       downloadTitle: 'Calendar ready!',
-      downloadLead: 'Generation complete. Download done. If it saves you some time, you can contribute to the project’s development.',
+      downloadLead:
+        'Generation complete. Download done. If it saves you some time, you can contribute to the project’s development.',
       title: 'Like what we do?',
       lead: 'You know what they say: time is money 💸. If our work saves you a little time, we’ll happily have a coffee on your behalf!',
       amountLegend: 'Choose an amount',
-      amountNames: ['espresso', 'flat white', 'oat matcha latte with coconut flakes'],
+      amountNames: [
+        'espresso',
+        'flat white',
+        'oat matcha latte with coconut flakes',
+      ],
       presetButton: 'Buy us a coffee',
       recommended: 'this looks good!',
       customLabel: 'Or enter your own',
       customPlaceholder: 'e.g. 25',
       customButton: 'Contribute',
       hint: '$2 minimum · secure payment by Stripe',
-      legal: 'This is a donation supporting the project’s development. It is not payment for the calendar. All functions on site are free. Thanks!',
+      legal:
+        'This is a donation supporting the project’s development. It is not payment for the calendar. All functions on site are free. Thanks!',
       status: {
         success: 'Thank you! Your support has been received.',
         cancelled: 'Payment was cancelled. You were not charged.',
@@ -391,12 +463,16 @@ export const COPY = {
     footer: {
       line: 'Linear calendar',
       copyright: '© 2026 · Maciej Dorotniak',
-      permission: 'You may use, share and make your own versions — under the licences below.',
+      permission:
+        'You may use, share and make your own versions — under the licences below.',
       licensesLabel: 'Project licences',
       codeLicense: 'Code · MPL-2.0',
-      contentLicense: 'Calendars and materials (excluding the name and logo) · CC BY 4.0',
-      attribution: 'When sharing, credit the project, link to this site and mark your changes.',
-      brand: 'The “The Awesome Calendar” name and logo identify the original project. Give your version its own name and logo.',
+      contentLicense:
+        'Calendars and materials (excluding the name and logo) · CC BY 4.0',
+      attribution:
+        'When sharing, credit the project, link to this site and mark your changes.',
+      brand:
+        'The “The Awesome Calendar” name and logo identify the original project. Give your version its own name and logo.',
       warning: 'Copying outside the licence terms may infringe copyright.',
       top: 'Back to top ↑',
     },

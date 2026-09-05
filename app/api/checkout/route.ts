@@ -4,15 +4,22 @@ type SiteLanguage = 'pl' | 'en';
 type CheckoutSource = 'section' | 'dialog';
 type ReturnStatus = 'cancelled' | 'error' | 'invalid' | 'success';
 
-function returnUrl(request: Request, language: SiteLanguage, status: ReturnStatus) {
-  const url = new URL('/', request.url);
-  if (language === 'en') url.searchParams.set('lang', 'en');
+function returnUrl(
+  request: Request,
+  language: SiteLanguage,
+  status: ReturnStatus,
+) {
+  const url = new URL(language === 'en' ? '/en' : '/', request.url);
   url.searchParams.set('support', status);
   url.hash = 'wsparcie';
   return url;
 }
 
-function redirectBack(request: Request, language: SiteLanguage, status: ReturnStatus) {
+function redirectBack(
+  request: Request,
+  language: SiteLanguage,
+  status: ReturnStatus,
+) {
   return Response.redirect(returnUrl(request, language, status), 303);
 }
 
@@ -24,12 +31,18 @@ export async function POST(request: Request) {
   }
 
   const formData = await request.formData();
-  const language: SiteLanguage = formData.get('language') === 'en' ? 'en' : 'pl';
-  const source: CheckoutSource = formData.get('source') === 'dialog' ? 'dialog' : 'section';
+  const language: SiteLanguage =
+    formData.get('language') === 'en' ? 'en' : 'pl';
+  const source: CheckoutSource =
+    formData.get('source') === 'dialog' ? 'dialog' : 'section';
   const amount = Number(formData.get('amount'));
   const supportConfig = SUPPORT_CONFIG[language];
 
-  if (!Number.isInteger(amount) || amount < supportConfig.minAmount || amount > supportConfig.maxAmount) {
+  if (
+    !Number.isInteger(amount) ||
+    amount < supportConfig.minAmount ||
+    amount > supportConfig.maxAmount
+  ) {
     return redirectBack(request, language, 'invalid');
   }
 
@@ -41,9 +54,10 @@ export async function POST(request: Request) {
 
   const successUrl = returnUrl(request, language, 'success');
   const cancelUrl = returnUrl(request, language, 'cancelled');
-  const productName = language === 'pl'
-    ? 'Kawa dla The Awesome Calendar'
-    : 'Coffee for The Awesome Calendar';
+  const productName =
+    language === 'pl'
+      ? 'Kawa dla The Awesome Calendar'
+      : 'Coffee for The Awesome Calendar';
   const params = new URLSearchParams({
     mode: 'payment',
     locale: language,
@@ -59,18 +73,27 @@ export async function POST(request: Request) {
   });
 
   try {
-    const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${stripeSecretKey}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
+    const response = await fetch(
+      'https://api.stripe.com/v1/checkout/sessions',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${stripeSecretKey}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params,
       },
-      body: params,
-    });
-    const session = await response.json() as { url?: string; error?: { message?: string } };
+    );
+    const session = (await response.json()) as {
+      url?: string;
+      error?: { message?: string };
+    };
 
     if (!response.ok || !session.url) {
-      console.error('Stripe Checkout Session creation failed.', session.error?.message || response.status);
+      console.error(
+        'Stripe Checkout Session creation failed.',
+        session.error?.message || response.status,
+      );
       return redirectBack(request, language, 'error');
     }
 

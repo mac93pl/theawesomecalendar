@@ -1,15 +1,10 @@
 import type { Metadata } from 'next';
 
-import './globals.css';
+import { createSiteMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'The Awesome Calendar - kalendarz liniowy',
-  description:
-    'Wydrukuj kalendarz na kartkach A4 i sklej w jedną czytelną oś czasu.',
-  icons: {
-    icon: [{ url: '/brand/favicon.svg', type: 'image/svg+xml' }],
-  },
-};
+import '../globals.css';
+
+export const metadata: Metadata = createSiteMetadata('pl');
 
 export default function RootLayout({
   children,

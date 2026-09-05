@@ -16,6 +16,8 @@ concurrency:
 
 env:
   NODE_VERSION: 22.13.0
+  GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
+  BING_SITE_VERIFICATION: ${{ vars.BING_SITE_VERIFICATION }}
 
 jobs:
   validate:
