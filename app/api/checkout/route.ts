@@ -9,7 +9,7 @@ function returnUrl(
   language: SiteLanguage,
   status: ReturnStatus,
 ) {
-  const url = new URL(language === 'en' ? '/en' : '/', request.url);
+  const url = new URL(language === 'en' ? '/en' : '/pl', request.url);
   url.searchParams.set('support', status);
   url.hash = 'wsparcie';
   return url;

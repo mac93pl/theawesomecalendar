@@ -10,7 +10,7 @@ const SEO_COPY = {
       'Wygeneruj i pobierz darmowy kalendarz liniowy PDF. Wydrukuj go na zwykłych kartkach A4, wytnij paski i sklej cały rok w jedną czytelną oś czasu.',
     imageAlt: 'The Awesome Calendar — darmowy kalendarz liniowy do druku',
     locale: 'pl_PL',
-    path: '/',
+    path: '/pl',
   },
   en: {
     title: 'The Awesome Calendar — free printable linear calendar PDF',
@@ -50,7 +50,7 @@ export function createSiteMetadata(language: SiteLanguage): Metadata {
     alternates: {
       canonical: url,
       languages: {
-        'pl-PL': new URL('/', SITE_ORIGIN),
+        'pl-PL': new URL('/pl', SITE_ORIGIN),
         en: new URL('/en', SITE_ORIGIN),
         'x-default': new URL('/', SITE_ORIGIN),
       },

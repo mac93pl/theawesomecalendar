@@ -443,8 +443,9 @@ export function CalendarLanding({
   const selectLanguage = useCallback(
     (nextLanguage: SiteLanguage) => {
       window.localStorage.setItem('awesome-calendar-language', nextLanguage);
+      document.cookie = `awesome-calendar-language=${nextLanguage}; Max-Age=31536000; Path=/; SameSite=Lax`;
       if (nextLanguage === language) return;
-      window.location.assign(nextLanguage === 'en' ? '/en' : '/');
+      window.location.assign(nextLanguage === 'en' ? '/en' : '/pl');
     },
     [language],
   );
@@ -732,7 +733,8 @@ export function CalendarLanding({
   }, []);
 
   const shareCalendar = useCallback(async () => {
-    const url = language === 'en' ? `${SITE_ORIGIN}/en` : `${SITE_ORIGIN}/`;
+    const url =
+      language === 'en' ? `${SITE_ORIGIN}/en` : `${SITE_ORIGIN}/pl`;
     setShareStatus('idle');
 
     try {

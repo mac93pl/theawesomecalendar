@@ -6,9 +6,9 @@ type PageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function EnglishHome({ searchParams }: PageProps) {
+export default async function PolishHome({ searchParams }: PageProps) {
   const params = searchParams ? await searchParams : {};
-  if (params.lang === 'pl') redirect('/pl');
+  if (params.lang === 'en') redirect('/en');
 
-  return <CalendarLanding initialLanguage="en" />;
+  return <CalendarLanding initialLanguage="pl" />;
 }
