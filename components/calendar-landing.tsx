@@ -26,6 +26,7 @@ import {
 } from '@/components/calendar-page-svg';
 import { CalendarYearTimelineSvg } from '@/components/calendar-year-timeline-svg';
 import { BrandLogo } from '@/components/brand-logo';
+import { ContactDialog } from '@/components/contact-dialog';
 import {
   DonationCheckout,
   type SupportStatus,
@@ -1783,6 +1784,11 @@ export function CalendarLanding({
             <p className="footer-warning">{copy.footer.warning}</p>
           </div>
           <div className="footer-actions">
+            <ContactDialog
+              context={{ dayHeight, dayWidth, end, start, style }}
+              copy={copy.contact}
+              language={language}
+            />
             <button
               aria-label={copy.share.button}
               className="footer-share-button"

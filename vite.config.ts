@@ -8,6 +8,8 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === 'seatbelt';
 const localBindingConfig = {
   main: 'vinext/server/fetch-handler',
   compatibility_flags: ['nodejs_compat'],
+  // Production configuration is managed in the Cloudflare dashboard.
+  keep_vars: true,
 };
 
 export default defineConfig(async ({ command }) => {

@@ -43,6 +43,27 @@ udostępniony w kodzie klienta. W środowisku produkcyjnym dodaj
 dobierane dynamicznie z ustawień Stripe Dashboard; tam możesz włączyć m.in.
 karty, Apple Pay i Google Pay. Przed publikacją zamień klucz testowy na `sk_live_...`.
 
+## Formularz kontaktowy
+
+Formularz w stopce wysyła wiadomości przez Resend. Rozmowa jest kontynuowana
+zwykłym e-mailem: adres użytkownika jest ustawiany jako `Reply-To`, więc
+odpowiedź z docelowej skrzynki trafia bezpośrednio do niego. Skonfiguruj w
+środowisku Workera:
+
+```bash
+RESEND_API_KEY=re_...
+CONTACT_FROM_EMAIL="The Awesome Calendar <connect@send.theawesomecalendar.com>"
+CONTACT_TO_EMAIL=hello@theawesomecalendar.com
+TURNSTILE_SITE_KEY=...
+TURNSTILE_SECRET_KEY=...
+```
+
+Subdomena używana w `CONTACT_FROM_EMAIL` musi być zweryfikowana w Resend.
+Turnstile jest weryfikowany po stronie serwera; sam publiczny site key nie
+wystarcza do przyjęcia wiadomości. Wartości produkcyjne przechowuj jako zmienne
+i sekrety Workera, a nie w repozytorium. Konfiguracja buildu zachowuje zmienne
+ustawione bezpośrednio w panelu Cloudflare podczas kolejnych wdrożeń.
+
 ## Skrypty
 
 | Polecenie | Działanie |

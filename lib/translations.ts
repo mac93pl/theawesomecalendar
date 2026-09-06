@@ -212,6 +212,36 @@ export const COPY = {
       copied: 'Link skopiowany.',
       error: 'Nie udało się udostępnić. Spróbuj ponownie.',
     },
+    contact: {
+      trigger: 'Napisz do mnie',
+      title: 'MASZ PYTANIE? NAPISZ.',
+      description:
+        'Znalazłaś lub znalazłeś problem, masz pomysł albo po prostu chcesz o coś zapytać? Wiadomość trafi bezpośrednio do mnie.',
+      topicLabel: 'Temat wiadomości',
+      topics: {
+        question: 'Pytanie',
+        problem: 'Problem',
+        idea: 'Pomysł',
+        other: 'Inne',
+      },
+      emailLabel: 'Twój e-mail',
+      emailPlaceholder: 'ty@example.com',
+      messageLabel: 'Wiadomość',
+      messagePlaceholder: 'Napisz, w czym mogę pomóc…',
+      privacy:
+        'Adres e-mail wykorzystam wyłącznie do odpowiedzi na tę wiadomość.',
+      securityLoading: 'Ładuję zabezpieczenie formularza…',
+      securityError:
+        'Nie udało się uruchomić zabezpieczenia formularza. Odśwież stronę i spróbuj ponownie.',
+      submit: 'Wyślij wiadomość',
+      submitting: 'Wysyłam…',
+      error: 'Nie udało się wysłać wiadomości. Spróbuj ponownie za chwilę.',
+      successTitle: 'WIADOMOŚĆ WYSŁANA.',
+      successDescription:
+        'Dzięki! Wiadomość jest już w mojej skrzynce. Odpowiem na podany adres e-mail.',
+      sendAnother: 'Wyślij kolejną',
+      closeLabel: 'Zamknij',
+    },
     downloadTrust:
       'PDF pobierze się od razu. Nie pobieramy opłat, nie wymagamy dodatkowych danych. Projekt wspierany jest dobrowolnie przez darowizny użytkowników.',
     donation: {
@@ -476,6 +506,35 @@ export const COPY = {
       shared: 'Thanks for sharing!',
       copied: 'Link copied.',
       error: 'Could not share the link. Please try again.',
+    },
+    contact: {
+      trigger: 'Get in touch',
+      title: 'HAVE A QUESTION? WRITE.',
+      description:
+        'Found a problem, have an idea, or simply want to ask something? Your message will go directly to me.',
+      topicLabel: 'Message topic',
+      topics: {
+        question: 'Question',
+        problem: 'Problem',
+        idea: 'Idea',
+        other: 'Other',
+      },
+      emailLabel: 'Your email',
+      emailPlaceholder: 'you@example.com',
+      messageLabel: 'Message',
+      messagePlaceholder: 'Tell me how I can help…',
+      privacy: 'I will only use your email address to reply to this message.',
+      securityLoading: 'Loading form protection…',
+      securityError:
+        'Form protection could not be started. Refresh the page and try again.',
+      submit: 'Send message',
+      submitting: 'Sending…',
+      error: 'Your message could not be sent. Please try again shortly.',
+      successTitle: 'MESSAGE SENT.',
+      successDescription:
+        'Thank you! Your message is in my inbox. I will reply to the email address you provided.',
+      sendAnother: 'Send another',
+      closeLabel: 'Close',
     },
     downloadTrust:
       'Your PDF will download immediately. We do not charge fees or require any additional information. The project is supported voluntarily through user donations.',
