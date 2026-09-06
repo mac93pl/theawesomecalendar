@@ -282,8 +282,6 @@ function DonationCheckout({
 }: DonationCheckoutProps) {
   const supportConfig = SUPPORT_CONFIG[language];
   const statusMessage = status ? copy.status[status] : '';
-  const [customAmountOpen, setCustomAmountOpen] = useState(false);
-  const customAmountId = `donation-custom-${source}`;
 
   return (
     <div className="donation-checkout">
@@ -316,24 +314,7 @@ function DonationCheckout({
           ))}
         </div>
       </fieldset>
-      {source === 'dialog' ? (
-        <button
-          aria-controls={customAmountId}
-          aria-expanded={customAmountOpen}
-          className="donation-custom-toggle"
-          onClick={() => setCustomAmountOpen((open) => !open)}
-          type="button"
-        >
-          <span>{copy.customLabel}</span>
-          <ChevronDown aria-hidden="true" />
-        </button>
-      ) : null}
-      <form
-        action="/api/checkout"
-        className={`donation-custom${source === 'dialog' ? ' is-mobile-collapsible' : ''}${customAmountOpen ? ' is-open' : ''}`}
-        id={customAmountId}
-        method="post"
-      >
+      <form action="/api/checkout" className="donation-custom" method="post">
         <input name="language" type="hidden" value={language} />
         <input name="source" type="hidden" value={source} />
         <label htmlFor={`support-amount-${source}`}>{copy.customLabel}</label>
@@ -667,7 +648,7 @@ export function CalendarLanding({
               return;
             }
             triggerPdfDownload(pendingPdf.url, pendingPdf.filename);
-          }, 1_000);
+          }, mobileFlow ? 2_000 : 1_000);
         });
         return {
           downloaded: true,
@@ -1842,7 +1823,10 @@ export function CalendarLanding({
             </div>
             <DialogHeader>
               <output aria-live="polite" className="donation-download-note">
-                <span aria-hidden="true" className="donation-download-check">
+                <span
+                  aria-hidden="true"
+                  className={`donation-download-check${mobilePdfStatus === 'preparing' ? '' : ' is-animated'}`}
+                >
                   <Check />
                 </span>
                 <span className="donation-download-message">
