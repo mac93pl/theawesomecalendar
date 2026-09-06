@@ -95,6 +95,8 @@ export async function generateCalendarPdf(
     days: layout.days.length,
     language,
     format: layout.format,
+    dayWidth: layout.size.dayWidth,
+    dayHeight: layout.size.dayHeight,
   };
 }
 

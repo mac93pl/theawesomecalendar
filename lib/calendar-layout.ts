@@ -1,14 +1,15 @@
 import {
+  type CalendarDayHeight,
+  type CalendarDayWidth,
   type CalendarDay,
   type CalendarFormat,
+  type CalendarSize,
   type SiteLanguage,
+  STANDARD_CALENDAR_SIZE,
   createDays,
 } from '@/lib/calendar';
 
-type GeometryProfile = {
-  format: CalendarFormat;
-  stripsPerPage: 1 | 2;
-  stripHeight: number;
+type WidthGeometryProfile = {
   monthBandHeight: number;
   referenceStrips: number;
   regularDaysPerStrip: number;
@@ -16,8 +17,14 @@ type GeometryProfile = {
   visualScale: number;
 };
 
+type HeightGeometryProfile = {
+  stripsPerPage: 1 | 2;
+  stripHeight: number;
+};
+
 export type CalendarGeometry = {
   readonly format: CalendarFormat;
+  readonly size: CalendarSize;
   readonly pageWidth: number;
   readonly pageHeight: number;
   readonly margin: number;
@@ -55,61 +62,84 @@ const PAGE_GEOMETRY = {
   cutLineOffset: 0.25,
 } as const;
 
-function createGeometry(profile: GeometryProfile): CalendarGeometry {
+const WIDTH_GEOMETRY: Record<CalendarDayWidth, WidthGeometryProfile> = {
+  standard: {
+    monthBandHeight: 9,
+    referenceStrips: 6,
+    regularDaysPerStrip: 61,
+    finalDaysPerStrip: 63,
+    visualScale: 1,
+  },
+  wide: {
+    monthBandHeight: 18,
+    referenceStrips: 12,
+    regularDaysPerStrip: 31,
+    finalDaysPerStrip: 32,
+    visualScale: 2,
+  },
+};
+
+const HEIGHT_GEOMETRY: Record<CalendarDayHeight, HeightGeometryProfile> = {
+  standard: { stripsPerPage: 2, stripHeight: 90 },
+  tall: { stripsPerPage: 1, stripHeight: 180 },
+};
+
+export function calendarFormatForSize(size: CalendarSize): CalendarFormat {
+  if (size.dayWidth === 'wide') {
+    return size.dayHeight === 'tall' ? 'big' : 'wide';
+  }
+  return size.dayHeight === 'tall' ? 'tall' : 'standard';
+}
+
+function createGeometry(size: CalendarSize): CalendarGeometry {
+  const widthProfile = WIDTH_GEOMETRY[size.dayWidth];
+  const heightProfile = HEIGHT_GEOMETRY[size.dayHeight];
   const regularContentWidth = PAGE_GEOMETRY.workWidth - PAGE_GEOMETRY.glueTabWidth;
-  const dayWidth = regularContentWidth / profile.regularDaysPerStrip;
+  const dayWidth = regularContentWidth / widthProfile.regularDaysPerStrip;
 
   return {
     ...PAGE_GEOMETRY,
-    ...profile,
-    dayAreaHeight: profile.stripHeight - profile.monthBandHeight,
+    ...widthProfile,
+    ...heightProfile,
+    format: calendarFormatForSize(size),
+    size,
+    dayAreaHeight: heightProfile.stripHeight - widthProfile.monthBandHeight,
     regularContentWidth,
     dayWidth,
     yearMarkerWidth: dayWidth * PAGE_GEOMETRY.yearMarkerDays,
-    yearMarkerHeight: 10.2 * profile.visualScale,
-    yearMarkerFontSize: 8.4 * profile.visualScale,
-    yearMarkerGap: 0.8 * profile.visualScale,
+    yearMarkerHeight: 10.2 * widthProfile.visualScale,
+    yearMarkerFontSize: 8.4 * widthProfile.visualScale,
+    yearMarkerGap: 0.8 * widthProfile.visualScale,
   };
 }
 
-export const STANDARD_CALENDAR_GEOMETRY = createGeometry({
-  format: 'standard',
-  stripsPerPage: 2,
-  stripHeight: 90,
-  monthBandHeight: 9,
-  referenceStrips: 6,
-  regularDaysPerStrip: 61,
-  finalDaysPerStrip: 63,
-  visualScale: 1,
-});
+export const STANDARD_CALENDAR_GEOMETRY = createGeometry(STANDARD_CALENDAR_SIZE);
 
 export const TALL_CALENDAR_GEOMETRY = createGeometry({
-  format: 'tall',
-  stripsPerPage: 1,
-  stripHeight: 180,
-  monthBandHeight: 9,
-  referenceStrips: 6,
-  regularDaysPerStrip: 61,
-  finalDaysPerStrip: 63,
-  visualScale: 1,
+  dayWidth: 'standard',
+  dayHeight: 'tall',
+});
+
+export const WIDE_CALENDAR_GEOMETRY = createGeometry({
+  dayWidth: 'wide',
+  dayHeight: 'standard',
 });
 
 export const BIG_CALENDAR_GEOMETRY = createGeometry({
-  format: 'big',
-  stripsPerPage: 1,
-  stripHeight: 180,
-  monthBandHeight: 18,
-  referenceStrips: 12,
-  regularDaysPerStrip: 31,
-  finalDaysPerStrip: 32,
-  visualScale: 2,
+  dayWidth: 'wide',
+  dayHeight: 'tall',
 });
 
 export const CALENDAR_GEOMETRIES: Record<CalendarFormat, CalendarGeometry> = {
   standard: STANDARD_CALENDAR_GEOMETRY,
   tall: TALL_CALENDAR_GEOMETRY,
+  wide: WIDE_CALENDAR_GEOMETRY,
   big: BIG_CALENDAR_GEOMETRY,
 };
+
+export function getCalendarGeometry(size: CalendarSize) {
+  return CALENDAR_GEOMETRIES[calendarFormatForSize(size)];
+}
 
 // Backwards-compatible aliases intentionally point at the original renderer.
 export const CALENDAR_GEOMETRY = STANDARD_CALENDAR_GEOMETRY;
@@ -137,11 +167,13 @@ export type CalendarStripLayout = {
 export type CalendarPageLayout = {
   index: number;
   format: CalendarFormat;
+  size: CalendarSize;
   strips: CalendarStripLayout[];
 };
 
 export type CalendarLayout = {
   format: CalendarFormat;
+  size: CalendarSize;
   geometry: CalendarGeometry;
   days: CalendarDay[];
   strips: CalendarStripLayout[];
@@ -267,6 +299,7 @@ function buildCalendarLayout(
     (_, index) => ({
       index,
       format: geometry.format,
+      size: geometry.size,
       strips: strips.slice(
         index * geometry.stripsPerPage,
         index * geometry.stripsPerPage + geometry.stripsPerPage,
@@ -284,6 +317,7 @@ function buildCalendarLayout(
 
   return {
     format: geometry.format,
+    size: geometry.size,
     geometry,
     days,
     strips,
@@ -304,6 +338,10 @@ export function createTallCalendarLayout(start: string, end: string, language: S
   return buildCalendarLayout(start, end, language, TALL_CALENDAR_GEOMETRY);
 }
 
+export function createWideCalendarLayout(start: string, end: string, language: SiteLanguage) {
+  return buildCalendarLayout(start, end, language, WIDE_CALENDAR_GEOMETRY);
+}
+
 export function createBigCalendarLayout(start: string, end: string, language: SiteLanguage) {
   return buildCalendarLayout(start, end, language, BIG_CALENDAR_GEOMETRY);
 }
@@ -312,9 +350,7 @@ export function createCalendarLayout(
   start: string,
   end: string,
   language: SiteLanguage,
-  format: CalendarFormat = 'standard',
+  size: CalendarSize = STANDARD_CALENDAR_SIZE,
 ): CalendarLayout {
-  if (format === 'tall') return createTallCalendarLayout(start, end, language);
-  if (format === 'big') return createBigCalendarLayout(start, end, language);
-  return createStandardCalendarLayout(start, end, language);
+  return buildCalendarLayout(start, end, language, getCalendarGeometry(size));
 }

@@ -19,7 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import type { SiteLanguage } from '@/lib/calendar';
+import { STANDARD_CALENDAR_SIZE, type SiteLanguage } from '@/lib/calendar';
 import { createCalendarLayout } from '@/lib/calendar-layout';
 import { BLOG_COPY } from '@/lib/blog';
 import { COPY } from '@/lib/translations';
@@ -55,8 +55,12 @@ export function BlogDownloadCta({ language }: { language: SiteLanguage }) {
   const currentRange = useMemo(() => yearRange(currentYear), [currentYear]);
   const sampleStrip = useMemo(
     () =>
-      createCalendarLayout(currentRange.start, currentRange.end, language)
-        .strips[0],
+      createCalendarLayout(
+        currentRange.start,
+        currentRange.end,
+        language,
+        STANDARD_CALENDAR_SIZE,
+      ).strips[0],
     [currentRange.end, currentRange.start, language],
   );
 
@@ -70,7 +74,7 @@ export function BlogDownloadCta({ language }: { language: SiteLanguage }) {
         range.start,
         range.end,
         language,
-        'standard',
+        STANDARD_CALENDAR_SIZE,
       );
       const { generateCalendarPdf } = await import('@/lib/calendar-export');
       const result = await generateCalendarPdf(

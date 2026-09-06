@@ -63,9 +63,11 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   type CalendarRangePreset,
-  type CalendarFormat,
+  type CalendarDayHeight,
+  type CalendarDayWidth,
   type CalendarStyle,
   type SiteLanguage,
+  STANDARD_CALENDAR_SIZE,
   currentDateValue,
   dayWord,
   defaultEndDateValue,
@@ -102,12 +104,14 @@ type CalendarToolInput = {
   start: string;
   end: string;
   style: CalendarStyle;
-  format?: CalendarFormat;
+  dayWidth?: CalendarDayWidth;
+  dayHeight?: CalendarDayHeight;
   language?: SiteLanguage;
 };
 
 type CalendarDownloadRequest = {
-  format?: CalendarFormat;
+  dayWidth?: CalendarDayWidth;
+  dayHeight?: CalendarDayHeight;
   range?: { start: string; end: string };
   style?: CalendarStyle;
 };
@@ -189,10 +193,12 @@ function validToolInput(input: unknown): input is CalendarToolInput {
     typeof value.start === 'string' &&
     typeof value.end === 'string' &&
     (value.style === 'rice' || value.style === 'block') &&
-    (value.format === undefined ||
-      value.format === 'standard' ||
-      value.format === 'tall' ||
-      value.format === 'big') &&
+    (value.dayWidth === undefined ||
+      value.dayWidth === 'standard' ||
+      value.dayWidth === 'wide') &&
+    (value.dayHeight === undefined ||
+      value.dayHeight === 'standard' ||
+      value.dayHeight === 'tall') &&
     (value.language === undefined ||
       value.language === 'pl' ||
       value.language === 'en') &&
@@ -217,7 +223,8 @@ export function CalendarLanding({
   const [start, setStart] = useState(initialStart);
   const [end, setEnd] = useState(initialEnd);
   const [style, setStyle] = useState<CalendarStyle>('rice');
-  const [format, setFormat] = useState<CalendarFormat>('standard');
+  const [dayWidth, setDayWidth] = useState<CalendarDayWidth>('standard');
+  const [dayHeight, setDayHeight] = useState<CalendarDayHeight>('standard');
   const [readyYear, setReadyYear] = useState(() => new Date().getFullYear());
   const [readyStyle, setReadyStyle] = useState<CalendarStyle>('rice');
   const [previewPage, setPreviewPage] = useState(0);
@@ -239,6 +246,7 @@ export function CalendarLanding({
   const pendingPdfRef = useRef<PendingPdfDownload | null>(null);
   const generatorWorkspaceRef = useRef<HTMLDivElement | null>(null);
   const generatorPreviewRef = useRef<HTMLDivElement | null>(null);
+  const projectNoteRef = useRef<HTMLElement | null>(null);
   const copy = COPY[language];
   const currentYear = Number(initialStart.slice(0, 4));
   const nextYear = currentYear + 1;
@@ -252,6 +260,7 @@ export function CalendarLanding({
         currentYearRange.start,
         currentYearRange.end,
         language,
+        STANDARD_CALENDAR_SIZE,
       ),
     [currentYearRange.end, currentYearRange.start, language],
   );
@@ -261,7 +270,12 @@ export function CalendarLanding({
   );
   const readyYearLayout = useMemo(
     () =>
-      createCalendarLayout(readyYearRange.start, readyYearRange.end, language),
+      createCalendarLayout(
+        readyYearRange.start,
+        readyYearRange.end,
+        language,
+        STANDARD_CALENDAR_SIZE,
+      ),
     [language, readyYearRange.end, readyYearRange.start],
   );
   const readySampleStrip = readyYearLayout.strips[0];
@@ -345,30 +359,29 @@ export function CalendarLanding({
 
   useEffect(() => {
     const workspace = generatorWorkspaceRef.current;
-    if (!workspace) return;
+    const projectNote = projectNoteRef.current;
+    if (!workspace || !projectNote) return;
 
     const mobileMedia = window.matchMedia('(max-width: 720px)');
-    const syncVisibility = (isIntersecting?: boolean) => {
+    const syncVisibility = () => {
       if (!mobileMedia.matches) {
         setMobileGeneratorActionsVisible(false);
         return;
       }
-      if (typeof isIntersecting === 'boolean') {
-        setMobileGeneratorActionsVisible(isIntersecting);
-        return;
-      }
-      const bounds = workspace.getBoundingClientRect();
+
+      const workspaceBounds = workspace.getBoundingClientRect();
+      const projectNoteBounds = projectNote.getBoundingClientRect();
       setMobileGeneratorActionsVisible(
-        bounds.top < window.innerHeight && bounds.bottom > 0,
+        workspaceBounds.top < window.innerHeight &&
+          workspaceBounds.bottom > 0 &&
+          projectNoteBounds.top >= window.innerHeight,
       );
     };
-    const observer = new IntersectionObserver(
-      ([entry]) => syncVisibility(entry?.isIntersecting ?? false),
-      { threshold: 0 },
-    );
+    const observer = new IntersectionObserver(syncVisibility, { threshold: 0 });
     const handleMediaChange = () => syncVisibility();
 
     observer.observe(workspace);
+    observer.observe(projectNote);
     mobileMedia.addEventListener('change', handleMediaChange);
     syncVisibility();
 
@@ -406,8 +419,10 @@ export function CalendarLanding({
   const invalidRange = !rangeIsValid(start, end);
   const layout = useMemo(
     () =>
-      invalidRange ? null : createCalendarLayout(start, end, language, format),
-    [end, format, invalidRange, language, start],
+      invalidRange
+        ? null
+        : createCalendarLayout(start, end, language, { dayWidth, dayHeight }),
+    [dayHeight, dayWidth, end, invalidRange, language, start],
   );
   const units = useMemo(() => rangeUnits(start, end), [end, start]);
   const pages = layout?.pages.length ?? 0;
@@ -431,29 +446,35 @@ export function CalendarLanding({
     ? rangeFeedback || copy.generator.error
     : rangeFeedback;
   const activePreviewPage = Math.min(previewPage, Math.max(0, pages - 1));
-  const selectedFormatLabel =
-    format === 'standard'
-      ? copy.generator.formatStandard
-      : format === 'tall'
-        ? copy.generator.formatTall
-        : copy.generator.formatBig;
+  const selectedWidthLabel =
+    dayWidth === 'standard'
+      ? copy.generator.widthStandard
+      : copy.generator.widthWide;
+  const selectedHeightLabel =
+    dayHeight === 'standard'
+      ? copy.generator.heightStandard
+      : copy.generator.heightTall;
   const selectedStyleLabel =
     style === 'rice' ? copy.generator.rice : copy.generator.block;
   const downloadSpec = invalidRange
     ? copy.generator.downloadFixRange
-    : `${displayDateRange(start, end, language)} · ${selectedFormatLabel} · ${selectedStyleLabel} · ${pages} A4`;
+    : `${displayDateRange(start, end, language)} · ${copy.generator.widthSection.toLowerCase()}: ${selectedWidthLabel.toLowerCase()} · ${copy.generator.heightSection.toLowerCase()}: ${selectedHeightLabel.toLowerCase()} · ${selectedStyleLabel} · ${pages} A4`;
 
   const runDownload = useCallback(
     async (request: CalendarDownloadRequest = {}) => {
       const selectedStyle = request.style ?? style;
-      const selectedFormat = request.format ?? format;
+      const selectedDayWidth = request.dayWidth ?? dayWidth;
+      const selectedDayHeight = request.dayHeight ?? dayHeight;
       const rangeStart = request.range?.start ?? start;
       const rangeEnd = request.range?.end ?? end;
       if (!rangeIsValid(rangeStart, rangeEnd))
         throw new Error(copy.generator.error);
       const targetLayout =
-        request.range || request.format
-          ? createCalendarLayout(rangeStart, rangeEnd, language, selectedFormat)
+        request.range || request.dayWidth || request.dayHeight
+          ? createCalendarLayout(rangeStart, rangeEnd, language, {
+              dayWidth: selectedDayWidth,
+              dayHeight: selectedDayHeight,
+            })
           : layout;
       if (!targetLayout) throw new Error(copy.generator.error);
 
@@ -525,6 +546,8 @@ export function CalendarLanding({
           pages: result.pages,
           language,
           format: result.format,
+          dayWidth: result.dayWidth,
+          dayHeight: result.dayHeight,
         };
       } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') {
@@ -545,8 +568,9 @@ export function CalendarLanding({
     [
       copy.generator.error,
       copy.generator.failed,
+      dayHeight,
+      dayWidth,
       end,
-      format,
       language,
       layout,
       start,
@@ -557,7 +581,8 @@ export function CalendarLanding({
   const runReadyCalendarDownload = useCallback(
     (selectedStyle: CalendarStyle, year: number) =>
       runDownload({
-        format: 'standard',
+        dayWidth: 'standard',
+        dayHeight: 'standard',
         range: calendarYearRange(year),
         style: selectedStyle,
       }),
@@ -664,8 +689,8 @@ export function CalendarLanding({
       title: language === 'pl' ? 'Ustaw kalendarz' : 'Configure calendar',
       description:
         language === 'pl'
-          ? 'Ustawia widoczny zakres dni, styl, rozmiar i opcjonalnie język kalendarza.'
-          : 'Sets the visible date range, style, size and optional calendar language.',
+          ? 'Ustawia widoczny zakres dni, styl, szerokość i wysokość dnia oraz opcjonalnie język kalendarza.'
+          : 'Sets the visible date range, style, day width, day height and optional calendar language.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -678,7 +703,8 @@ export function CalendarLanding({
             description: 'Inclusive end date in YYYY-MM-DD format.',
           },
           style: { type: 'string', enum: ['rice', 'block'] },
-          format: { type: 'string', enum: ['standard', 'tall', 'big'] },
+          dayWidth: { type: 'string', enum: ['standard', 'wide'] },
+          dayHeight: { type: 'string', enum: ['standard', 'tall'] },
           language: { type: 'string', enum: ['pl', 'en'] },
         },
         required: ['start', 'end', 'style'],
@@ -690,21 +716,27 @@ export function CalendarLanding({
         setStart(input.start);
         setEnd(input.end);
         setStyle(input.style);
-        const configuredFormat = input.format || format;
-        setFormat(configuredFormat);
+        const configuredDayWidth = input.dayWidth || dayWidth;
+        const configuredDayHeight = input.dayHeight || dayHeight;
+        setDayWidth(configuredDayWidth);
+        setDayHeight(configuredDayHeight);
         setPreviewPage(0);
         if (input.language) selectLanguage(input.language);
         const configuredLayout = createCalendarLayout(
           input.start,
           input.end,
           input.language || language,
-          configuredFormat,
+          {
+            dayWidth: configuredDayWidth,
+            dayHeight: configuredDayHeight,
+          },
         );
         return {
           start: input.start,
           end: input.end,
           style: input.style,
-          format: configuredFormat,
+          dayWidth: configuredDayWidth,
+          dayHeight: configuredDayHeight,
           language: input.language || language,
           days: configuredLayout.days.length,
           strips: configuredLayout.strips.length,
@@ -730,7 +762,14 @@ export function CalendarLanding({
       execute: () => runDownload(),
     });
     return () => lifecycle.abort();
-  }, [copy.generator.error, format, language, runDownload, selectLanguage]);
+  }, [
+    copy.generator.error,
+    dayHeight,
+    dayWidth,
+    language,
+    runDownload,
+    selectLanguage,
+  ]);
 
   const statusMessage =
     downloadState === 'working'
@@ -1237,77 +1276,116 @@ export function CalendarLanding({
                   <span>02</span>
                   {copy.generator.sizeSection}
                 </h3>
-                <div className="format-control">
-                  <RadioGroup
-                    aria-describedby="calendar-format-explanation"
-                    aria-label={copy.generator.formatLabel}
-                    className="format-picker"
-                    onValueChange={(value) => {
-                      setFormat(value as CalendarFormat);
-                      setPreviewPage(0);
-                    }}
-                    value={format}
-                  >
-                    <label
-                      className="format-option format-option-standard"
-                      htmlFor="format-standard"
+                <div className="size-control">
+                  <div className="size-axis">
+                    <p className="size-axis-title">
+                      {copy.generator.widthSection}
+                    </p>
+                    <RadioGroup
+                      aria-describedby="calendar-size-explanation"
+                      aria-label={copy.generator.widthLabel}
+                      className="size-picker"
+                      onValueChange={(value) => {
+                        setDayWidth(value as CalendarDayWidth);
+                        setPreviewPage(0);
+                      }}
+                      value={dayWidth}
                     >
-                      <RadioGroupItem
-                        disabled={downloadState === 'working'}
-                        id="format-standard"
-                        value="standard"
-                      />
-                      <span
-                        aria-hidden="true"
-                        className="format-glyph format-glyph-standard"
-                      />
-                      <span>
-                        <strong>{copy.generator.formatStandard}</strong>
-                        <small>{copy.generator.formatStandardHint}</small>
-                      </span>
-                    </label>
-                    <label
-                      className="format-option format-option-tall"
-                      htmlFor="format-tall"
+                      <label
+                        className="size-option size-option-width-standard"
+                        htmlFor="day-width-standard"
+                      >
+                        <RadioGroupItem
+                          disabled={downloadState === 'working'}
+                          id="day-width-standard"
+                          value="standard"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="size-glyph size-glyph-width-standard"
+                        />
+                        <span>
+                          <strong>{copy.generator.widthStandard}</strong>
+                          <small>{copy.generator.widthStandardHint}</small>
+                        </span>
+                      </label>
+                      <label
+                        className="size-option size-option-width-wide"
+                        htmlFor="day-width-wide"
+                      >
+                        <RadioGroupItem
+                          disabled={downloadState === 'working'}
+                          id="day-width-wide"
+                          value="wide"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="size-glyph size-glyph-width-wide"
+                        />
+                        <span>
+                          <strong>{copy.generator.widthWide}</strong>
+                          <small>{copy.generator.widthWideHint}</small>
+                        </span>
+                      </label>
+                    </RadioGroup>
+                  </div>
+                  <div className="size-axis">
+                    <p className="size-axis-title">
+                      {copy.generator.heightSection}
+                    </p>
+                    <RadioGroup
+                      aria-describedby="calendar-size-explanation"
+                      aria-label={copy.generator.heightLabel}
+                      className="size-picker"
+                      onValueChange={(value) => {
+                        setDayHeight(value as CalendarDayHeight);
+                        setPreviewPage(0);
+                      }}
+                      value={dayHeight}
                     >
-                      <RadioGroupItem
-                        disabled={downloadState === 'working'}
-                        id="format-tall"
-                        value="tall"
-                      />
-                      <span
-                        aria-hidden="true"
-                        className="format-glyph format-glyph-tall"
-                      />
-                      <span>
-                        <strong>{copy.generator.formatTall}</strong>
-                        <small>{copy.generator.formatTallHint}</small>
-                      </span>
-                    </label>
-                    <label
-                      className="format-option format-option-big"
-                      htmlFor="format-big"
-                    >
-                      <RadioGroupItem
-                        disabled={downloadState === 'working'}
-                        id="format-big"
-                        value="big"
-                      />
-                      <span
-                        aria-hidden="true"
-                        className="format-glyph format-glyph-big"
-                      />
-                      <span>
-                        <strong>{copy.generator.formatBig}</strong>
-                        <small>{copy.generator.formatBigHint}</small>
-                      </span>
-                    </label>
-                  </RadioGroup>
+                      <label
+                        className="size-option size-option-height-standard"
+                        htmlFor="day-height-standard"
+                      >
+                        <RadioGroupItem
+                          disabled={downloadState === 'working'}
+                          id="day-height-standard"
+                          value="standard"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="size-glyph size-glyph-height-standard"
+                        />
+                        <span>
+                          <strong>{copy.generator.heightStandard}</strong>
+                          <small>{copy.generator.heightStandardHint}</small>
+                        </span>
+                      </label>
+                      <label
+                        className="size-option size-option-height-tall"
+                        htmlFor="day-height-tall"
+                      >
+                        <RadioGroupItem
+                          disabled={downloadState === 'working'}
+                          id="day-height-tall"
+                          value="tall"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="size-glyph size-glyph-height-tall"
+                        />
+                        <span>
+                          <strong>{copy.generator.heightTall}</strong>
+                          <small>{copy.generator.heightTallHint}</small>
+                        </span>
+                      </label>
+                    </RadioGroup>
+                  </div>
                   <p
-                    className="format-explanation"
-                    id="calendar-format-explanation"
+                    className="size-explanation"
+                    id="calendar-size-explanation"
                   >
-                    {copy.generator.formatExplanation}
+                    {copy.generator.sizeExplanation}
                   </p>
                 </div>
               </section>
@@ -1513,7 +1591,7 @@ export function CalendarLanding({
           )}
         </section>
 
-        <section className="project-note">
+        <section className="project-note" ref={projectNoteRef}>
           <div className="project-note-copy">
             <span className="project-note-stamp">{copy.projectNote.stamp}</span>
             <p className="project-note-lead">

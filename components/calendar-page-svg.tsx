@@ -7,6 +7,8 @@ import {
   DAY_WIDTH,
   STANDARD_CALENDAR_GEOMETRY,
   TALL_CALENDAR_GEOMETRY,
+  WIDE_CALENDAR_GEOMETRY,
+  getCalendarGeometry,
   type CalendarGeometry,
   type CalendarPageLayout,
   type CalendarStripLayout,
@@ -318,12 +320,12 @@ function CutGuides({ geometry, row, stripY, isLastRow }: {
   const right = geometry.margin + geometry.workWidth + offset;
   const top = stripY - (row === 0 ? offset : 0);
   const bottom = stripY + geometry.stripHeight + (isLastRow ? offset : 0);
-  const isStandardDivider = geometry.format === 'standard' && row === 0 && !isLastRow;
+  const isPageDivider = geometry.stripsPerPage === 2 && row === 0 && !isLastRow;
   const segments = [
     `M ${left} ${top} V ${bottom}`,
     `M ${right} ${top} V ${bottom}`,
     row === 0 ? `M ${left} ${top} H ${right}` : '',
-    isStandardDivider ? '' : `M ${left} ${bottom} H ${right}`,
+    isPageDivider ? '' : `M ${left} ${bottom} H ${right}`,
   ].filter(Boolean).join(' ');
   return (
     <path
@@ -336,12 +338,12 @@ function CutGuides({ geometry, row, stripY, isLastRow }: {
   );
 }
 
-function StandardPageDivider({ geometry, language, page }: {
+function SplitPageDivider({ geometry, language, page }: {
   geometry: CalendarGeometry;
   language: SiteLanguage;
   page: CalendarPageLayout;
 }) {
-  if (geometry.format !== 'standard' || page.strips.length < 2) return null;
+  if (geometry.stripsPerPage !== 2 || page.strips.length < 2) return null;
   const y = geometry.margin + geometry.stripHeight;
   const labelPositions = [geometry.margin / 2, geometry.pageWidth - geometry.margin / 2];
   const [labelTop, labelBottom] = DRAW_COPY[language].cut.split(' ');
@@ -520,7 +522,7 @@ function CalendarPageRenderer({
           style={style}
         />
       ))}
-      <StandardPageDivider geometry={geometry} language={language} page={page} />
+      <SplitPageDivider geometry={geometry} language={language} page={page} />
       <image
         aria-hidden="true"
         height={5.5}
@@ -542,13 +544,19 @@ export function TallCalendarPageSvg(props: CalendarPageSvgProps) {
   return <CalendarPageRenderer {...props} geometry={TALL_CALENDAR_GEOMETRY} />;
 }
 
+export function WideCalendarPageSvg(props: CalendarPageSvgProps) {
+  return <CalendarPageRenderer {...props} geometry={WIDE_CALENDAR_GEOMETRY} />;
+}
+
 export function BigCalendarPageSvg(props: CalendarPageSvgProps) {
   return <CalendarPageRenderer {...props} geometry={BIG_CALENDAR_GEOMETRY} />;
 }
 
 export function CalendarPageSvg(props: CalendarPageSvgProps) {
-  const format = props.page.format ?? 'standard';
-  if (format === 'tall') return <TallCalendarPageSvg {...props} />;
-  if (format === 'big') return <BigCalendarPageSvg {...props} />;
-  return <StandardCalendarPageSvg {...props} />;
+  return (
+    <CalendarPageRenderer
+      {...props}
+      geometry={getCalendarGeometry(props.page.size)}
+    />
+  );
 }

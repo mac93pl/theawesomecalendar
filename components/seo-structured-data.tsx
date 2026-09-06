@@ -8,7 +8,7 @@ const SCHEMA_COPY = {
     features: [
       'Dowolny zakres dat',
       'Dwa style kalendarza',
-      'Trzy rozmiary wydruku',
+      'Niezależna szerokość i wysokość dnia',
       'Eksport do PDF A4',
       'Język polski i angielski',
     ],
@@ -19,7 +19,7 @@ const SCHEMA_COPY = {
     features: [
       'Any date range',
       'Two calendar styles',
-      'Three print sizes',
+      'Independent day width and height',
       'A4 PDF export',
       'Polish and English',
     ],

@@ -1,6 +1,17 @@
 export type CalendarStyle = 'rice' | 'block';
-export type CalendarFormat = 'standard' | 'tall' | 'big';
+export type CalendarDayWidth = 'standard' | 'wide';
+export type CalendarDayHeight = 'standard' | 'tall';
+export type CalendarFormat = 'standard' | 'tall' | 'wide' | 'big';
+export type CalendarSize = Readonly<{
+  dayWidth: CalendarDayWidth;
+  dayHeight: CalendarDayHeight;
+}>;
 export type SiteLanguage = 'pl' | 'en';
+
+export const STANDARD_CALENDAR_SIZE = {
+  dayWidth: 'standard',
+  dayHeight: 'standard',
+} as const satisfies CalendarSize;
 
 export type CalendarRangePreset = {
   end: string;
