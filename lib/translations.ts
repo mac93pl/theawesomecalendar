@@ -10,6 +10,7 @@ export const COPY = {
       menu: 'Otwórz menu',
       ready: 'Pobierz gotowy do druku',
       custom: 'Własny zakres',
+      blog: 'Blog',
       support: 'Wspieram',
     },
     process: {
@@ -265,6 +266,7 @@ export const COPY = {
       menu: 'Open menu',
       ready: 'Ready-made',
       custom: 'Custom range',
+      blog: 'Blog',
       support: 'Support',
     },
     process: {

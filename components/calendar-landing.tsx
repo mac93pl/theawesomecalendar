@@ -1,15 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import {
-  type PointerEvent as ReactPointerEvent,
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   CalendarRange,
   Check,
@@ -33,6 +25,12 @@ import {
   CalendarSampleSvg,
 } from '@/components/calendar-page-svg';
 import { CalendarYearTimelineSvg } from '@/components/calendar-year-timeline-svg';
+import { BrandLogo } from '@/components/brand-logo';
+import {
+  DonationCheckout,
+  type SupportStatus,
+} from '@/components/donation-checkout';
+import { DownloadTrust } from '@/components/download-trust';
 import { SeoStructuredData } from '@/components/seo-structured-data';
 import {
   Accordion,
@@ -81,7 +79,6 @@ import {
   yearWord,
 } from '@/lib/calendar';
 import { createCalendarLayout } from '@/lib/calendar-layout';
-import { formatSupportAmount, SUPPORT_CONFIG } from '@/lib/support';
 import { SITE_ORIGIN } from '@/lib/site';
 import { COPY } from '@/lib/translations';
 
@@ -116,7 +113,6 @@ type CalendarDownloadRequest = {
 };
 
 type Theme = 'light' | 'dark';
-type SupportStatus = 'cancelled' | 'error' | 'invalid' | 'success' | null;
 type ShareStatus = 'copied' | 'error' | 'idle' | 'shared';
 type MobilePdfStatus = 'idle' | 'preparing' | 'ready';
 type PendingPdfDownload = {
@@ -178,182 +174,11 @@ function displayDateRange(start: string, end: string, language: SiteLanguage) {
   return `${displayDate(start)}–${displayDate(end)}`;
 }
 
-function BrandLogo({
-  alt,
-  priority = false,
-}: {
-  alt: string;
-  priority?: boolean;
-}) {
-  return (
-    <span className="brand-logo">
-      <Image
-        alt={alt}
-        className="brand-logo-light"
-        height={113}
-        priority={priority}
-        src="/brand/logo-light.svg"
-        width={545}
-      />
-      <Image
-        alt={alt}
-        className="brand-logo-dark"
-        height={113}
-        priority={priority}
-        src="/brand/logo-dark.svg"
-        width={545}
-      />
-    </span>
-  );
-}
-
 function ShareActionIcon({ status }: { status: ShareStatus }) {
   return status === 'copied' || status === 'shared' ? (
     <Check aria-hidden="true" />
   ) : (
     <Share2 aria-hidden="true" />
-  );
-}
-
-function DownloadTrust({
-  children,
-  className = '',
-  message,
-}: {
-  children: ReactNode;
-  className?: string;
-  message: string;
-}) {
-  const tooltipRef = useRef<HTMLSpanElement>(null);
-  const moveTooltip = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      const tooltip = tooltipRef.current;
-      if (!tooltip) return;
-
-      const gap = 18;
-      const viewportPadding = 12;
-      const left = Math.min(
-        event.clientX + gap,
-        window.innerWidth - tooltip.offsetWidth - viewportPadding,
-      );
-      const below = event.clientY + gap;
-      const top =
-        below + tooltip.offsetHeight <= window.innerHeight - viewportPadding
-          ? below
-          : event.clientY - tooltip.offsetHeight - gap;
-
-      tooltip.style.left = `${Math.max(viewportPadding, left)}px`;
-      tooltip.style.top = `${Math.max(viewportPadding, top)}px`;
-    },
-    [],
-  );
-
-  return (
-    <div
-      className={`download-trust ${className}`.trim()}
-      onPointerEnter={moveTooltip}
-      onPointerMove={moveTooltip}
-    >
-      {children}
-      <span
-        aria-hidden="true"
-        className="download-trust-tooltip"
-        ref={tooltipRef}
-      >
-        {message}
-      </span>
-      <p className="download-trust-mobile">{message}</p>
-    </div>
-  );
-}
-
-type DonationCheckoutProps = {
-  copy: (typeof COPY)[SiteLanguage]['donation'];
-  language: SiteLanguage;
-  source: 'dialog' | 'section';
-  status: SupportStatus;
-};
-
-function DonationCheckout({
-  copy,
-  language,
-  source,
-  status,
-}: DonationCheckoutProps) {
-  const supportConfig = SUPPORT_CONFIG[language];
-  const statusMessage = status ? copy.status[status] : '';
-
-  return (
-    <div className="donation-checkout">
-      <fieldset className="donation-presets">
-        <legend>{copy.amountLegend}</legend>
-        <div className="donation-preset-buttons">
-          {supportConfig.amounts.map((amount, index) => (
-            <form action="/api/checkout" key={amount} method="post">
-              <input name="language" type="hidden" value={language} />
-              <input name="source" type="hidden" value={source} />
-              <Button
-                aria-label={`${copy.presetButton}: ${formatSupportAmount(amount, language)} — ${copy.amountNames[index]}`}
-                aria-describedby={`donation-legal-${source}`}
-                className={
-                  amount === supportConfig.recommendedAmount
-                    ? 'donation-preset-option is-recommended'
-                    : 'donation-preset-option'
-                }
-                name="amount"
-                type="submit"
-                value={amount}
-              >
-                <strong>{formatSupportAmount(amount, language)}</strong>
-                <span>{copy.amountNames[index]}</span>
-                {amount === supportConfig.recommendedAmount && (
-                  <small>{copy.recommended}</small>
-                )}
-              </Button>
-            </form>
-          ))}
-        </div>
-      </fieldset>
-      <form action="/api/checkout" className="donation-custom" method="post">
-        <input name="language" type="hidden" value={language} />
-        <input name="source" type="hidden" value={source} />
-        <label htmlFor={`support-amount-${source}`}>{copy.customLabel}</label>
-        <div className="donation-custom-row">
-          <div className="donation-amount-field">
-            <Input
-              aria-describedby={`support-hint-${source} donation-legal-${source}`}
-              id={`support-amount-${source}`}
-              inputMode="numeric"
-              max={supportConfig.maxAmount}
-              min={supportConfig.minAmount}
-              name="amount"
-              placeholder={copy.customPlaceholder}
-              required
-              step="1"
-              type="number"
-            />
-            <span aria-hidden="true">{supportConfig.currencyLabel}</span>
-          </div>
-          <Button aria-describedby={`donation-legal-${source}`} type="submit">
-            <Coffee aria-hidden="true" />
-            {copy.customButton}
-          </Button>
-        </div>
-        <p className="donation-hint" id={`support-hint-${source}`}>
-          {copy.hint}
-        </p>
-      </form>
-      <p className="donation-legal" id={`donation-legal-${source}`}>
-        {copy.legal}
-      </p>
-      <p
-        aria-live="polite"
-        className={status ? `donation-status ${status}` : 'donation-status'}
-        role={status === 'error' || status === 'invalid' ? 'alert' : undefined}
-      >
-        {statusMessage}
-      </p>
-    </div>
   );
 }
 
@@ -641,15 +466,18 @@ export function CalendarLanding({
         setDonationOpen(true);
         pendingPdf.deliveryFrame = window.requestAnimationFrame(() => {
           pendingPdf.deliveryFrame = null;
-          pendingPdf.deliveryTimeout = window.setTimeout(() => {
-            pendingPdf.deliveryTimeout = null;
-            if (pendingPdfRef.current !== pendingPdf) return;
-            if (mobileFlow) {
-              setMobilePdfStatus('ready');
-              return;
-            }
-            triggerPdfDownload(pendingPdf.url, pendingPdf.filename);
-          }, mobileFlow ? 2_000 : 1_000);
+          pendingPdf.deliveryTimeout = window.setTimeout(
+            () => {
+              pendingPdf.deliveryTimeout = null;
+              if (pendingPdfRef.current !== pendingPdf) return;
+              if (mobileFlow) {
+                setMobilePdfStatus('ready');
+                return;
+              }
+              triggerPdfDownload(pendingPdf.url, pendingPdf.filename);
+            },
+            mobileFlow ? 2_000 : 1_000,
+          );
         });
         return {
           downloaded: true,
@@ -715,10 +543,7 @@ export function CalendarLanding({
     }
 
     try {
-      if (
-        navigator.share &&
-        navigator.canShare?.({ files: [pending.file] })
-      ) {
+      if (navigator.share && navigator.canShare?.({ files: [pending.file] })) {
         await navigator.share({
           files: [pending.file],
           title: pending.filename,
@@ -733,8 +558,7 @@ export function CalendarLanding({
   }, []);
 
   const shareCalendar = useCallback(async () => {
-    const url =
-      language === 'en' ? `${SITE_ORIGIN}/en` : `${SITE_ORIGIN}/pl`;
+    const url = language === 'en' ? `${SITE_ORIGIN}/en` : `${SITE_ORIGIN}/pl`;
     setShareStatus('idle');
 
     try {
@@ -899,6 +723,12 @@ export function CalendarLanding({
             <nav aria-label={copy.navLabel} className="desktop-nav">
               <a href="#gotowy">{copy.nav.ready}</a>
               <a href="#generator">{copy.nav.custom}</a>
+              <a
+                className="nav-blog"
+                href={language === 'en' ? '/en/blog' : '/pl/blog'}
+              >
+                {copy.nav.blog}
+              </a>
               <button
                 aria-label={copy.share.button}
                 className="nav-share-button"
@@ -942,6 +772,16 @@ export function CalendarLanding({
                   render={<a aria-label={copy.nav.custom} href="#generator" />}
                 >
                   {copy.nav.custom}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  render={
+                    <a
+                      aria-label={copy.nav.blog}
+                      href={language === 'en' ? '/en/blog' : '/pl/blog'}
+                    />
+                  }
+                >
+                  {copy.nav.blog}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => void shareCalendar()}>
                   <ShareActionIcon status={shareStatus} />
@@ -1514,10 +1354,7 @@ export function CalendarLanding({
                         onClick={() => void runDownload()}
                         size="lg"
                       >
-                        <Download
-                          aria-hidden="true"
-                          data-icon="inline-start"
-                        />
+                        <Download aria-hidden="true" data-icon="inline-start" />
                         {downloadState === 'working'
                           ? copy.generator.working
                           : copy.generator.download}
@@ -1848,7 +1685,10 @@ export function CalendarLanding({
                     {mobilePdfStatus === 'preparing' ? (
                       <>
                         <span>{copy.donation.mobilePreparing}</span>
-                        <span aria-hidden="true" className="donation-download-dots">
+                        <span
+                          aria-hidden="true"
+                          className="donation-download-dots"
+                        >
                           <i />
                           <i />
                           <i />

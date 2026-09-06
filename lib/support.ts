@@ -11,20 +11,20 @@ type SupportConfig = {
 
 export const SUPPORT_CONFIG = {
   pl: {
-    amounts: [5, 10, 20],
+    amounts: [10, 20, 50],
     currency: 'pln',
     currencyLabel: 'PLN',
     maxAmount: 1000,
     minAmount: 5,
-    recommendedAmount: 10,
+    recommendedAmount: 20,
   },
   en: {
-    amounts: [2, 5, 10],
+    amounts: [5, 10, 20],
     currency: 'usd',
     currencyLabel: 'USD',
     maxAmount: 250,
     minAmount: 2,
-    recommendedAmount: 5,
+    recommendedAmount: 10,
   },
 } as const satisfies Record<SupportLanguage, SupportConfig>;
 

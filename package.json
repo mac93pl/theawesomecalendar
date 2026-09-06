@@ -9,7 +9,7 @@
     "dev": "vinext dev",
     "build": "vinext build",
     "start": "wrangler dev --config dist/server/wrangler.json",
-    "lint": "oxlint app lib components/calendar-page-svg.tsx components/calendar-landing.tsx components/seo-structured-data.tsx",
+    "lint": "oxlint app lib components/brand-logo.tsx components/blog-download-cta.tsx components/blog-footer.tsx components/blog-header.tsx components/blog-pages.tsx components/blog-topics.tsx components/calendar-page-svg.tsx components/calendar-landing.tsx components/donation-checkout.tsx components/download-trust.tsx components/seo-structured-data.tsx",
     "typecheck": "tsc --noEmit",
     "check": "npm run lint && npm run typecheck && npm run build",
     "deploy": "wrangler deploy --config dist/server/wrangler.json",
