@@ -149,7 +149,7 @@ export const COPY = {
       blockText:
         'Konserwatywny i praktyczny. Weekend widać od razu, nawet z samego rana w poniedziałek.',
       blockAlt: 'A tutaj klasyczny blok',
-      download: 'Pobierz darmowy PDF · {year}',
+      download: 'Pobierz PDF {year}',
     },
     manifesto: {
       quote: 'DLA NAS CZAS TO OŚ.',
@@ -241,6 +241,7 @@ export const COPY = {
     footer: {
       line: 'Kalendarz liniowy',
       copyright: '© 2026 · Maciej Dorotniak',
+      madeIn: 'Wyprodukowane w Polsce 🇵🇱',
       permission:
         'Możesz korzystać, udostępniać i tworzyć własne wersje — zgodnie z poniższymi licencjami.',
       licensesLabel: 'Licencje projektu',
@@ -405,7 +406,7 @@ export const COPY = {
       blockText:
         'Conservative and practical. You can spot the weekend right away, even first thing on Monday morning.',
       blockAlt: 'And this is Classic block',
-      download: 'Download free PDF · {year}',
+      download: 'Download PDF {year}',
     },
     manifesto: {
       quote: 'FOR US, TIME IS AN AXIS.',
@@ -497,6 +498,7 @@ export const COPY = {
     footer: {
       line: 'Linear calendar',
       copyright: '© 2026 · Maciej Dorotniak',
+      madeIn: 'Made in Poland 🇵🇱',
       permission:
         'You may use, share and make your own versions — under the licences below.',
       licensesLabel: 'Project licences',

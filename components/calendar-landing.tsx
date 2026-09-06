@@ -1767,6 +1767,7 @@ export function CalendarLanding({
             <BrandLogo alt="The Awesome Calendar" />
             <p>{copy.footer.line}</p>
             <p className="footer-copyright">{copy.footer.copyright}</p>
+            <p className="footer-made-in">{copy.footer.madeIn}</p>
           </div>
           <div className="footer-legal">
             <p>{copy.footer.permission}</p>
