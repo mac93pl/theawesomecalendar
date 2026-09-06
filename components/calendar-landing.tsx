@@ -233,8 +233,12 @@ export function CalendarLanding({
     useState<MobilePdfStatus>('idle');
   const [supportStatus, setSupportStatus] = useState<SupportStatus>(null);
   const [shareStatus, setShareStatus] = useState<ShareStatus>('idle');
+  const [mobileGeneratorActionsVisible, setMobileGeneratorActionsVisible] =
+    useState(false);
   const downloadAbortRef = useRef<AbortController | null>(null);
   const pendingPdfRef = useRef<PendingPdfDownload | null>(null);
+  const generatorWorkspaceRef = useRef<HTMLDivElement | null>(null);
+  const generatorPreviewRef = useRef<HTMLDivElement | null>(null);
   const copy = COPY[language];
   const currentYear = Number(initialStart.slice(0, 4));
   const nextYear = currentYear + 1;
@@ -336,6 +340,41 @@ export function CalendarLanding({
     return () => {
       window.clearTimeout(timeout);
       media.removeEventListener('change', syncTheme);
+    };
+  }, []);
+
+  useEffect(() => {
+    const workspace = generatorWorkspaceRef.current;
+    if (!workspace) return;
+
+    const mobileMedia = window.matchMedia('(max-width: 720px)');
+    const syncVisibility = (isIntersecting?: boolean) => {
+      if (!mobileMedia.matches) {
+        setMobileGeneratorActionsVisible(false);
+        return;
+      }
+      if (typeof isIntersecting === 'boolean') {
+        setMobileGeneratorActionsVisible(isIntersecting);
+        return;
+      }
+      const bounds = workspace.getBoundingClientRect();
+      setMobileGeneratorActionsVisible(
+        bounds.top < window.innerHeight && bounds.bottom > 0,
+      );
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => syncVisibility(entry?.isIntersecting ?? false),
+      { threshold: 0 },
+    );
+    const handleMediaChange = () => syncVisibility();
+
+    observer.observe(workspace);
+    mobileMedia.addEventListener('change', handleMediaChange);
+    syncVisibility();
+
+    return () => {
+      observer.disconnect();
+      mobileMedia.removeEventListener('change', handleMediaChange);
     };
   }, []);
 
@@ -527,6 +566,14 @@ export function CalendarLanding({
 
   const cancelDownload = useCallback(() => {
     downloadAbortRef.current?.abort();
+  }, []);
+
+  const scrollToGeneratorPreview = useCallback(() => {
+    const behavior = window.matchMedia('(prefers-reduced-motion: reduce)')
+      .matches
+      ? 'auto'
+      : 'smooth';
+    generatorPreviewRef.current?.scrollIntoView({ behavior, block: 'start' });
   }, []);
 
   const saveMobilePdf = useCallback(async () => {
@@ -1059,18 +1106,20 @@ export function CalendarLanding({
 
         <section className="generator-hero" id="generator">
           <div className="generator-intro">
-            <p className="section-kicker">{copy.custom.kicker}</p>
-            <h2>
-              {copy.custom.line1}
-              <br />
-              {copy.custom.line2}
-              <br />
-              {copy.custom.line3}
-            </h2>
+            <div className="generator-intro-heading">
+              <p className="section-kicker">{copy.custom.kicker}</p>
+              <h2>
+                {copy.custom.line1}
+                <br />
+                {copy.custom.line2}
+                <br />
+                {copy.custom.line3}
+              </h2>
+            </div>
             <p>{copy.custom.text}</p>
           </div>
 
-          <div className="generator-workspace">
+          <div className="generator-workspace" ref={generatorWorkspaceRef}>
             <div className="generator-card">
               <div className="generator-heading">
                 <div>
@@ -1390,7 +1439,7 @@ export function CalendarLanding({
               </p>
             </div>
 
-            <div className="preview-card">
+            <div className="preview-card" ref={generatorPreviewRef}>
               <div className="preview-toolbar">
                 <div className="preview-page-controls">
                   <button
@@ -1437,6 +1486,31 @@ export function CalendarLanding({
               </div>
             </div>
           </div>
+
+          {mobileGeneratorActionsVisible && (
+            <div className="mobile-generator-actions">
+              <Button
+                className="mobile-generator-download"
+                disabled={invalidRange || downloadState === 'working'}
+                onClick={() => void runDownload()}
+                size="lg"
+              >
+                <Download aria-hidden="true" data-icon="inline-start" />
+                {downloadState === 'working'
+                  ? copy.generator.working
+                  : copy.generator.mobileDownload}
+              </Button>
+              <Button
+                className="mobile-generator-preview"
+                onClick={scrollToGeneratorPreview}
+                size="lg"
+                type="button"
+              >
+                {copy.generator.mobilePreview}
+                <ChevronDown aria-hidden="true" data-icon="inline-end" />
+              </Button>
+            </div>
+          )}
         </section>
 
         <section className="project-note">
