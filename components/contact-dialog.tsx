@@ -49,7 +49,7 @@ type ContactCopy = {
   trigger: string;
 };
 
-type ContactContext = {
+export type ContactContext = {
   dayHeight: CalendarDayHeight;
   dayWidth: CalendarDayWidth;
   end: string;
@@ -125,7 +125,7 @@ export function ContactDialog({
   copy,
   language,
 }: {
-  context: ContactContext;
+  context?: ContactContext;
   copy: ContactCopy;
   language: SiteLanguage;
 }) {

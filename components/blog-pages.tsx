@@ -1,9 +1,9 @@
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 import { BlogDownloadCta } from '@/components/blog-download-cta';
-import { BlogFooter } from '@/components/blog-footer';
 import { BlogHeader } from '@/components/blog-header';
 import { BlogTopics } from '@/components/blog-topics';
+import { SiteFooter } from '@/components/site-footer';
 import type { SiteLanguage } from '@/lib/calendar';
 import {
   BLOG_ARTICLES,
@@ -91,7 +91,12 @@ export function BlogIndexPage({ language }: { language: SiteLanguage }) {
           </section>
         </div>
       </main>
-      <BlogFooter language={language} />
+      <SiteFooter
+        language={language}
+        shareText={copy.indexLead}
+        shareTitle={copy.indexTitle}
+        shareUrl={`${SITE_ORIGIN}${blogPath(language)}`}
+      />
     </>
   );
 }
@@ -173,7 +178,12 @@ export function BlogArticlePage({
           type="application/ld+json"
         />
       </main>
-      <BlogFooter language={language} />
+      <SiteFooter
+        language={language}
+        shareText={article.description}
+        shareTitle={article.title}
+        shareUrl={articleUrl}
+      />
     </>
   );
 }

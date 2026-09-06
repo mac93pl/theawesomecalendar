@@ -26,13 +26,13 @@ import {
 } from '@/components/calendar-page-svg';
 import { CalendarYearTimelineSvg } from '@/components/calendar-year-timeline-svg';
 import { BrandLogo } from '@/components/brand-logo';
-import { ContactDialog } from '@/components/contact-dialog';
 import {
   DonationCheckout,
   type SupportStatus,
 } from '@/components/donation-checkout';
 import { DownloadTrust } from '@/components/download-trust';
 import { SeoStructuredData } from '@/components/seo-structured-data';
+import { SiteFooter } from '@/components/site-footer';
 import {
   Accordion,
   AccordionContent,
@@ -1751,60 +1751,15 @@ export function CalendarLanding({
           </div>
         </section>
 
-        <footer className="site-footer">
-          <div className="footer-brand">
-            <BrandLogo alt="The Awesome Calendar" />
-            <p>{copy.footer.line}</p>
-            <p className="footer-copyright">{copy.footer.copyright}</p>
-            <p className="footer-made-in">{copy.footer.madeIn}</p>
-          </div>
-          <div className="footer-legal">
-            <p>{copy.footer.permission}</p>
-            <nav
-              aria-label={copy.footer.licensesLabel}
-              className="footer-license-links"
-            >
-              <a
-                data-license="MPL-2.0"
-                href="https://www.mozilla.org/MPL/2.0/"
-                rel="license"
-              >
-                {copy.footer.codeLicense}
-              </a>
-              <a
-                data-license="CC-BY-4.0"
-                href="https://creativecommons.org/licenses/by/4.0/"
-                rel="license"
-              >
-                {copy.footer.contentLicense}
-              </a>
-            </nav>
-            <p>{copy.footer.attribution}</p>
-            <p>{copy.footer.brand}</p>
-            <p className="footer-warning">{copy.footer.warning}</p>
-          </div>
-          <div className="footer-actions">
-            <ContactDialog
-              context={{ dayHeight, dayWidth, end, start, style }}
-              copy={copy.contact}
-              language={language}
-            />
-            <button
-              aria-label={copy.share.button}
-              className="footer-share-button"
-              data-share-status={shareStatus}
-              onClick={() => void shareCalendar()}
-              title={shareStatusMessage || copy.share.button}
-              type="button"
-            >
-              <ShareActionIcon status={shareStatus} />
-              <span>{copy.share.button}</span>
-            </button>
-            <a className="footer-top" href="#top">
-              {copy.footer.top}
-            </a>
-          </div>
-        </footer>
+        <SiteFooter
+          contactContext={{ dayHeight, dayWidth, end, start, style }}
+          language={language}
+          shareText={copy.share.text}
+          shareTitle={copy.share.title}
+          shareUrl={
+            language === 'en' ? `${SITE_ORIGIN}/en` : `${SITE_ORIGIN}/pl`
+          }
+        />
 
         <Dialog onOpenChange={setDonationOpen} open={donationOpen}>
           <DialogContent className="donation-dialog" showCloseButton={false}>
