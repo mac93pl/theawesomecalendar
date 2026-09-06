@@ -1020,9 +1020,8 @@ export function CalendarLanding({
           <div className="hero-copy">
             <p className="eyebrow">{copy.hero.eyebrow}</p>
             <h1>
-              {copy.hero.line1}
-              <br />
-              {copy.hero.line2}
+              <span className="hero-title-prefix">{copy.hero.line1}</span>
+              <span className="hero-title-main">{copy.hero.line2}</span>
             </h1>
             <p className="hero-lead">{copy.hero.lead}</p>
             <figure className="hero-year-preview">

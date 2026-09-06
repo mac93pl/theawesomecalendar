@@ -599,6 +599,15 @@ h1, h2, h3 {
 }
 h1 { font-size: clamp(3.7rem, 7vw, 7.4rem); max-width: 800px; }
 html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
+.hero-title-prefix {
+  display: block;
+  font-size: clamp(1.35rem, 2.5vw, 2.25rem);
+  letter-spacing: 0.015em;
+  line-height: 1;
+  margin-bottom: 0.28em;
+  white-space: nowrap;
+}
+.hero-title-main { display: block; }
 .hero-lead { font-size: clamp(1rem, 1.35vw, 1.18rem); line-height: 1.55; margin: 26px 0 0; max-width: 760px; text-wrap: balance; }
 .hero-year-preview { margin: clamp(26px, 3vw, 38px) 0 0; max-width: 1400px; width: 100%; }
 .hero-year-scroll {
