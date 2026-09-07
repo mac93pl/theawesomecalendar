@@ -8,6 +8,7 @@ export const COPY = {
     navLabel: 'Główna nawigacja',
     nav: {
       menu: 'Otwórz menu',
+      closeMenu: 'Zamknij menu',
       ready: 'Pobierz gotowy do druku',
       custom: 'Własny zakres',
       blog: 'Blog',
@@ -301,6 +302,7 @@ export const COPY = {
     navLabel: 'Main navigation',
     nav: {
       menu: 'Open menu',
+      closeMenu: 'Close menu',
       ready: 'Ready-made',
       custom: 'Custom range',
       blog: 'Blog',

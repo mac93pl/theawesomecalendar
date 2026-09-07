@@ -1,6 +1,6 @@
 'use client';
 
-import { Menu, Moon, Sun } from 'lucide-react';
+import { ChevronRight, Menu, Moon, Sun, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { BrandLogo } from '@/components/brand-logo';
@@ -10,9 +10,9 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { SiteLanguage } from '@/lib/calendar';
@@ -30,6 +30,7 @@ export function BlogHeader({
 }) {
   const copy = COPY[language];
   const [theme, setTheme] = useState<Theme>('light');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const homePath = `/${language}`;
   const blogPath = `/${language}/blog`;
 
@@ -79,55 +80,94 @@ export function BlogHeader({
         >
           {copy.nav.support}
         </a>
-        <DropdownMenu>
+        <DropdownMenu
+          onOpenChange={setMobileMenuOpen}
+          open={mobileMenuOpen}
+        >
           <DropdownMenuTrigger
             render={
               <button
-                aria-label={copy.nav.menu}
+                aria-expanded={mobileMenuOpen}
+                aria-label={
+                  mobileMenuOpen ? copy.nav.closeMenu : copy.nav.menu
+                }
                 className="mobile-nav-trigger"
                 type="button"
               />
             }
           >
-            <Menu aria-hidden="true" />
+            {mobileMenuOpen ? (
+              <X aria-hidden="true" />
+            ) : (
+              <Menu aria-hidden="true" />
+            )}
           </DropdownMenuTrigger>
+          {mobileMenuOpen && (
+            <DropdownMenuPortal>
+              <button
+                aria-label={copy.nav.closeMenu}
+                className="mobile-nav-backdrop"
+                onClick={() => setMobileMenuOpen(false)}
+                tabIndex={-1}
+                type="button"
+              />
+            </DropdownMenuPortal>
+          )}
           <DropdownMenuContent
             align="end"
             className="mobile-nav-menu"
-            sideOffset={8}
+            sideOffset={10}
           >
-            <DropdownMenuItem
-              render={
-                <a aria-label={copy.nav.ready} href={`${homePath}#gotowy`} />
-              }
-            >
-              {copy.nav.ready}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              render={
-                <a
-                  aria-label={copy.nav.custom}
-                  href={`${homePath}#generator`}
-                />
-              }
-            >
-              {copy.nav.custom}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              render={<a aria-label={copy.nav.blog} href={blogPath} />}
-            >
-              {copy.nav.blog}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={toggleTheme}>
-              {theme === 'dark' ? (
-                <Sun aria-hidden="true" />
-              ) : (
-                <Moon aria-hidden="true" />
-              )}
-              {theme === 'dark' ? copy.theme.light : copy.theme.dark}
-            </DropdownMenuItem>
-            <DropdownMenuGroup>
+            <DropdownMenuGroup className="mobile-nav-primary">
+              <DropdownMenuLabel className="mobile-nav-title">
+                Menu
+              </DropdownMenuLabel>
+              <DropdownMenuItem
+                className="mobile-nav-primary-item"
+                render={
+                  <a aria-label={copy.nav.ready} href={`${homePath}#gotowy`} />
+                }
+              >
+                <span className="mobile-nav-number">01</span>
+                <span>{copy.nav.ready}</span>
+                <ChevronRight aria-hidden="true" />
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="mobile-nav-primary-item"
+                render={
+                  <a
+                    aria-label={copy.nav.custom}
+                    href={`${homePath}#generator`}
+                  />
+                }
+              >
+                <span className="mobile-nav-number">02</span>
+                <span>{copy.nav.custom}</span>
+                <ChevronRight aria-hidden="true" />
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="mobile-nav-primary-item"
+                render={<a aria-label={copy.nav.blog} href={blogPath} />}
+              >
+                <span className="mobile-nav-number">03</span>
+                <span>{copy.nav.blog}</span>
+                <ChevronRight aria-hidden="true" />
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuGroup className="mobile-nav-utilities">
+              <DropdownMenuItem
+                className="mobile-nav-utility-item"
+                onClick={toggleTheme}
+              >
+                {theme === 'dark' ? (
+                  <Sun aria-hidden="true" />
+                ) : (
+                  <Moon aria-hidden="true" />
+                )}
+                {theme === 'dark' ? copy.theme.light : copy.theme.dark}
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuGroup className="mobile-nav-language">
               <DropdownMenuLabel>{copy.languageLabel}</DropdownMenuLabel>
               <DropdownMenuRadioGroup
                 aria-label={copy.languageLabel}

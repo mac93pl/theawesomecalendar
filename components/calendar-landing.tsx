@@ -55,6 +55,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
@@ -241,6 +242,7 @@ export function CalendarLanding({
     useState<MobilePdfStatus>('idle');
   const [supportStatus, setSupportStatus] = useState<SupportStatus>(null);
   const [shareStatus, setShareStatus] = useState<ShareStatus>('idle');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileGeneratorActionsVisible, setMobileGeneratorActionsVisible] =
     useState(false);
   const downloadAbortRef = useRef<AbortController | null>(null);
@@ -833,57 +835,101 @@ export function CalendarLanding({
             <a className="mobile-nav-support nav-support" href="#wsparcie">
               {copy.nav.support}
             </a>
-            <DropdownMenu>
+            <DropdownMenu
+              onOpenChange={setMobileMenuOpen}
+              open={mobileMenuOpen}
+            >
               <DropdownMenuTrigger
                 render={
                   <button
-                    aria-label={copy.nav.menu}
+                    aria-expanded={mobileMenuOpen}
+                    aria-label={
+                      mobileMenuOpen ? copy.nav.closeMenu : copy.nav.menu
+                    }
                     className="mobile-nav-trigger"
                     type="button"
                   />
                 }
               >
-                <Menu aria-hidden="true" />
+                {mobileMenuOpen ? (
+                  <X aria-hidden="true" />
+                ) : (
+                  <Menu aria-hidden="true" />
+                )}
               </DropdownMenuTrigger>
+              {mobileMenuOpen && (
+                <DropdownMenuPortal>
+                  <button
+                    aria-label={copy.nav.closeMenu}
+                    className="mobile-nav-backdrop"
+                    onClick={() => setMobileMenuOpen(false)}
+                    tabIndex={-1}
+                    type="button"
+                  />
+                </DropdownMenuPortal>
+              )}
               <DropdownMenuContent
                 align="end"
                 className="mobile-nav-menu"
-                sideOffset={8}
+                sideOffset={10}
               >
-                <DropdownMenuItem
-                  render={<a aria-label={copy.nav.ready} href="#gotowy" />}
-                >
-                  {copy.nav.ready}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  render={<a aria-label={copy.nav.custom} href="#generator" />}
-                >
-                  {copy.nav.custom}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  render={
-                    <a
-                      aria-label={copy.nav.blog}
-                      href={language === 'en' ? '/en/blog' : '/pl/blog'}
-                    />
-                  }
-                >
-                  {copy.nav.blog}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => void shareCalendar()}>
-                  <ShareActionIcon status={shareStatus} />
-                  {copy.share.button}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={toggleTheme}>
-                  {theme === 'dark' ? (
-                    <Sun aria-hidden="true" />
-                  ) : (
-                    <Moon aria-hidden="true" />
-                  )}
-                  {theme === 'dark' ? copy.theme.light : copy.theme.dark}
-                </DropdownMenuItem>
-                <DropdownMenuGroup>
+                <DropdownMenuGroup className="mobile-nav-primary">
+                  <DropdownMenuLabel className="mobile-nav-title">
+                    Menu
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem
+                    className="mobile-nav-primary-item"
+                    render={<a aria-label={copy.nav.ready} href="#gotowy" />}
+                  >
+                    <span className="mobile-nav-number">01</span>
+                    <span>{copy.nav.ready}</span>
+                    <ChevronRight aria-hidden="true" />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="mobile-nav-primary-item"
+                    render={
+                      <a aria-label={copy.nav.custom} href="#generator" />
+                    }
+                  >
+                    <span className="mobile-nav-number">02</span>
+                    <span>{copy.nav.custom}</span>
+                    <ChevronRight aria-hidden="true" />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="mobile-nav-primary-item"
+                    render={
+                      <a
+                        aria-label={copy.nav.blog}
+                        href={language === 'en' ? '/en/blog' : '/pl/blog'}
+                      />
+                    }
+                  >
+                    <span className="mobile-nav-number">03</span>
+                    <span>{copy.nav.blog}</span>
+                    <ChevronRight aria-hidden="true" />
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuGroup className="mobile-nav-utilities">
+                  <DropdownMenuItem
+                    className="mobile-nav-utility-item"
+                    onClick={() => void shareCalendar()}
+                  >
+                    <ShareActionIcon status={shareStatus} />
+                    {copy.share.button}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="mobile-nav-utility-item"
+                    onClick={toggleTheme}
+                  >
+                    {theme === 'dark' ? (
+                      <Sun aria-hidden="true" />
+                    ) : (
+                      <Moon aria-hidden="true" />
+                    )}
+                    {theme === 'dark' ? copy.theme.light : copy.theme.dark}
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuGroup className="mobile-nav-language">
                   <DropdownMenuLabel>{copy.languageLabel}</DropdownMenuLabel>
                   <DropdownMenuRadioGroup
                     aria-label={copy.languageLabel}
