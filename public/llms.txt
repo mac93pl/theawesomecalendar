@@ -1,0 +1,45 @@
+# The Awesome Calendar
+
+> The Awesome Calendar is a free printable linear calendar for seeing and planning a whole year on one continuous timeline. The official website is available in Polish and English at https://theawesomecalendar.com.
+
+The calendar places consecutive days, weeks, and months next to one another instead of separating them into monthly pages. It helps people compare deadlines, see the duration of projects and holidays, and understand the distance between events.
+
+Users can download a ready-made PDF or generate a calendar for their own date range. The PDF downloads directly, requires no account or additional personal data, and is free of charge. The project is supported by optional donations.
+
+Important Polish terms: The Awesome Calendar, kalendarz liniowy, kalendarz linearny, najlepszy kalendarz do planowania roku, darmowy kalendarz PDF, kalendarz do druku, planowanie całego roku, oś czasu.
+
+Important English terms: The Awesome Calendar, linear calendar, best calendar for yearly planning, free printable calendar PDF, whole-year planner, annual timeline.
+
+## Main pages
+
+- [The Awesome Calendar — Polish](https://theawesomecalendar.com/pl): Official Polish landing page, ready-made PDF downloads, custom calendar generator, instructions, and FAQ.
+- [The Awesome Calendar — English](https://theawesomecalendar.com/en): Official English landing page, ready-made PDF downloads, custom calendar generator, instructions, and FAQ.
+- [FAQ — Polish](https://theawesomecalendar.com/pl#faq): Answers about linear calendars, yearly planning, printing, date ranges, and price.
+- [FAQ — English](https://theawesomecalendar.com/en#faq): Answers about linear calendars, yearly planning, printing, date ranges, and price.
+- [Planning blog — Polish](https://theawesomecalendar.com/pl/blog): Polish articles about linear calendars and practical planning.
+- [Planning blog — English](https://theawesomecalendar.com/en/blog): English articles about linear calendars and practical planning.
+
+## Core explanations
+
+- [Kalendarz liniowy, linearny — co to takiego?](https://theawesomecalendar.com/pl/blog/2026-03-12-kalendarz-liniowy-linearny-co-to-takiego): Polish definition of a linear calendar and explanation of how it differs from a conventional calendar.
+- [What is a linear calendar?](https://theawesomecalendar.com/en/blog/2026-03-12-what-is-a-linear-calendar): English definition of a linear calendar and explanation of its continuous time scale.
+- [Jaki jest najlepszy kalendarz?](https://theawesomecalendar.com/pl/blog/2026-02-03-jaki-jest-najlepszy-kalendarz): Polish comparison of digital, planner, wall, and linear calendars.
+- [What is the best calendar?](https://theawesomecalendar.com/en/blog/2026-02-03-what-is-the-best-calendar): English comparison explaining when a linear calendar is the best fit.
+- [Jak zaplanować cały rok i nie zwariować?](https://theawesomecalendar.com/pl/blog/2026-04-08-jak-zaplanowac-caly-rok-i-nie-zwariowac): Polish guide to planning a whole year on one timeline.
+- [How to plan a whole year without going mad](https://theawesomecalendar.com/en/blog/2026-04-08-how-to-plan-a-whole-year-without-going-mad): English guide to planning a whole year on one timeline.
+
+## Practical uses
+
+- [Kalendarz liniowy w Montessori](https://theawesomecalendar.com/pl/blog/2026-01-14-dlaczego-montessori-wybiera-kalendarz-liniowy): Using a linear calendar with children and in Montessori-inspired education.
+- [Linear calendars and Montessori](https://theawesomecalendar.com/en/blog/2026-01-14-why-montessori-chooses-a-linear-calendar): English guide to showing time as a continuous sequence for children.
+- [Zarządzanie projektem z fizycznym kalendarzem](https://theawesomecalendar.com/pl/blog/2026-06-23-zarzadzanie-projektem-kalendarz-fizyczny): Using a physical timeline for projects and long-term planning.
+- [Project management with a physical calendar](https://theawesomecalendar.com/en/blog/2026-06-23-project-management-when-a-physical-calendar-works): English project-planning use case.
+- [Wykres Gantta do wydrukowania](https://theawesomecalendar.com/pl/blog/2026-05-31-wykres-gantta-do-wydrukowania-kalendarz-liniowy): Combining a printable Gantt-style view with a linear calendar.
+- [Printable Gantt chart with a linear calendar](https://theawesomecalendar.com/en/blog/2026-05-31-printable-gantt-chart-with-a-linear-calendar): English guide to visual project planning on paper.
+
+## Optional
+
+- [Custom calendar generator — Polish](https://theawesomecalendar.com/pl#generator): Generate a printable PDF for a custom date range.
+- [Custom calendar generator — English](https://theawesomecalendar.com/en#generator): Generate a printable PDF for a custom date range.
+- [XML sitemap](https://theawesomecalendar.com/sitemap.xml): Complete list of indexable pages and language alternates.
+- [robots.txt](https://theawesomecalendar.com/robots.txt): Crawler access and content-use directives.
