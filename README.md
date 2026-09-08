@@ -115,6 +115,47 @@ kluczami dostępowymi. W GitHub Actions dodaj je jako zmienne repozytorium
 w obu usługach adres
 `https://theawesomecalendar.com/sitemap.xml`.
 
+## Strona 404 i honeypoty
+
+Nieistniejące adresy zwracają HTTP 404 z krótkim opisem kalendarza po polsku
+i angielsku oraz zaproszeniem na stronę główną i do generatora. Dokument
+`app/global-not-found.tsx` obsługuje brak trasy poza osobnymi layoutami PL/EN,
+a `app/not-found.tsx` — błędy `notFound()` wewnątrz aplikacji. Treść jest
+renderowana w HTML i taka sama dla ludzi oraz crawlerów. Strony błędu mają
+`noindex`; honeypoty nie są dodawane do mapy strony.
+
+`proxy.ts` oznacza sondy ścieżek rozpoznawanych przez `lib/honeypots.ts`:
+`wp-admin`, `wp-login.php`, `xmlrpc.php`, `index.php`, `wp-json`,
+`wp-includes/wlwmanifest.xml` oraz `.env` z wariantami. Uwzględnia instalacje
+w podkatalogach, wielkość liter i kodowanie URL. Routing nadal zwraca 404;
+honeypoty nie udają panelu WordPressa ani plików konfiguracyjnych. Zwykłe
+odwiedziny `/pl`, `/en`, API i starych grafik nie dostają tego oznaczenia.
+
+Każde dopasowanie emituje jeden obiekt przez `console.info`, np.:
+
+```json
+{"event":"honeypot_hit","path":"/wp-admin/install.php","family":"wordpress","method":"GET"}
+```
+
+Cloudflare Workers Logs zapisuje pola obiektu jako dane strukturalne. W panelu
+Workera, w **Observability**, filtruj pole `event` po wartości `honeypot_hit`,
+a następnie grupuj i zliczaj wpisy po `path` lub `family`. To osobne zdarzenie
+obok standardowego logu żądania — przy liczeniu używaj tylko zdarzeń
+`honeypot_hit`, aby nie liczyć tego samego żądania dwa razy. Samo dopasowanie
+ścieżki nie potwierdza tożsamości bota ani wykorzystania treści do treningu AI.
+
+Ten dodatkowy wpis zawiera wyłącznie typ zdarzenia, znormalizowaną ścieżkę,
+rodzinę sondy i metodę HTTP. Nie zawiera IP, User-Agenta, query ani body;
+standardowe logi żądań Cloudflare zachowują swoją dotychczasową konfigurację.
+Nie powstaje osobna baza ani plik z logami na Workerze. Zliczanie podlega
+retencji, limitom i próbkowaniu Workers Logs; do odtworzenia dłuższej historii
+trzeba zachować eksporty. Build obecnie generuje `observability.enabled: true`;
+ustawienia faktycznie wdrożonego Workera można sprawdzić w panelu Cloudflare.
+
+Testy dopasowań i wykluczeń: `npm run test:honeypots` (także w `npm run check`).
+
+Dokumentacja: [Cloudflare Workers Logs](https://developers.cloudflare.com/workers/observability/logs/workers-logs/).
+
 ## Struktura projektu
 
 - `app/(pl)/page.tsx` oraz `app/(en)/en/page.tsx` — indeksowalne wejścia językowe,

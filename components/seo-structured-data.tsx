@@ -4,23 +4,27 @@ import { SITE_NAME, SITE_ORIGIN, localizedSiteUrl } from '@/lib/site';
 const SCHEMA_COPY = {
   pl: {
     description:
-      'Darmowy generator kalendarza liniowego PDF do wydruku na kartkach A4 i sklejenia w jedną oś czasu.',
+      'The Awesome Calendar to darmowy kalendarz liniowy do druku. Pokazuje kolejne dni na jednej osi czasu, dzięki czemu łatwiej porównać terminy i zobaczyć długość projektów. Wybierz gotowy kalendarz roczny lub własny zakres dat i pobierz PDF A4 bez zakładania konta. Wydrukuj kartki, wytnij paski i sklej je w ciągłą oś czasu. Dostępne są wersje polska i angielska.',
     features: [
+      'Gotowe kalendarze roczne',
       'Dowolny zakres dat',
       'Dwa style kalendarza',
       'Niezależna szerokość i wysokość dnia',
       'Eksport do PDF A4',
+      'Bezpłatne pobieranie PDF bez zakładania konta',
       'Język polski i angielski',
     ],
   },
   en: {
     description:
-      'A free printable PDF linear calendar generator for A4 paper that joins into one continuous timeline.',
+      'The Awesome Calendar is a free printable linear calendar. It places consecutive days on one continuous timeline so you can compare deadlines and see project durations together. Choose a ready-made yearly calendar or your own date range and download an A4 PDF without creating an account. Print the sheets, cut out the strips and join them into one continuous timeline. Polish and English versions are available.',
     features: [
+      'Ready-made yearly calendars',
       'Any date range',
       'Two calendar styles',
       'Independent day width and height',
       'A4 PDF export',
+      'Free PDF downloads without creating an account',
       'Polish and English',
     ],
   },
@@ -40,6 +44,15 @@ export function SeoStructuredData({ language }: { language: SiteLanguage }) {
         inLanguage: ['pl', 'en'],
       },
       {
+        '@type': 'WebPage',
+        '@id': `${pageUrl}#webpage`,
+        url: pageUrl,
+        name: SITE_NAME,
+        inLanguage: language,
+        isPartOf: { '@id': `${SITE_ORIGIN}/#website` },
+        mainEntity: { '@id': `${SITE_ORIGIN}/#application` },
+      },
+      {
         '@type': ['SoftwareApplication', 'WebApplication'],
         '@id': `${SITE_ORIGIN}/#application`,
         name: SITE_NAME,
@@ -50,7 +63,7 @@ export function SeoStructuredData({ language }: { language: SiteLanguage }) {
         operatingSystem: 'Any',
         browserRequirements:
           'Requires a modern web browser with JavaScript enabled.',
-        inLanguage: language,
+        inLanguage: ['pl', 'en'],
         isAccessibleForFree: true,
         author: {
           '@type': 'Person',

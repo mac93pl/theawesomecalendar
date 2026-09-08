@@ -9,9 +9,10 @@
     "dev": "vinext dev",
     "build": "vinext build",
     "start": "wrangler dev --config dist/server/wrangler.json",
-    "lint": "oxlint app lib components/brand-logo.tsx components/blog-download-cta.tsx components/blog-header.tsx components/blog-pages.tsx components/blog-topics.tsx components/calendar-page-svg.tsx components/calendar-year-timeline-svg.tsx components/calendar-hero-notes.tsx components/calendar-landing.tsx components/contact-dialog.tsx components/donation-checkout.tsx components/download-trust.tsx components/seo-structured-data.tsx components/site-footer.tsx",
+    "lint": "oxlint app lib proxy.ts components/not-found-page.tsx components/brand-logo.tsx components/blog-download-cta.tsx components/blog-header.tsx components/blog-pages.tsx components/blog-topics.tsx components/calendar-page-svg.tsx components/calendar-year-timeline-svg.tsx components/calendar-hero-notes.tsx components/calendar-landing.tsx components/contact-dialog.tsx components/donation-checkout.tsx components/download-trust.tsx components/seo-structured-data.tsx components/site-footer.tsx",
     "typecheck": "tsc --noEmit",
-    "check": "npm run lint && npm run typecheck && npm run build",
+    "test:honeypots": "node --experimental-strip-types --test tests/honeypots.test.mjs",
+    "check": "npm run lint && npm run typecheck && npm run test:honeypots && npm run build",
     "deploy": "wrangler deploy --config dist/server/wrangler.json",
     "format": "oxfmt"
   },
