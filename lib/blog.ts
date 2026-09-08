@@ -732,6 +732,61 @@ const habitTrackingPl: BlogArticle = {
   ],
 };
 
+const septemberQ4PlanningPl: BlogArticle = {
+  id: 'september-q4-planning',
+  slug: '2026-09-04-wrzesien-planowanie-q4-kalendarz-liniowy',
+  date: '2026-09-04',
+  title: 'Wrzesień i planowanie Q4 - jak poukładać jesień w życiu i pracy?',
+  lead: 'Wrzesień ma energię drugiego początku. Kończy luźniejszy rytm lata, porządkuje codzienność i daje dobry moment, by spojrzeć na ostatni kwartał roku. To czas na spokojne ułożenie pracy, domu i odpoczynku przed intensywną końcówką roku.',
+  description:
+    'Jak wykorzystać wrzesień do planowania Q4 w życiu i pracy? Uporządkuj jesienne projekty, rodzinne terminy, odpoczynek i cele na kalendarzu liniowym.',
+  tags: [
+    'wrzesień planowanie',
+    'planowanie Q4',
+    'kalendarz liniowy',
+    'plan na jesień',
+    'planowanie ostatniego kwartału',
+    'organizacja pracy i życia',
+  ],
+  sections: [
+    {
+      heading: 'Wrzesień ma energię drugiego początku',
+      paragraphs: [
+        'Styczeń ma swoje postanowienia, ale to wrzesień często naprawdę zmienia codzienny rytm. Kończą się wakacyjne wyjazdy, dzieci wracają do szkoły, zespoły znów pracują w pełnym składzie, a kalendarz szybko zapełnia się spotkaniami i stałymi zajęciami. Po letnim rozproszeniu łatwiej zauważyć, które sprawy wymagają porządku przed końcem roku.',
+        'Wrzesień nie musi być jednak kolejnym egzaminem z produktywności. Zamiast zaczynać wszystko od nowa, warto zrobić krótką inwentaryzację. Co już działa? Co zostało odłożone na później? Z czego można zrezygnować? Taki przegląd daje lepszy punkt wyjścia niż długa lista nowych celów dopisana do już pełnych tygodni.',
+      ],
+    },
+    {
+      heading: 'Najpierw zaplanuj życie poza pracą',
+      paragraphs: [
+        'Zacznij od wydarzeń, które wyznaczają rytm domu: planu szkoły i zajęć, wizyt lekarskich, rodzinnych uroczystości, wyjazdów, świąt oraz dni, które chcesz zachować wolne. Jesienią łatwo skoncentrować się na obowiązkach i dopiero później odkryć, że odpoczynek nie znalazł miejsca w żadnym tygodniu.',
+        'Wrzesień jest dobrym momentem, aby porozmawiać o tym, jak ma wyglądać październik, listopad i grudzień. Warto wcześniej ustalić świąteczne podróże, większe domowe wydatki, czas dla bliskich oraz okresy, w których rodzina nie bierze na siebie kolejnych zobowiązań. Plan Q4 może obejmować samopoczucie i relacje obok zadań do wykonania.',
+      ],
+    },
+    {
+      heading: 'Q4 w pracy zaczyna się we wrześniu',
+      paragraphs: [
+        'Ostatni kwartał formalnie zaczyna się w październiku, ale jego wynik często zależy od decyzji podjętych kilka tygodni wcześniej. We wrześniu warto zebrać terminy projektów, kampanii, budżetów, rozliczeń i urlopów. Gdy wszystkie znajdują się w jednym widoku, łatwiej dostrzec, że listopadowy finał wymaga przygotowań już na początku jesieni.',
+        'Wybierz od jednego do trzech rezultatów, które naprawdę mają znaczenie przed końcem roku. Następnie rozpisz drogę wstecz: decyzje, materiały, konsultacje, wykonanie i bufor na poprawki. Pozostałe pomysły mogą trafić na osobną listę. Planowanie Q4 to świadomy wybór tego, co ma zostać ukończone.',
+      ],
+    },
+    {
+      heading: 'Zobacz jesień na jednej osi',
+      paragraphs: [
+        'The Awesome Calendar to kalendarz liniowy, który pokaże Ci wrzesień i całe Q4 jako jedną oś czasu. Projekty, wyjazdy, szkolne przerwy i przygotowania do świąt zajmują na nim rzeczywiste odcinki. Dzięki temu koniec roku nie ukrywa tego, co zaczyna się zaraz po nim, a odległość między dzisiaj a grudniowymi terminami pozostaje widoczna.',
+        'Możesz zastosować dwie linie: jedną dla pracy, drugą dla życia prywatnego. Gdy intensywny etap projektu pokrywa się z rodzinnym wyjazdem albo szkolną przerwą, konflikt staje się widoczny zanim zamieni się w stresujący tydzień. Najważniejsze elementy zapisz na papierowym kalendarzu liniowym, a szczegółowe godziny nadal mogą pozostać w telefonie.',
+      ],
+    },
+    {
+      heading: 'Plan ma pomagać przez całą jesień',
+      paragraphs: [
+        'Raz w tygodniu zaznacz aktualny dzień i spójrz na najbliższe dwa lub trzy tygodnie. Raz w miesiącu sprawdź całą drogę do końca grudnia. Przesuń elastyczne elementy, wykreśl nieaktualne plany i dopisz nowe terminy, które rzeczywiście zmieniają obraz kwartału. Taki rytm wystarczy, by kalendarz pozostawał użyteczny.',
+        'Dobry plan jesieni nie powinien wypełniać każdego wolnego miejsca. Zostaw bufory na opóźnienia, nagłą zmianę priorytetów, zwykłe zmęczenie, a może przeziębienie? Wrzesień może być świetnym momentem, w którym odzyskujesz perspektywę i decydujesz, jak chcesz przejść przez ostatnią część roku.',
+      ],
+    },
+  ],
+};
+
 const bestCalendarEn: BlogArticle = {
   id: 'best-calendar',
   slug: '2026-02-03-what-is-the-best-calendar',
@@ -1338,8 +1393,65 @@ const habitTrackingEn: BlogArticle = {
   ],
 };
 
+const septemberQ4PlanningEn: BlogArticle = {
+  id: 'september-q4-planning',
+  slug: '2026-09-04-september-q4-planning-linear-calendar',
+  date: '2026-09-04',
+  title:
+    'September and Q4 planning - how to organise autumn at home and at work',
+  lead: 'September has the energy of a second beginning. It brings the looser rhythm of summer to a close, restores structure to everyday life and offers a good moment to look at the final quarter of the year. It is a time to calmly arrange work, home and rest before the busy year-end period.',
+  description:
+    'How can you use September to plan Q4 at home and at work? Organise autumn projects, family dates, rest and goals on a linear calendar.',
+  tags: [
+    'September planning',
+    'Q4 planning',
+    'linear calendar',
+    'autumn planning',
+    'fourth quarter planning',
+    'work-life organisation',
+  ],
+  sections: [
+    {
+      heading: 'September has the energy of a second beginning',
+      paragraphs: [
+        'January has its resolutions, but September is often the month that genuinely changes the rhythm of everyday life. Summer trips end, children return to school, teams work at full strength again, and the calendar quickly fills with meetings and regular activities. After the scattered pace of summer, it becomes easier to notice what needs attention before the year ends.',
+        'September does not, however, need to become another productivity test. Instead of starting everything again, take a short inventory. What already works? What has been postponed? What can you give up? This review provides a better starting point than adding a long list of new goals to weeks that are already full.',
+      ],
+    },
+    {
+      heading: 'Plan life outside work first',
+      paragraphs: [
+        'Begin with the events that shape the rhythm of home: school and activity schedules, medical appointments, family occasions, trips, holidays and the days you want to keep free. In autumn, it is easy to focus on obligations and discover too late that rest has not been given a place in any week.',
+        'September is a good moment to discuss what October, November and December should look like. Agree on festive travel, larger household expenses, time with people close to you and the periods when the family will avoid taking on more commitments. A Q4 plan can include wellbeing and relationships alongside the tasks to complete.',
+      ],
+    },
+    {
+      heading: 'Q4 at work begins in September',
+      paragraphs: [
+        'The final quarter formally begins in October, but its results often depend on decisions made several weeks earlier. September is the time to gather project, campaign, budget, reporting and annual leave dates. With everything in one view, it becomes clear when a November finish requires preparation at the very beginning of autumn.',
+        'Choose one to three outcomes that genuinely matter before the end of the year. Then work backwards through the decisions, materials, consultations, production and a buffer for revisions. Other ideas can remain on a separate list. Q4 planning means consciously choosing what should be completed.',
+      ],
+    },
+    {
+      heading: 'See autumn on one timeline',
+      paragraphs: [
+        'The Awesome Calendar is a linear calendar that will show you September and the whole of Q4 as one timeline. Projects, trips, school breaks and festive preparations occupy real sections of it. This means the end of the year does not hide what begins immediately after it, while the distance from today to December deadlines remains visible.',
+        'You can use two lines: one for work and another for personal life. When an intensive project phase overlaps a family trip or school break, the conflict becomes visible before it turns into a stressful week. Record the most important elements on a paper linear calendar, while precise times can remain in your phone.',
+      ],
+    },
+    {
+      heading: 'The plan should help throughout autumn',
+      paragraphs: [
+        'Once a week, mark today and look at the next two or three weeks. Once a month, review the whole path to the end of December. Move flexible items, remove plans that no longer matter and add new dates that genuinely change the shape of the quarter. This light rhythm is enough to keep the calendar useful.',
+        'A good autumn plan should not fill every open space. Leave buffers for delays, a sudden change of priorities, ordinary tiredness, or perhaps even a cold. September can be a great moment to regain perspective and decide how you want to move through the final part of the year.',
+      ],
+    },
+  ],
+};
+
 export const BLOG_ARTICLES: Record<SiteLanguage, BlogArticle[]> = {
   pl: [
+    septemberQ4PlanningPl,
     freeCalendar2027Pl,
     multipleChildrenPl,
     schoolCalendarPl,
@@ -1355,6 +1467,7 @@ export const BLOG_ARTICLES: Record<SiteLanguage, BlogArticle[]> = {
     montessoriPl,
   ],
   en: [
+    septemberQ4PlanningEn,
     freeCalendar2027En,
     multipleChildrenEn,
     schoolCalendarEn,

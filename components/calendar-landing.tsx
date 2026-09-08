@@ -239,6 +239,12 @@ export function CalendarLanding({
   const [supportStatus, setSupportStatus] = useState<SupportStatus>(null);
   const [shareStatus, setShareStatus] = useState<ShareStatus>('idle');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeDropdownPresetLabel, setActiveDropdownPresetLabel] = useState<
+    string | null
+  >(null);
+  const [activeQuickPresetLabel, setActiveQuickPresetLabel] = useState<
+    string | null
+  >(null);
   const [mobileGeneratorActionsVisible, setMobileGeneratorActionsVisible] =
     useState(false);
   const downloadAbortRef = useRef<AbortController | null>(null);
@@ -299,6 +305,8 @@ export function CalendarLanding({
       setInitialStart(localStart);
       setStart(localStart);
       setEnd(defaultEndDateValue(localStart));
+      setActiveDropdownPresetLabel(null);
+      setActiveQuickPresetLabel(null);
       setReadyYear(Number(localStart.slice(0, 4)));
       setPreviewPage(0);
     }, 0);
@@ -629,11 +637,15 @@ export function CalendarLanding({
   }, [shareStatus]);
 
   const selectPreset = useCallback(
-    (preset: CalendarRangePreset) => {
+    (preset: CalendarRangePreset, source: 'dropdown' | 'quick') => {
       const selectedRange =
         preset.group === 'random' ? randomCalendarRange(initialStart) : preset;
       setStart(selectedRange.start);
       setEnd(selectedRange.end);
+      setActiveDropdownPresetLabel(
+        source === 'dropdown' ? preset.label : null,
+      );
+      setActiveQuickPresetLabel(source === 'quick' ? preset.label : null);
       setPreviewPage(0);
     },
     [initialStart],
@@ -685,6 +697,8 @@ export function CalendarLanding({
         if (!validToolInput(input)) throw new Error(copy.generator.error);
         setStart(input.start);
         setEnd(input.end);
+        setActiveDropdownPresetLabel(null);
+        setActiveQuickPresetLabel(null);
         setStyle(input.style);
         const configuredDayWidth = input.dayWidth || dayWidth;
         const configuredDayHeight = input.dayHeight || dayHeight;
@@ -778,9 +792,7 @@ export function CalendarLanding({
           <div className="header-actions">
             <nav aria-label={copy.navLabel} className="desktop-nav">
               <a href="#gotowy">{copy.nav.ready}</a>
-              <a className="nav-custom" href="#generator">
-                {copy.nav.custom}
-              </a>
+              <a href="#generator">{copy.nav.custom}</a>
               <a
                 className="nav-blog"
                 href={language === 'en' ? '/en/blog' : '/pl/blog'}
@@ -1191,71 +1203,91 @@ export function CalendarLanding({
                   <div className="preset-buttons">
                     {quickPresets.map((preset) => (
                       <button
+                        aria-pressed={activeQuickPresetLabel === preset.label}
                         key={preset.label}
-                        onClick={() => selectPreset(preset)}
+                        onClick={() => selectPreset(preset, 'quick')}
                         type="button"
                       >
                         {preset.label}
                       </button>
                     ))}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        render={
-                          <button
-                            aria-label={copy.generator.morePresets}
-                            className="preset-more-button"
-                            type="button"
-                          />
-                        }
-                      >
-                        {copy.generator.morePresets}
-                        <ChevronDown aria-hidden="true" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align="start"
-                        className="preset-menu"
-                        sideOffset={7}
-                      >
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>
-                            {copy.generator.durationPresets}
-                          </DropdownMenuLabel>
-                          {durationPresets.map((preset) => (
-                            <DropdownMenuItem
-                              key={preset.label}
-                              onClick={() => selectPreset(preset)}
-                            >
-                              {preset.label}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>
-                            {copy.generator.calendarPresets}
-                          </DropdownMenuLabel>
-                          {calendarPresets.map((preset) => (
-                            <DropdownMenuItem
-                              key={preset.label}
-                              onClick={() => selectPreset(preset)}
-                            >
-                              {preset.label}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuGroup>
-                        {randomPreset && (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="preset-menu-random"
-                              onClick={() => selectPreset(randomPreset)}
-                            >
-                              {randomPreset.label}
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="preset-overflow-controls">
+                      {activeDropdownPresetLabel && (
+                        <output className="preset-selected">
+                          <Check aria-hidden="true" />
+                          <span className="sr-only">
+                            {copy.generator.presetSelected}:{' '}
+                          </span>
+                          <span className="preset-selected-label">
+                            {activeDropdownPresetLabel}
+                          </span>
+                        </output>
+                      )}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          render={
+                            <button
+                              aria-label={copy.generator.morePresets}
+                              className="preset-more-button"
+                              type="button"
+                            />
+                          }
+                        >
+                          {copy.generator.morePresets}
+                          <ChevronDown aria-hidden="true" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="start"
+                          className="preset-menu"
+                          sideOffset={7}
+                        >
+                          <DropdownMenuGroup>
+                            <DropdownMenuLabel>
+                              {copy.generator.durationPresets}
+                            </DropdownMenuLabel>
+                            {durationPresets.map((preset) => (
+                              <DropdownMenuItem
+                                key={preset.label}
+                                onClick={() =>
+                                  selectPreset(preset, 'dropdown')
+                                }
+                              >
+                                {preset.label}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuGroup>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuGroup>
+                            <DropdownMenuLabel>
+                              {copy.generator.calendarPresets}
+                            </DropdownMenuLabel>
+                            {calendarPresets.map((preset) => (
+                              <DropdownMenuItem
+                                key={preset.label}
+                                onClick={() =>
+                                  selectPreset(preset, 'dropdown')
+                                }
+                              >
+                                {preset.label}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuGroup>
+                          {randomPreset && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="preset-menu-random"
+                                onClick={() =>
+                                  selectPreset(randomPreset, 'dropdown')
+                                }
+                              >
+                                {randomPreset.label}
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                 </div>
                 <div className="date-grid">
@@ -1266,7 +1298,11 @@ export function CalendarLanding({
                       id="calendar-start"
                       max="9999-12-31"
                       min="1900-01-01"
-                      onChange={(event) => setStart(event.target.value)}
+                      onChange={(event) => {
+                        setActiveDropdownPresetLabel(null);
+                        setActiveQuickPresetLabel(null);
+                        setStart(event.target.value);
+                      }}
                       type="date"
                       value={start}
                     />
@@ -1278,7 +1314,11 @@ export function CalendarLanding({
                       id="calendar-end"
                       max="9999-12-31"
                       min={start || '1900-01-01'}
-                      onChange={(event) => setEnd(event.target.value)}
+                      onChange={(event) => {
+                        setActiveDropdownPresetLabel(null);
+                        setActiveQuickPresetLabel(null);
+                        setEnd(event.target.value);
+                      }}
                       type="date"
                       value={end}
                     />

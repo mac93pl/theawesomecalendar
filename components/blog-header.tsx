@@ -66,9 +66,7 @@ export function BlogHeader({
       <div className="header-actions">
         <nav aria-label={copy.navLabel} className="desktop-nav">
           <a href={`${homePath}#gotowy`}>{copy.nav.ready}</a>
-          <a className="nav-custom" href={`${homePath}#generator`}>
-            {copy.nav.custom}
-          </a>
+          <a href={`${homePath}#generator`}>{copy.nav.custom}</a>
           <a aria-current="page" className="nav-blog" href={blogPath}>
             {copy.nav.blog}
           </a>
