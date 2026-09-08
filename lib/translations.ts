@@ -24,7 +24,7 @@ export const COPY = {
       line2: 'KALENDARZ LINIOWY NA CAŁY ROK.',
       lead: 'The Awesome Calendar to darmowy kalendarz liniowy do druku. Pobierz gotowy plik PDF, wydrukuj go w domu na zwykłych kartkach A4, wytnij paski i sklej je w jedną oś czasu. Tym samym zyskujesz cały rok na pierwszy rzut oka — około 1,5 m.',
       yearPreviewTitle:
-        'Kalendarz liniowy {year} — cały rok od stycznia do grudnia',
+        'Kalendarz liniowy {year} — cały rok od stycznia do grudnia z przykładowymi odręcznymi planami, zaznaczonymi okresami i terminami',
       yearPreviewScrollHint: 'Przesuń, aby zobaczyć cały rok →',
       primaryCta: 'Pobierz darmowy PDF',
       secondaryCta: 'Ustaw własny zakres',
@@ -318,8 +318,8 @@ export const COPY = {
       line2: 'A LINEAR CALENDAR FOR THE WHOLE YEAR.',
       lead: 'The Awesome Calendar is a free printable linear calendar. Download the ready-made PDF, print it at home on regular A4 sheets, cut out the strips and join them into one continuous timeline. Just like that, you can see the whole year at a glance — about 1.5 metres of it.',
       yearPreviewTitle:
-        'Linear calendar {year} — the full year from January to December',
-      yearPreviewScrollHint: 'Swipe to see the full year →',
+        'Linear calendar {year} — the full year from January to December with sample handwritten plans, highlighted periods and key dates',
+      yearPreviewScrollHint: 'Scroll to see the full year →',
       primaryCta: 'Download free PDF',
       secondaryCta: 'Choose a custom range',
       meta: 'Free PDF · regular A4 sheets · about 1.5 m once assembled',

@@ -1,9 +1,9 @@
 'use client';
 
 import { ArrowRight, Check, Coffee, Download, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
-import { CalendarSampleSvg } from '@/components/calendar-page-svg';
+import { CalendarYearPreview } from '@/components/calendar-year-timeline-svg';
 import {
   DonationCheckout,
   type SupportStatus,
@@ -52,17 +52,6 @@ export function BlogDownloadCta({ language }: { language: SiteLanguage }) {
   const [supportStatus] = useState<SupportStatus>(null);
   const copy = BLOG_COPY[language].download;
   const donationCopy = COPY[language].donation;
-  const currentRange = useMemo(() => yearRange(currentYear), [currentYear]);
-  const sampleStrip = useMemo(
-    () =>
-      createCalendarLayout(
-        currentRange.start,
-        currentRange.end,
-        language,
-        STANDARD_CALENDAR_SIZE,
-      ).strips[0],
-    [currentRange.end, currentRange.start, language],
-  );
 
   const downloadCalendar = async (year: number) => {
     const range = yearRange(year);
@@ -103,8 +92,9 @@ export function BlogDownloadCta({ language }: { language: SiteLanguage }) {
       </div>
       <div className="blog-download-current">
         <div className="blog-download-preview">
-          <CalendarSampleSvg
-            strip={sampleStrip}
+          <CalendarYearPreview
+            language={language}
+            year={currentYear}
             style="rice"
             title={withYear(copy.preview, currentYear)}
           />

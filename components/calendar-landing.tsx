@@ -20,11 +20,8 @@ import {
   X,
 } from 'lucide-react';
 
-import {
-  CalendarPageSvg,
-  CalendarSampleSvg,
-} from '@/components/calendar-page-svg';
-import { CalendarYearTimelineSvg } from '@/components/calendar-year-timeline-svg';
+import { CalendarPageSvg } from '@/components/calendar-page-svg';
+import { CalendarYearPreview } from '@/components/calendar-year-timeline-svg';
 import { BrandLogo } from '@/components/brand-logo';
 import {
   DonationCheckout,
@@ -69,7 +66,6 @@ import {
   type CalendarDayWidth,
   type CalendarStyle,
   type SiteLanguage,
-  STANDARD_CALENDAR_SIZE,
   currentDateValue,
   dayWord,
   defaultEndDateValue,
@@ -253,35 +249,6 @@ export function CalendarLanding({
   const copy = COPY[language];
   const currentYear = Number(initialStart.slice(0, 4));
   const nextYear = currentYear + 1;
-  const currentYearRange = useMemo(
-    () => calendarYearRange(currentYear),
-    [currentYear],
-  );
-  const currentYearLayout = useMemo(
-    () =>
-      createCalendarLayout(
-        currentYearRange.start,
-        currentYearRange.end,
-        language,
-        STANDARD_CALENDAR_SIZE,
-      ),
-    [currentYearRange.end, currentYearRange.start, language],
-  );
-  const readyYearRange = useMemo(
-    () => calendarYearRange(readyYear),
-    [readyYear],
-  );
-  const readyYearLayout = useMemo(
-    () =>
-      createCalendarLayout(
-        readyYearRange.start,
-        readyYearRange.end,
-        language,
-        STANDARD_CALENDAR_SIZE,
-      ),
-    [language, readyYearRange.end, readyYearRange.start],
-  );
-  const readySampleStrip = readyYearLayout.strips[0];
   const readyStyleLabel =
     readyStyle === 'rice' ? copy.generator.rice : copy.generator.block;
   const readyDownloadLabel = insertYear(copy.ready.download, readyYear);
@@ -998,15 +965,13 @@ export function CalendarLanding({
             </h1>
             <p className="hero-lead">{copy.hero.lead}</p>
             <figure className="hero-year-preview">
-              <div className="hero-year-scroll">
-                <CalendarYearTimelineSvg
-                  days={currentYearLayout.days}
-                  title={insertYear(copy.hero.yearPreviewTitle, currentYear)}
-                />
-              </div>
-              <p className="hero-year-scroll-hint">
-                {copy.hero.yearPreviewScrollHint}
-              </p>
+              <CalendarYearPreview
+                annotated
+                language={language}
+                style="rice"
+                title={insertYear(copy.hero.yearPreviewTitle, currentYear)}
+                year={currentYear}
+              />
             </figure>
             <div className="hero-actions">
               <a className="hero-primary" href="#gotowy">
@@ -1113,44 +1078,44 @@ export function CalendarLanding({
                 onValueChange={(value) => setReadyStyle(value as CalendarStyle)}
                 value={readyStyle}
               >
-                <label
+                <div
                   className="ready-style-option ready-style-rice"
-                  htmlFor="ready-style-rice"
                 >
-                  <span className="ready-style-preview">
-                    <CalendarSampleSvg
-                      strip={readySampleStrip}
+                  <div className="ready-style-preview">
+                    <CalendarYearPreview
+                      language={language}
+                      year={readyYear}
                       style="rice"
-                      title={copy.variants.riceAlt}
+                      title={`${copy.variants.riceAlt} · ${readyYear}`}
                     />
-                  </span>
-                  <span className="ready-style-meta">
+                  </div>
+                  <label className="ready-style-meta" htmlFor="ready-style-rice">
                     <RadioGroupItem id="ready-style-rice" value="rice" />
                     <span>
                       <strong>{copy.generator.rice}</strong>
                       <small>{copy.generator.riceHint}</small>
                     </span>
-                  </span>
-                </label>
-                <label
+                  </label>
+                </div>
+                <div
                   className="ready-style-option ready-style-block"
-                  htmlFor="ready-style-block"
                 >
-                  <span className="ready-style-preview">
-                    <CalendarSampleSvg
-                      strip={readySampleStrip}
+                  <div className="ready-style-preview">
+                    <CalendarYearPreview
+                      language={language}
+                      year={readyYear}
                       style="block"
-                      title={copy.variants.blockAlt}
+                      title={`${copy.variants.blockAlt} · ${readyYear}`}
                     />
-                  </span>
-                  <span className="ready-style-meta">
+                  </div>
+                  <label className="ready-style-meta" htmlFor="ready-style-block">
                     <RadioGroupItem id="ready-style-block" value="block" />
                     <span>
                       <strong>{copy.generator.block}</strong>
                       <small>{copy.generator.blockHint}</small>
                     </span>
-                  </span>
-                </label>
+                  </label>
+                </div>
               </RadioGroup>
             </div>
 
@@ -1755,10 +1720,11 @@ export function CalendarLanding({
                 key={variant.style}
               >
                 <div className="quick-download-preview">
-                  <CalendarSampleSvg
-                    strip={readySampleStrip}
+                  <CalendarYearPreview
+                    language={language}
+                    year={currentYear}
                     style={variant.style}
-                    title={variant.title}
+                    title={`${variant.title} · ${currentYear}`}
                   />
                 </div>
                 <div className="quick-download-body">

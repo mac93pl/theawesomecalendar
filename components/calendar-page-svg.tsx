@@ -1,10 +1,8 @@
-import { useId } from 'react';
+import { useId, type ReactNode } from 'react';
 
 import type { CalendarStyle, SiteLanguage } from '@/lib/calendar';
 import {
   BIG_CALENDAR_GEOMETRY,
-  CALENDAR_GEOMETRY,
-  DAY_WIDTH,
   STANDARD_CALENDAR_GEOMETRY,
   TALL_CALENDAR_GEOMETRY,
   WIDE_CALENDAR_GEOMETRY,
@@ -12,6 +10,7 @@ import {
   type CalendarGeometry,
   type CalendarPageLayout,
   type CalendarStripLayout,
+  type CalendarTimelineLayout,
 } from '@/lib/calendar-layout';
 
 const INK = '#11110f';
@@ -28,12 +27,6 @@ const MONTH_LABEL_MIN_WIDTH = 11;
 // Worst-case uppercase Lato Black glyph advance, including letter spacing.
 const MONTH_LABEL_CHARACTER_WIDTH = 2.55;
 const MONTH_LABEL_WIDTH_PADDING = 0.5;
-const SAMPLE_DAY_COUNT = 34;
-const SAMPLE_VIEW_X = CALENDAR_GEOMETRY.margin - 1;
-const SAMPLE_VIEW_WIDTH =
-  (CALENDAR_GEOMETRY.leadingMarginDays + SAMPLE_DAY_COUNT) * DAY_WIDTH + 2;
-const SAMPLE_VIEW_HEIGHT = SAMPLE_VIEW_WIDTH / 1.5;
-const SAMPLE_VIEW_Y = CALENDAR_GEOMETRY.margin - 6;
 
 const DRAW_COPY = {
   pl: { cut: 'TU PRZETNIJ', glue: 'TU NAKLEJ' },
@@ -427,44 +420,42 @@ function CalendarStrip({ geometry, strip, row, patternId, style, language, isLas
   );
 }
 
-export function CalendarSampleSvg({ strip, style, title }: {
-  strip: CalendarStripLayout;
+export function CalendarTimelineSvg({ children, layout, style, title }: {
+  children?: ReactNode;
+  layout: CalendarTimelineLayout;
   style: CalendarStyle;
   title: string;
 }) {
-  const stripY = CALENDAR_GEOMETRY.margin;
+  const { geometry, strip, width, height } = layout;
+  const stripY = 0;
   const titleId = useId();
 
   return (
     <svg
       aria-labelledby={titleId}
-      className={`calendar-sample calendar-sample-${style}`}
-      preserveAspectRatio="xMidYMid meet"
+      className={`calendar-year-timeline calendar-year-timeline-${style}`}
+      height={height}
       shapeRendering="geometricPrecision"
-      viewBox={`${SAMPLE_VIEW_X} ${SAMPLE_VIEW_Y} ${SAMPLE_VIEW_WIDTH} ${SAMPLE_VIEW_HEIGHT}`}
+      viewBox={`0 0 ${width} ${height}`}
+      width={width}
       xmlns="http://www.w3.org/2000/svg"
     >
       <title id={titleId}>{title}</title>
-      <rect
-        fill="#ffffff"
-        height={SAMPLE_VIEW_HEIGHT}
-        width={SAMPLE_VIEW_WIDTH}
-        x={SAMPLE_VIEW_X}
-        y={SAMPLE_VIEW_Y}
-      />
-      {strip.days.slice(0, SAMPLE_DAY_COUNT).map((day, index) => (
+      <rect fill="#ffffff" height={height} width={width} />
+      {strip.days.map((day, index) => (
         <DayColumn
           day={day}
           dayOffset={strip.dayOffset}
-          geometry={STANDARD_CALENDAR_GEOMETRY}
+          geometry={geometry}
           index={index}
           key={day.iso}
           stripY={stripY}
           style={style}
         />
       ))}
-      <MonthLabels geometry={STANDARD_CALENDAR_GEOMETRY} strip={strip} stripY={stripY} />
-      <YearMarkers geometry={STANDARD_CALENDAR_GEOMETRY} strip={strip} stripY={stripY} />
+      <MonthLabels geometry={geometry} strip={strip} stripY={stripY} />
+      <YearMarkers geometry={geometry} strip={strip} stripY={stripY} />
+      {children}
     </svg>
   );
 }

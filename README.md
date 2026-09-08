@@ -122,11 +122,20 @@ w obu usługach adres
 - `lib/seo.ts`, `app/robots.ts` i `app/sitemap.ts` — metadata oraz indeksowanie,
 - `app/globals.css` — layout, responsywność i styl strony,
 - `components/calendar-page-svg.tsx` — render pojedynczej strony kalendarza,
+- `components/calendar-year-timeline-svg.tsx` — przewijane podglądy całego roku
+  w nagłówku, kartach pobierania i na blogu; wspólne oznaczenia i standardowe
+  proporcje dni jak w PDF, bez podziału na A4,
+- `components/calendar-hero-notes.tsx` — przykładowe odręczne plany PL/EN,
+  zakotwiczone w datach i włączane wyłącznie w nagłówku przez `annotated`,
 - `lib/calendar.ts` — daty, zakresy i presety,
 - `lib/calendar-layout.ts` — geometria stron, pasków i dni,
 - `lib/calendar-export.tsx` — generowanie SVG i PDF,
 - `lib/translations.ts` — teksty polskie i angielskie,
 - `public/brand` oraz `public/fonts` — lokalne zasoby.
+
+Odręczne notatki używają lokalnego fontu
+[Caveat](https://github.com/google/fonts/tree/main/ofl/caveat).
+Licencja fontu znajduje się w `public/fonts/OFL-Caveat.txt`.
 
 Wygenerowane katalogi `dist/`, `output/` i lokalne pliki środowiskowe są
 ignorowane przez Git.

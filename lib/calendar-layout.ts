@@ -185,6 +185,45 @@ export type CalendarLayout = {
   trailingMargin: number;
 };
 
+export type CalendarTimelineLayout = {
+  geometry: CalendarGeometry;
+  strip: CalendarStripLayout;
+  width: number;
+  height: number;
+};
+
+// One continuous year, using the standard day dimensions without A4 packing.
+export function createCalendarYearTimelineLayout(
+  year: number,
+  language: SiteLanguage,
+): CalendarTimelineLayout {
+  const yearValue = String(year).padStart(4, '0');
+  const days = createDays(`${yearValue}-01-01`, `${yearValue}-12-31`, language);
+  const standard = STANDARD_CALENDAR_GEOMETRY;
+  const dayOffset = standard.leadingMarginDays * standard.dayWidth;
+  const width = dayOffset + days.length * standard.dayWidth + dayOffset;
+
+  return {
+    geometry: { ...standard, margin: 0, workWidth: width },
+    strip: {
+      index: 0,
+      days,
+      dayOffset,
+      hasGlueTab: false,
+      contentWidth: width,
+      glueWidth: 0,
+      yearMarkers: [{
+        year,
+        x: dayOffset,
+        rangeDayCount: days.length,
+        placementDayCount: standard.yearMarkerDays,
+      }],
+    },
+    width,
+    height: standard.stripHeight,
+  };
+}
+
 function packDays(days: CalendarDay[], geometry: CalendarGeometry) {
   const strips: CalendarStripLayout[] = [];
   let cursor = 0;

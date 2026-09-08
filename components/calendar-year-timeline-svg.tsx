@@ -1,73 +1,60 @@
-import { useId } from 'react';
+import { memo, useId, useMemo } from 'react';
 
-import type { CalendarDay } from '@/lib/calendar';
+import { CalendarHeroNotes } from '@/components/calendar-hero-notes';
+import { CalendarTimelineSvg } from '@/components/calendar-page-svg';
+import type { CalendarStyle, SiteLanguage } from '@/lib/calendar';
+import { createCalendarYearTimelineLayout } from '@/lib/calendar-layout';
+import { COPY } from '@/lib/translations';
 
-const VIEW_WIDTH = 1460;
-const VIEW_HEIGHT = 108;
-const PADDING_X = 18;
-const LINE_TOP = 16;
-const LINE_BOTTOM = 68;
-const MONTH_LABEL_Y = 94;
-
-export function CalendarYearTimelineSvg({ days, title }: {
-  days: CalendarDay[];
+type CalendarYearPreviewProps = {
+  annotated?: boolean;
+  year: number;
+  language: SiteLanguage;
+  style: CalendarStyle;
   title: string;
-}) {
-  const titleId = useId();
-  const dayWidth = (VIEW_WIDTH - PADDING_X * 2) / Math.max(days.length, 1);
+};
+
+export const CalendarYearTimelineSvg = memo(function CalendarYearTimelineSvg({
+  annotated = false,
+  year,
+  language,
+  style,
+  title,
+}: CalendarYearPreviewProps) {
+  const layout = useMemo(
+    () => createCalendarYearTimelineLayout(year, language),
+    [year, language],
+  );
 
   return (
-    <svg
-      aria-labelledby={titleId}
-      className="hero-year-calendar"
-      preserveAspectRatio="xMidYMid meet"
-      shapeRendering="geometricPrecision"
-      viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <title id={titleId}>{title}</title>
-      <rect fill="#ffffff" height={VIEW_HEIGHT} width={VIEW_WIDTH} />
-      {days.map((day, index) => {
-        const x = PADDING_X + index * dayWidth;
-        const center = x + dayWidth / 2;
-        const markerHeight = day.isWeekend ? 12 : 9;
-
-        return (
-          <g key={day.iso}>
-            {day.startsMonth && (
-              <text
-                fill="#11110f"
-                fontFamily="Lato, sans-serif"
-                fontSize="12"
-                fontWeight="900"
-                letterSpacing="0.55"
-                x={x + 3}
-                y={MONTH_LABEL_Y}
-              >
-                {day.monthLabel}
-              </text>
-            )}
-            <line
-              stroke="#11110f"
-              strokeWidth="0.55"
-              x1={center}
-              x2={center}
-              y1={LINE_TOP}
-              y2={LINE_BOTTOM - markerHeight}
-            />
-            <rect
-              fill={day.isWeekend ? '#11110f' : '#ffffff'}
-              height={markerHeight}
-              rx="0.75"
-              stroke="#11110f"
-              strokeWidth="0.55"
-              width="1.5"
-              x={center - 0.75}
-              y={LINE_BOTTOM - markerHeight}
-            />
-          </g>
-        );
-      })}
-    </svg>
+    <CalendarTimelineSvg layout={layout} style={style} title={title}>
+      {annotated && <CalendarHeroNotes language={language} layout={layout} />}
+    </CalendarTimelineSvg>
   );
+});
+
+export function CalendarYearPreview(props: CalendarYearPreviewProps) {
+  const hintId = useId();
+
+  /* eslint-disable jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions -- The scroll region needs keyboard focus and must keep arrow keys out of the surrounding radio group. */
+  return (
+    <div className="calendar-year-preview">
+      <section
+        aria-describedby={hintId}
+        aria-label={props.title}
+        className="calendar-year-scroll"
+        onKeyDown={(event) => {
+          // Keep arrow keys here instead of moving the surrounding style radios.
+          if (event.key.startsWith('Arrow')) event.stopPropagation();
+        }}
+        tabIndex={0}
+      >
+        <CalendarYearTimelineSvg {...props} />
+      </section>
+      <span className="calendar-year-scroll-hint" id={hintId}>
+        {COPY[props.language].hero.yearPreviewScrollHint}
+      </span>
+    </div>
+  );
+  /* eslint-enable jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions */
 }
