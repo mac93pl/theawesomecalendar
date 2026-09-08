@@ -778,7 +778,9 @@ export function CalendarLanding({
           <div className="header-actions">
             <nav aria-label={copy.navLabel} className="desktop-nav">
               <a href="#gotowy">{copy.nav.ready}</a>
-              <a href="#generator">{copy.nav.custom}</a>
+              <a className="nav-custom" href="#generator">
+                {copy.nav.custom}
+              </a>
               <a
                 className="nav-blog"
                 href={language === 'en' ? '/en/blog' : '/pl/blog'}
