@@ -5,6 +5,11 @@ export type BlogSection = {
   paragraphs: string[];
 };
 
+export type BlogSource = {
+  label: string;
+  url: string;
+};
+
 export type BlogArticle = {
   id: string;
   slug: string;
@@ -14,6 +19,7 @@ export type BlogArticle = {
   description: string;
   tags: string[];
   sections: BlogSection[];
+  sources?: BlogSource[];
 };
 
 const montessoriPl: BlogArticle = {
@@ -787,6 +793,82 @@ const septemberQ4PlanningPl: BlogArticle = {
   ],
 };
 
+const adhdPlanningPl: BlogArticle = {
+  id: 'adhd-linear-calendar',
+  slug: '2026-09-09-adhd-planowanie-kalendarz-liniowy',
+  date: '2026-09-09',
+  title:
+    'ADHD i planowanie - dlaczego kalendarz liniowy może być najlepszym rozwiązaniem?',
+  lead: 'Planowanie z ADHD potrafi być wyzwaniem. Chęci i zapału zazwyczaj nie brakuje - podczas układania planów terminy, priorytety i kolejne etapy łatwo znikają z pola widzenia. Zwłaszcza priorytety, które potrafią zmienić się z minuty na minutę. Kalendarz liniowy pokazuje czas jako jedną ciągłą oś. Dla wielu osób może być prostym sposobem na odciążenie pamięci i zobaczenie, co wydarzy się za tydzień, miesiąc i kilka miesięcy.',
+  description:
+    'ADHD i planowanie czasu - sprawdź, jak kalendarz liniowy może ułatwić dostrzeganie terminów, etapów zadań oraz przerw między wydarzeniami.',
+  tags: [
+    'ADHD i planowanie',
+    'kalendarz dla osób z ADHD',
+    'kalendarz liniowy',
+    'planowanie czasu z ADHD',
+    'organizacja czasu ADHD',
+    'planowanie zadań',
+    'kalendarz do druku',
+    'wizualne planowanie czasu',
+  ],
+  sections: [
+    {
+      heading: 'Dlaczego planowanie przy ADHD bywa trudne?',
+      paragraphs: [
+        'ADHD może wpływać na koncentrację, organizację, zarządzanie czasem i kończenie rozpoczętych zadań. Nie każda osoba doświadcza tych trudności w ten sam sposób. Jedna zapomina o odległych terminach, druga odkłada rozpoczęcie dużego projektu, a jeszcze inna tworzy rozbudowany plan, po czym przestaje do niego zaglądać.',
+        'Problemem nie zawsze jest brak kalendarza. Czasem narzędzi jest wręcz za dużo: aplikacja do zadań, kalendarz w telefonie, notatki, wiadomości oznaczone gwiazdką i kartka leżąca na biurku. Każde z tych miejsc przechowuje część planu, ale żadne nie pokazuje całego obrazu. Wydarzenia w aplikacji, przypomnienia i listy nie pokazują przy tym czegoś bardzo ważnego: jak długo trwają zdarzenia i ile czasu rzeczywiście pozostaje między nimi.',
+      ],
+    },
+    {
+      heading: 'Kiedy czasu nie widać, łatwiej stracić go z oczu',
+      paragraphs: [
+        'Klasyczny kalendarz dzieli rok na miesiące i strony. To wygodne rozwiązanie, ale ma pewną wadę: koniec kartki wygląda jak koniec okresu planowania. Termin zapisany na kolejnej stronie może wydawać się odległy, chociaż dzieli nas od niego tylko kilka dni.',
+        'Kalendarz liniowy przedstawia dni, tygodnie i miesiące na jednej osi. Czas nie znika przy zmianie strony, a wydarzenia zajmują rzeczywiste odcinki. Dzięki temu można zobaczyć nie tylko datę oddania projektu, ale również przestrzeń potrzebną na przygotowanie materiałów, konsultacje, wykonanie i poprawki. Dla osoby, która potrzebuje widocznego upływu czasu, taki układ może być jednym z najlepszych i najprostszych rozwiązań.',
+      ],
+    },
+    {
+      heading: 'Kalendarz liniowy przenosi plan z pamięci na papier',
+      paragraphs: [
+        'The Awesome Calendar to kalendarz liniowy do wydrukowania, który pozwala spojrzeć na cały rok bez przełączania widoków. Możesz zaznaczyć na nim projekty, wizyty, wyjazdy, szkolne terminy, płatności i czas na odpoczynek. Wszystkie te elementy zaczynają tworzyć jedną mapę zamiast zbioru niezależnych przypomnień.',
+        'Papierowy kalendarz warto umieścić w miejscu, na które spoglądasz każdego dnia. Nie trzeba pamiętać o otwarciu aplikacji ani wybierać odpowiedniego widoku. Plan pozostaje widoczny, a zaznaczenie aktualnego dnia pozwala szybko sprawdzić, co jest blisko i ile czasu naprawdę zostało.',
+      ],
+    },
+    {
+      heading: 'Jak używać kalendarza liniowego przy ADHD?',
+      paragraphs: [
+        'Najpierw wpisz daty, których nie możesz przesunąć: wizyty, wyjazdy, egzaminy, końce projektów i ważne rodzinne wydarzenia. Następnie wybierz jeden większy cel i zaplanuj go od końca. Zaznacz termin, a potem dopisz wcześniejsze etapy. Duże zadanie zmienia się wtedy w kilka mniejszych kroków rozmieszczonych na osi czasu.',
+        'Nie próbuj od razu szczegółowo planować całego roku. Możesz zacząć od najbliższych sześciu lub ośmiu tygodni. Użyj dwóch albo trzech kolorów, na przykład dla pracy, życia prywatnego i odpoczynku. Im prostszy system, tym mniej energii wymaga jego utrzymanie.',
+        'Kalendarz w telefonie nadal może przypominać o konkretnej godzinie spotkania. Papierowy kalendarz liniowy pełni inną funkcję: pokazuje szerszą perspektywę. Te dwa narzędzia nie muszą ze sobą konkurować. Telefon może pilnować szczegółów dnia, a kalendarz na ścianie pomagać w ocenie całych tygodni i miesięcy.',
+      ],
+    },
+    {
+      heading: 'Dobry plan wspiera, zamiast oceniać',
+      paragraphs: [
+        'Kalendarz nie diagnozuje ani nie leczy ADHD. Może jednak wspierać codzienną organizację, pomagać w zapisywaniu ważnych dat i ograniczać liczbę rzeczy, o których trzeba pamiętać. Jeśli plan przestaje działać, nie oznacza to porażki. Być może potrzebuje mniej szczegółów, innego miejsca albo prostszego oznaczenia priorytetów.',
+        'Najlepszy kalendarz to taki, który pozostaje zrozumiały i do którego chce się wracać. Dla wielu osób z ADHD właśnie kalendarz liniowy może być dobrym wyborem, ponieważ zamienia abstrakcyjny czas w widoczną przestrzeń. Nie rozwiązuje każdego problemu, ale może sprawić, że następny krok, termin i wolne miejsce pomiędzy nimi staną się łatwiejsze do zauważenia.',
+      ],
+    },
+  ],
+  sources: [
+    {
+      label:
+        'NIMH: ADHD u dorosłych - organizacja, planowanie i zarządzanie czasem',
+      url: 'https://www.nimh.nih.gov/health/publications/adhd-what-you-need-to-know',
+    },
+    {
+      label:
+        'Metaanaliza: zdolności postrzegania czasu u osób z ADHD (Journal of the American Academy of Child & Adolescent Psychiatry, 2022)',
+      url: 'https://pubmed.ncbi.nlm.nih.gov/34923055/',
+    },
+    {
+      label:
+        'Badanie randomizowane: trening zarządzania czasem, organizacji i planowania u dorosłych z ADHD (American Journal of Psychiatry, 2010)',
+      url: 'https://pubmed.ncbi.nlm.nih.gov/20231319/',
+    },
+  ],
+};
+
 const bestCalendarEn: BlogArticle = {
   id: 'best-calendar',
   slug: '2026-02-03-what-is-the-best-calendar',
@@ -1449,8 +1531,83 @@ const septemberQ4PlanningEn: BlogArticle = {
   ],
 };
 
+const adhdPlanningEn: BlogArticle = {
+  id: 'adhd-linear-calendar',
+  slug: '2026-09-09-adhd-planning-linear-calendar',
+  date: '2026-09-09',
+  title: 'ADHD and planning - why a linear calendar may be the best solution',
+  lead: 'Planning with ADHD can be challenging. There is usually no shortage of motivation or enthusiasm - while making plans, deadlines, priorities and next steps can easily slip out of view. Priorities in particular may seem to change from one minute to the next. A linear calendar presents time as one continuous timeline. For many people, it can be a simple way to reduce the load on memory and see what will happen in a week, a month and several months.',
+  description:
+    'ADHD and time planning - learn how a linear calendar can make deadlines, stages of a task and the real gaps between events easier to see.',
+  tags: [
+    'ADHD and planning',
+    'calendar for people with ADHD',
+    'linear calendar',
+    'time planning with ADHD',
+    'ADHD time management',
+    'task planning',
+    'printable calendar',
+    'visual time planning',
+  ],
+  sections: [
+    {
+      heading: 'Why can planning be difficult with ADHD?',
+      paragraphs: [
+        'ADHD can affect concentration, organisation, time management and the ability to complete tasks that have already been started. Not everyone experiences these difficulties in the same way. One person may forget distant deadlines, another may postpone starting a large project, while someone else creates an elaborate plan and then stops looking at it.',
+        'The problem is not always a lack of calendars. Sometimes there are simply too many tools: a task app, a calendar on your phone, notes, starred messages and a sheet of paper on your desk. Each of these places holds part of the plan, but none shows the complete picture. Events in an app, reminders and lists also leave out something important: how long events last and how much time actually remains between them.',
+      ],
+    },
+    {
+      heading: 'When time is not visible, it is easier to lose sight of it',
+      paragraphs: [
+        'A conventional calendar divides the year into months and pages. This is convenient, but it has a drawback: the end of a page can feel like the end of the planning period. A deadline written on the next page may seem distant even when it is only a few days away.',
+        'A linear calendar presents days, weeks and months on one timeline. Time does not disappear when a page changes, and events occupy real sections of the line. You can see not only a project deadline, but also the space needed to prepare materials, consult other people, do the work and make revisions. For someone who needs the passage of time to remain visible, this format may be one of the best and simplest solutions.',
+      ],
+    },
+    {
+      heading: 'A linear calendar moves the plan from memory onto paper',
+      paragraphs: [
+        'The Awesome Calendar is a printable linear calendar that lets you view the whole year without switching between screens. You can use it to mark projects, appointments, trips, school dates, payments and time for rest. These elements begin to form one map instead of a collection of separate reminders.',
+        'It helps to place a paper calendar somewhere you look every day. You do not need to remember to open an app or select the right view. The plan remains visible, and marking the current day makes it easy to check what is approaching and how much time is actually left.',
+      ],
+    },
+    {
+      heading: 'How can you use a linear calendar with ADHD?',
+      paragraphs: [
+        'Start by entering dates you cannot move: appointments, trips, exams, project deadlines and important family events. Then choose one larger goal and plan backwards from its deadline. Mark the final date and add the earlier stages. A large task becomes a series of smaller steps placed along the timeline.',
+        'Do not try to plan the entire year in detail straight away. You can begin with the next six or eight weeks. Use two or three colours, perhaps one for work, one for personal life and one for rest. The simpler the system, the less energy it requires to maintain.',
+        'Your phone calendar can still remind you about the exact time of a meeting. A paper linear calendar has a different role: it shows the wider perspective. The two tools do not need to compete. Your phone can take care of the details of the day, while the calendar on the wall helps you assess whole weeks and months.',
+      ],
+    },
+    {
+      heading: 'A good plan supports you instead of judging you',
+      paragraphs: [
+        'A calendar does not diagnose or treat ADHD. It can, however, support everyday organisation, help record important dates and reduce the number of things you need to remember. If a plan stops working, that does not mean you have failed. It may need less detail, a different location or a simpler way to mark priorities.',
+        'The best calendar is one that remains understandable and that you want to return to. For many people with ADHD, a linear calendar may be a good choice because it turns abstract time into visible space. It will not solve every problem, but it can make the next step, a deadline and the free space between them easier to notice.',
+      ],
+    },
+  ],
+  sources: [
+    {
+      label:
+        'NIMH: ADHD in adults - organisation, planning and time management',
+      url: 'https://www.nimh.nih.gov/health/publications/adhd-what-you-need-to-know',
+    },
+    {
+      label: 'Meta-analysis: altered perceptual timing abilities in ADHD',
+      url: 'https://pubmed.ncbi.nlm.nih.gov/34923055/',
+    },
+    {
+      label:
+        'Randomised study: time-management, organisation and planning training for adults with ADHD',
+      url: 'https://pubmed.ncbi.nlm.nih.gov/20231319/',
+    },
+  ],
+};
+
 export const BLOG_ARTICLES: Record<SiteLanguage, BlogArticle[]> = {
   pl: [
+    adhdPlanningPl,
     septemberQ4PlanningPl,
     freeCalendar2027Pl,
     multipleChildrenPl,
@@ -1467,6 +1624,7 @@ export const BLOG_ARTICLES: Record<SiteLanguage, BlogArticle[]> = {
     montessoriPl,
   ],
   en: [
+    adhdPlanningEn,
     septemberQ4PlanningEn,
     freeCalendar2027En,
     multipleChildrenEn,
@@ -1496,6 +1654,9 @@ export const BLOG_COPY = {
     readArticle: 'Czytaj artykuł',
     published: 'Opublikowano',
     keywords: 'Słowa kluczowe',
+    sources: 'Badania i źródła',
+    sourcesNote:
+      'Materiały opisują ADHD, postrzeganie czasu i strategie planowania. Nie badają skuteczności konkretnego kalendarza.',
     allArticles: 'Wszystkie artykuły',
     backToBlog: 'Wróć do bloga',
     download: {
@@ -1521,6 +1682,9 @@ export const BLOG_COPY = {
     readArticle: 'Read article',
     published: 'Published',
     keywords: 'Keywords',
+    sources: 'Research and sources',
+    sourcesNote:
+      'These materials cover ADHD, time perception and planning strategies. They do not test the effectiveness of any specific calendar.',
     allArticles: 'All articles',
     backToBlog: 'Back to the blog',
     download: {

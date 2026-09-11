@@ -2368,6 +2368,36 @@ html[lang='en'] h1 { font-size: clamp(3.4rem, 6.5vw, 7.5rem); }
   margin: 0;
   max-width: 780px;
 }
+.blog-article-sources {
+  border-top: 2px solid var(--ink);
+  margin-top: clamp(52px, 8vw, 90px);
+  max-width: 780px;
+  padding-top: 24px;
+}
+.blog-article-sources h2 {
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  margin: 0 0 12px;
+}
+.blog-article-sources p {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  margin: 0 0 18px;
+}
+.blog-article-sources ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 20px;
+}
+.blog-article-sources a {
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+.blog-article-sources a:hover {
+  text-decoration-thickness: 3px;
+}
 .blog-download-cta {
   background: var(--yellow);
   border: 2px solid var(--ink);

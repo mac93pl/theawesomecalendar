@@ -42,6 +42,35 @@ function ArticleTags({
   );
 }
 
+function ArticleSources({
+  article,
+  language,
+}: {
+  article: BlogArticle;
+  language: SiteLanguage;
+}) {
+  if (!article.sources?.length) return null;
+
+  return (
+    <section
+      aria-labelledby="article-sources-title"
+      className="blog-article-sources"
+    >
+      <h2 id="article-sources-title">{BLOG_COPY[language].sources}</h2>
+      <p>{BLOG_COPY[language].sourcesNote}</p>
+      <ul>
+        {article.sources.map((source) => (
+          <li key={source.url}>
+            <a href={source.url} rel="noreferrer" target="_blank">
+              {source.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export function BlogIndexPage({ language }: { language: SiteLanguage }) {
   const copy = BLOG_COPY[language];
   const alternateLanguage = language === 'pl' ? 'en' : 'pl';
@@ -124,6 +153,9 @@ export function BlogArticlePage({
     mainEntityOfPage: articleUrl,
     author: { '@type': 'Person', name: 'Maciej Dorotniak' },
     publisher: { '@type': 'Organization', name: SITE_NAME },
+    ...(article.sources
+      ? { citation: article.sources.map((source) => source.url) }
+      : {}),
   };
 
   return (
@@ -168,6 +200,7 @@ export function BlogArticlePage({
                 </div>
               ))}
             </div>
+            <ArticleSources article={article} language={language} />
             <ArticleTags article={article} language={language} />
           </article>
         </div>
