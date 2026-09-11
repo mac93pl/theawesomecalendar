@@ -280,7 +280,7 @@ export const COPY = {
     },
     footer: {
       line: 'Kalendarz liniowy',
-      copyright: '© 2026 · Maciej Dorotniak',
+      copyright: '© 2026 · MD',
       madeIn: 'Wyprodukowane w Polsce 🇵🇱',
       permission:
         'Możesz korzystać, udostępniać i tworzyć własne wersje — zgodnie z poniższymi licencjami.',
@@ -576,7 +576,7 @@ export const COPY = {
     },
     footer: {
       line: 'Linear calendar',
-      copyright: '© 2026 · Maciej Dorotniak',
+      copyright: '© 2026 · MD',
       madeIn: 'Made in Poland 🇵🇱',
       permission:
         'You may use, share and make your own versions — under the licences below.',
